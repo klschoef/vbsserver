@@ -1,0 +1,152 @@
+-var prefix = ""  // for local development
+//-var prefix = "/vbs/videos/"  // for deployment on demo2.itec.aau.at (because static content is served by nginx)
+
+doctype html
+html
+    head
+        title VBSServer - Edit
+        script(src=prefix + 'scripts/3rdParty/jquery.js')
+        script(src=prefix + 'scripts/3rdParty/jquery-ui.js')
+        script(src=prefix + 'scripts/3rdParty/jquery-confirm/dist/jquery-confirm.min.js')
+        script(src=prefix + 'scripts/3rdParty/socket.io/dist/socket.io.js')
+        script(src=prefix + 'scripts/3rdParty/toastr/build/toastr.min.js')        
+        script(src=prefix + 'scripts/ClientSockets.js')                
+        script(src=prefix + 'scripts/edit/EditUsers.js')
+        script(src=prefix + 'scripts/edit/EditCompetitions.js')
+        script(src=prefix + 'scripts/edit/EditTasks.js')
+        script(src=prefix + 'scripts/edit/EditTeams.js')
+        script(src=prefix + 'scripts/edit/Edit.js')
+        link(rel='stylesheet', href=prefix + 'stylesheets/editStyle.css')
+        link(rel='stylesheet', href=prefix + 'stylesheets/jquery-ui.css')
+        link(rel='stylesheet', href=prefix + 'scripts/3rdParty/jquery-confirm/dist/jquery-confirm.min.css')
+        link(rel='stylesheet', href=prefix + 'scripts/3rdParty/toastr/build/toastr.min.css')
+        script(type="text/javascript").
+            var config = JSON.parse(new String('#{config}').replace(/&quot;/g, "\""));
+    body(onunload="edit.unload()")
+    
+        div(id="userDiv" class="containerDiv")
+            label User
+            select(id="userSelect" onchange="edit.userSelected()")
+            hr    
+            div(id="userBody" class="bodyDiv")
+                label Name
+                input(type="text" id="userName")
+                label TODO...
+                
+        div(id="competitionDiv" class="containerDiv")
+            label Competition 
+            select(id="competitionSelect" onchange="edit.competitionSelected()")
+            button(type="button" id="addCompetitionButton" onclick="edit.addCompetitionButtonClicked()") Add
+            button(type="button" id="deleteCompetitionButton" onclick="edit.deleteCompetitionButtonClicked()") Delete
+            button(type="button" id="cloneCompetitionButton" onclick="edit.cloneCompetitionButtonClicked()") Clone
+            hr
+            div(id="competitionBody" class="bodyDiv")
+                label Name
+                input(type="text" id="competitionName" onchange="edit.competitionNameChanged()")
+                br
+                label Started
+                input(type="checkbox" id="competitionStarted" disabled)
+                label(id="competitionStartTime")
+                br
+                label Finished
+                input(type="checkbox" id="competitionFinished" disabled)
+                label(id="competitionEndTime")
+                
+                div(id="taskDiv" class="containerDiv")
+                    label Task
+                    select(id="taskSelect" onchange="edit.taskSelected()")
+                    button(type="button" id="addTaskButton" onclick="edit.addTaskButtonClicked()") Add
+                    button(type="button" id="deleteTaskButton" onclick="edit.deleteTaskButtonClicked()") Delete
+                    
+                    hr
+                    div(id="taskBody" class="bodyDiv")
+                        label Name
+                        input(type="text" id="taskName" onchange="edit.taskNameChanged()")
+                        label Search Time (sec.)
+                        input(type="number" id="taskSearchTime" min=1 class="taskConditionallyEnabled" onchange="edit.taskSearchTimeChanged()")
+                        label Running
+                        input(type="checkbox" id="taskRunning" disabled)
+                        label Finished
+                        input(type="checkbox" id="taskFinished" disabled)
+                        br
+                        label Type
+                        select(id="taskTypeSelect" onchange="edit.taskTypeChanged()" class="taskConditionallyEnabled")
+                            option(disabled)= "Select Task Type"
+                            option()= 'KIS_Visual'
+                            option()= 'KIS_Textual'
+                            option()= 'AVS'
+                            option()= 'KIS_Visual_novice'
+                            option()= 'KIS_Textual_novice'
+                            option()= 'AVS_novice'
+                        div(id="taskQueryDiv" class="containerDiv")
+                            div(id="kisQueryDiv" class="taskQueryOption")
+                                span
+                                div(id="queryVideoWrapper")
+                                    video(id="queryVideo" controls)
+                                    div(id="queryVideoRangeDiv")
+                                        table(id="queryVideoTable")
+                                            tr
+                                                td
+                                                    label Video number
+                                                td
+                                                    input(type="number" id="kisVideoNumber" class="taskConditionallyEnabled" onchange="edit.kisVideoNumberChanged()")
+                                                td
+                                                    button(type="button" id="kisRandomVideo" class="taskConditionallyEnabled" onclick="edit.kisRandomVideo()") Random
+                                            tr
+                                                td
+                                                    label Start frame
+                                                td
+                                                    input(type="number" id="kisStartFrame" class="taskConditionallyEnabled" min=0 onchange="edit.kisStartFrameChanged()")
+                                                td
+                                                    button(type="button" class="taskConditionallyEnabled" onclick="edit.kisVideoSetStart()") Set Start                                        
+                                            tr
+                                                td
+                                                    label End frame
+                                                td
+                                                    input(type="number" id="kisEndFrame" disabled)                                                
+                                            tr
+                                                td
+                                                    label Duration
+                                                td
+                                                    input(type="number" id="kisSegmentLength" class="taskConditionallyEnabled" onchange="edit.kisSegmentLengthChanged()" min=1)
+                                            tr
+                                                td                                               
+                                                    label Loop                                
+                                                td(id="loopField")
+                                                    input(type="checkbox" id="videoLoop" checked)                                    
+                                div(id="queryVideoInfo")                                           
+                                    div(id="kisVideoName" disabled) video name                                    
+                                    label Framerate
+                                    input(type="number" step="any" id="kisVideoFps" disabled)
+                                    label Duplicates
+                                    input(type="text" id="kisDuplicates" disabled value="TODO...")                                
+                                div(id="kisTextualQueryDiv" class="taskQueryOption")
+                                    div(id="kisTextListContainer")                                    
+                                    button(type="button" id="addKISTextBtn" class="taskConditionallyEnabled" onclick="edit.addKISText()") Add
+                                    button(type="button" id="deleteKISTextBtn" class="taskConditionallyEnabled" onclick="edit.deleteKISText()") Delete
+                            div(id="avsQueryDiv" class="taskQueryOption")
+                                label TrecvidId
+                                input(type="text" id="trecvidId" class="taskConditionallyEnabled" onchange="edit.trecvidIdChanged()")                                
+                                textarea(id="avsQueryText" rows="8" cols="100" class="taskConditionallyEnabled" onchange="edit.avsQueryTextChanged()")
+                            
+                div(id="teamDiv" class="containerDiv")
+                    label Team
+                    select(id="teamSelect" onchange="edit.teamSelected()")
+                    button(type="button" id="addTeamButton" onclick="edit.addTeamButtonClicked()") Add
+                    button(type="button" id="deleteTeamButton" onclick="edit.deleteTeamButtonClicked()") Delete
+                    button(type="button" id="presetTeamButton" onclick="edit.presetTeamButtonClicked()") 2018 Preset                   
+                    hr
+                    div(id="teamBody" class="bodyDiv")                        
+                        img(src="images/logos/default.png" id="teamLogo" height=64 onclick="edit.showTeamLogoUpload()")
+                        label Name
+                        input(type="text" id="teamName" onchange="edit.teamNameChanged()")
+                        label Team number
+                        input(type="number" id="teamNumber" min=1 onchange="edit.teamNumberChanged()")
+                        label Color
+                        input(type="color" id="teamColor" onchange="edit.teamColorChanged()")
+                        //- label Score
+                        //- input(type="number" width=50 id="teamScore" disabled)         
+                        div(id="teamLogoUpload")
+                            input(type="file" id="teamLogoFile" accept=".png" onchange="edit.teamLogoUpload()")
+                            button(type="button" onclick="edit.hideTeamLogoUpload()") X
+                   

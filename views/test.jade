@@ -1,0 +1,58 @@
+-var prefix = ""  // for local development
+//-var prefix = "/vbs/videos/"  // for deployment on demo2.itec.aau.at (because static content is served by nginx)
+
+doctype html
+html
+    head
+        title VBSServer - Test
+        script(src=prefix + 'scripts/3rdParty/jquery.js')
+        script(src=prefix + 'scripts/3rdParty/jquery-ui.js')
+        script(src=prefix + 'scripts/3rdParty/jquery-confirm/dist/jquery-confirm.min.js')        
+        script(src=prefix + 'scripts/3rdParty/socket.io/dist/socket.io.js')
+        script(src=prefix + 'scripts/3rdParty/toastr/build/toastr.min.js')
+        script(src=prefix + 'scripts/3rdParty/mustache.js/mustache.min.js')
+        script(src=prefix + 'scripts/ClientSockets.js')        
+        script(src=prefix + 'scripts/Test.js')
+        link(rel='stylesheet', href=prefix + 'stylesheets/testStyle.css')
+        link(rel='stylesheet', href=prefix + 'stylesheets/jquery-ui.css')
+        link(rel='stylesheet', href=prefix + 'scripts/3rdParty/jquery-confirm/dist/jquery-confirm.min.css')
+        link(rel='stylesheet', href=prefix + 'scripts/3rdParty/toastr/build/toastr.min.css')
+        script(type="text/javascript").
+            var config = JSON.parse(new String('#{config}').replace(/&quot;/g, "\""));
+    body
+        button(type="button" onclick="test.constructCompetition()") Construct new competition
+        button(type="button" onclick="test.refresh()") Refresh
+        h3 Current Competition
+        div(id="currentCompetition" class="info")        
+        h3 Current Task
+        div(id="currentTask" class="info")        
+        h3 Teams
+        div(id="teams" class="info")
+        div(id="controlDiv")
+            select(id="teamSelect")
+            span Submit
+            span(id="kisBtns")      
+                button(type="button" id="correctSubmitBtn" onclick="test.correctSubmit()") Correct
+                button(type="button" id="allCorrectBtn" onclick="test.allCorrect()") All Teams Correct
+                button(type="button" id="wrongSubmitBtn" onclick="test.wrongSubmit()") Wrong
+            span(id="avsBtns")
+                button(type="button" id="randomSubmitBtn" onclick="test.randomSubmit()") Random                
+                button(type="button" id="randomBatch" onclick="test.randomBatch()") Random Batch
+                br
+                span(class="optionsGroup")
+                    input(type="number" id="randomAmount" min=1 max=10000 value=10)
+                    span submissions in
+                    input(type="number" id="randomDuration" min=1 max=300 value=2)
+                    span seconds
+                span(class="optionsGroup")                
+                    span judge delay
+                    input(type="number" id="judgeMinDelay" min=0 max=5000 value=200)
+                    span -
+                    input(type="number" id="judgeMaxDelay" min=0 max=30000 value=1000)
+                    span ms
+                span(class="optionsGroup")
+                    label Limit videos
+                    input(type="checkbox" id="limitNumVideos" onchange="test.limitVideos()")
+                    input(type="number" id="numVideos" min=0 max=10000 value=20 onchange="test.limitVideos()")
+        textarea(id="logArea" rows=30 spellcheck="false")
+        button(onclick="test.clearLog()") Clear Log

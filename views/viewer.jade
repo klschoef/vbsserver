@@ -1,0 +1,95 @@
+-var prefix = ""  // for local development
+//-var prefix = "/vbs/videos/"  // for deployment on demo2.itec.aau.at (because static content is served by nginx)
+
+doctype html
+html
+    head
+        title VBSServer - Viewer
+        script(src=prefix+'scripts/3rdParty/jquery.js')
+        script(src=prefix+'scripts/3rdParty/jquery-ui.js')
+        script(src=prefix+'scripts/3rdParty/socket.io/dist/socket.io.js')
+        script(src=prefix + 'scripts/3rdParty/toastr/build/toastr.min.js')
+        script(src=prefix + 'scripts/3rdParty/mustache.js/mustache.min.js')
+        script(src=prefix + 'scripts/3rdParty/chartist/dist/chartist.min.js')
+        script(src=prefix + 'scripts/3rdParty/chartist-plugin-barlabels/dist/chartist-plugin-barlabels.min.js')
+        script(src=prefix+'scripts/ClientSockets.js')
+        script(src=prefix+'scripts/viewer/Viewer.js')
+        script(src=prefix+'scripts/viewer/ViewerGUI.js')
+        script(src=prefix+'scripts/viewer/TeamGUI.js')
+        script(src=prefix+'scripts/viewer/QueryGUI.js')
+        script(src=prefix+'scripts/viewer/ResultsGUI.js')
+        script(src=prefix+'scripts/extraction/ExtractionJob.js')
+        script(src=prefix+'scripts/extraction/FrameExtractor.js')       
+        script(src=prefix+'scripts/extraction/ExtractorPool.js')        
+        link(rel='stylesheet', href=prefix + 'stylesheets/viewerStyle.css')
+        link(rel='stylesheet', href=prefix + 'stylesheets/jquery-ui.css')
+        link(rel='stylesheet', href=prefix + 'scripts/3rdParty/toastr/build/toastr.min.css')
+        link(rel='stylesheet', href=prefix + 'scripts/3rdParty/chartist/dist/chartist.min.css')
+        script(type="text/javascript").
+            var config = JSON.parse(new String('#{config}').replace(/&quot;/g, "\""));
+    body    
+        h1(id="title")        
+        img(id="zoomReset" src="images/zoom_reset.png" onclick="viewer.gui.resetZoom()")
+        div(id="loadingDiv")
+            img(src="images/page_loading.gif")
+        div(id="countdownDiv")
+            div(class="countdownText") Next Task will start in
+            div(id="countdownTime") 5
+            div(class="countdownText") seconds
+            div(class="countdownText") Don't forget to reset your action sequence log!
+            
+        
+        div(id="content")
+
+            div(id="topArea")
+
+                div(id="overallScore" class="scoreDiv topItem")
+                    h3 Overall Score
+                    div(id="overallScoreChart" class="ct-chart")
+
+                div(id="queryDiv" class="topItem")            
+                    div(id="queryVideoWrapper")
+                        video(id="queryVideo" onclick="viewer.gui.queryGUI.openVideo()")
+                    div(id="queryVideoControlDiv")    
+                        button(id="playBtn" class="videoCtrlButton" onclick="viewer.gui.queryGUI.togglePlay()")
+                        button(id="muteBtn" class="videoCtrlButton" onclick="viewer.gui.queryGUI.toggleMute()")                         
+                    div(id="queryTextWrapper")
+                        div(id="queryText")                    
+                    div(id="avsExtraInfo")
+                        table(id="avsInfoTable")
+                            tr
+                                td Submissions:
+                                td(id="avsNumSubmissions" class="avsInfoItem")
+                                td Videos:
+                                td(id="avsNumVideos" class="avsInfoItem")
+                            tr            
+                                td Unjudged:
+                                td(id="avsNumOpenJudgements" class="avsInfoItem")
+                                td Ranges:
+                                td(id="avsNumRanges" class="avsInfoItem")                    
+                    span(id="timer")
+
+                div(id="subScore" class="scoreDiv topItem")
+                    h3(id="subScoreTitle") Sub Score
+                    div(id="subScoreChart" class="ct-chart")
+
+            div(id="teamContainer")
+
+            div(id="teamTemplate" class="template")
+                div(class="teamDiv" id="team_{{_id}}")
+                    //- p(class="teamNumber") {{teamNumber}}
+                    p(class="teamName") {{name}}
+                    div(class="teamBody")
+                        div(class="logoContainer")
+                            img(class="logo" src="{{logoSrc}}")
+                        div(class="scoreInfo teamScore") 
+                        div(class="scoreInfo scoreDetails") 
+                    div(class="thumbContainer")
+
+        
+        div(id="thumbTemplate" class="template")
+            div(class="thumbDiv" id="thumb_{{_id}}")
+                canvas(class="thumbCanvas")
+                div(class="thumbOverlay")
+                        
+                

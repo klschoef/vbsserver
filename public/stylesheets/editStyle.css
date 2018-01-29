@@ -1,0 +1,126 @@
+body {
+    background-color: black;
+    color: white;
+    font-family: sans-serif;    
+}
+
+hr {
+    border-color: #999;
+}
+
+.containerDiv {
+    border-radius: 3px;
+    padding: 10px;
+    border: 1px solid #111;
+    margin: 10px;
+}
+
+.bodyDiv {
+    display: none;
+}
+
+#userDiv {
+    background-color: #bbb;
+    color: black;
+    display: none;
+}
+
+#competitionDiv {
+    background-color: #222;
+}
+
+#taskDiv {
+    background-color: #444;    
+}
+
+#taskQueryDiv {
+    background-color: #666;
+    margin: 8px;
+}
+
+#teamDiv {
+    background-color: #444;
+}
+
+#teamBody {
+    display: flex;
+    align-items: center;
+}
+
+#teamLogoUpload {
+    display: none;
+    position: absolute;
+    padding: 12px;    
+    background-color: #222;
+    border: 1px solid #444;
+    border-radius: 3px;
+}
+
+#teamLogo, #teamColor {
+    cursor: pointer;
+}
+
+label {
+    margin: 10px;
+}
+
+input, textarea {
+    margin: 10px;  
+    /*background-color: #ccc;*/
+}
+
+input[type="number"] {
+    width:60px;
+}
+
+button {
+    cursor: pointer;
+    margin: 3px;
+}
+
+.taskQueryOption {    
+    display: none;
+}
+#queryVideoWrapper {
+    display: flex;
+}
+
+#queryVideoTable {
+    text-align: right;
+}
+
+#loopField {
+    text-align: left;
+}
+
+#kisVideoName {
+    color: blue;
+}
+
+#kisTextualQueryDiv {
+    background-color: #222;
+    border: 1px solid #333;
+    border-radius: 5px;
+}
+
+#kisTextListContainer {
+    display: flex;
+    flex-direction: column;
+}
+
+.kisTextListItem {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+}
+
+#avsQueryDiv {
+    display: flex;
+    align-items: center;
+}
+
+.jconfirm-box {
+    /* center jquery-confirm dialogs */
+    margin-left: auto;
+    margin-right: auto;
+}

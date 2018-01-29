@@ -1,0 +1,307 @@
+body {
+    background: black;
+    color: white;
+}
+
+#loadingDiv{
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 99999;
+    background: black;    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#countdownDiv {
+    display: none;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 99999;
+    background: black;    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#countdownTime {
+    font-size: 10rem;
+    font-weight: bolder;
+}
+
+.countdownText {
+    font-size: 4rem;
+    margin: 12px;
+    font-weight: bold;
+}
+
+#content {
+    display: none;
+}
+
+h1 {
+    text-align: center;
+    background: #222;
+    color: #eee;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 5px;    
+    margin: 0px;
+    margin-bottom: 5px;
+    font-size: 15pt;
+}
+
+#zoomReset {
+    width: 24px;
+    height: 24px;
+    position: absolute;
+    top: 9px;
+    left: calc(100% - 43px);
+    cursor: pointer;
+    border: 4px solid transparent;
+}
+
+#zoomReset:hover {
+    background-color: #555;
+    border: 4px solid #555;
+    border-radius: 5px;    
+}
+
+h3 {
+    margin: 0px;
+}
+
+button {
+    cursor: pointer;
+}
+
+#topArea {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.topItem {        
+    flex-grow: 1;    
+    text-align: center;
+    margin: 5px;
+}
+
+.ct-label-custom {    
+    font-size: 1rem;
+    fill: white;
+    stroke: #ccc;
+}
+
+#queryVideo {
+    display: none;
+    cursor: pointer;
+    margin: 0px;
+    padding: 0px;
+    zoom: 1;
+}
+
+.videoCtrlButton {
+    display: none;
+    width: 32px;
+    height: 32px;
+    background-color: transparent;
+    border: 4px solid transparent;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;    
+    -webkit-user-select: none; 
+}
+
+.videoCtrlButton:hover {
+    background-color: #555;
+    border: 4px solid #555;
+    border-radius: 5px;
+}
+
+#playBtn {    
+    background-image: url("../images/pause.png");
+}
+
+#muteBtn {
+    background-image: url("../images/unmute.png");
+}
+
+#queryText {
+    display: none;
+    font-size: 20pt;
+    background-color: #111;
+    border: 1px solid #222;
+    border-radius: 4px;
+    padding: 24px;
+    margin: 0px;
+    text-align: center;
+}
+
+
+#timer {
+    color: white;
+    font-size: 60pt;
+    margin: 2px;
+}
+
+#avsExtraInfo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    font-size: 1.25rem;
+    /*background-color: #111;*/
+    /*border: 1px solid #222;*/
+    border-radius: 5px;
+    padding: 8px;
+    margin: 5px;
+}
+
+#avsInfoTable {
+    text-align: right;
+}
+
+.avsInfoItem {
+    padding-right: 20px;
+}
+
+#teamContainer {
+    display: flex;    
+    flex-wrap: nowrap;
+    margin: 8px;
+    justify-content: center;
+}
+
+.teamDiv {    
+    border: 1px solid #555;
+    color: #222;
+    border-radius: 13px;
+    display: block;
+    margin: 5px;
+    padding: 7px;
+    text-align: center;
+}
+
+.teamNumber {
+    font-size: 16pt;
+    color: #ddd;
+    margin: 2px;
+    font-family: sans-serif;
+    font-weight: normal;
+}
+
+.teamName {
+    font-size: 20pt;
+    color: white;    
+    margin: 2px;
+    font-family: sans-serif;
+    font-weight: normal;
+}
+
+.teamBody {
+    padding: 0px;
+    border-radius: 6px;
+}
+
+.logoContainer {
+    margin: 0px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo {
+    border-radius: 10px;
+    width: 128px;
+    max-height: 64px;
+    padding: 3px;
+}
+
+.scoreInfo {
+    color: white;
+    /*background: #333;*/
+}
+
+.teamScore {
+    font-size: 28pt;
+    font-weight: bolder;
+}
+
+.scoreDetails {
+    font-size: 13pt;
+    font-style: italic;
+}
+
+.thumbContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    margin-top:5px;
+}
+
+.thumbDiv {
+    cursor: pointer;
+    /* 16:10 is a compromise between different of formats*/
+    width: 320px;    
+    height: 200px;    
+    margin: 6px;
+    border: 8px solid gold;
+    outline: 2px solid black;   
+    position: relative;
+}
+
+.thumbPending {
+    border: 8px solid gold;
+}
+
+.thumbCorrect {
+    border: 8px solid lime;    
+}
+
+.thumbWrong {
+    border: 8px solid red;
+}
+
+.thumbCanvas {
+    height: 100%;
+    width: 100%;
+    background-image: url(../images/thumb_loading.png);
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    background-color: black;
+}
+
+.thumbOverlay{
+    position: absolute;
+    top: 0px;    
+    background-image: url(../images/thumb_pending.png);
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    width: 100%;
+    height: 100%;
+    left: 0px;
+    background-color: white;
+}
+
+
+.template {
+    display: none;
+    visibility: hidden;
+}
+
+
+
+

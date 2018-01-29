@@ -1,0 +1,33 @@
+-var prefix = ""  // for local development
+//-var prefix = "/vbs/videos/"  // for deployment on demo2.itec.aau.at (because static content is served by nginx)
+
+doctype html
+html
+    head
+        title VBSServer - Judge
+        link(rel='stylesheet', href=prefix+'stylesheets/judgeStyle.css') 
+        script(src=prefix+'scripts/3rdParty/jquery.js')
+        script(src=prefix + 'scripts/3rdParty/jquery-confirm/dist/jquery-confirm.min.js')
+        script(src=prefix+'scripts/3rdParty/socket.io/dist/socket.io.js')
+        script(src=prefix+'scripts/ClientSockets.js')
+        script(src=prefix+'scripts/Judge.js')
+        link(rel='stylesheet', href=prefix + 'scripts/3rdParty/jquery-confirm/dist/jquery-confirm.min.css')
+        script(type="text/javascript").
+            var config = JSON.parse(new String('#{config}').replace(/&quot;/g, "\""));
+    body
+        div(id="statusDiv")
+        div(id="nicknameDiv" onclick="judge.changeNickname()")
+        div(id="waitingDiv")
+            img(id="waitingImage" src=prefix+'/images/scale.gif')
+            h1 Please wait for next submission...
+        div(id="judgeDiv")
+            h1(id='taskText')
+            video(id='video' autoplay)
+            canvas(id='timelineCanvas' width="1000" onclick='judge.videoJump(event);')
+            // div(id='playbackRateText') Playback Rate: 1x
+            // button(onclick='changePlaybackRate(-1)' class='speedButton') -                
+            // button(onclick='changePlaybackRate(+1)' class='speedButton') +
+            div(id="buttonContainer")
+                img(id='btnCorrect', src=prefix+'/images/correctJudge.png', height="100px", class='judgementButton', onclick='judge.submitJudgement(true);')
+                img(id='btnWrong', src=prefix+'/images/wrongJudge.png', height="100px", class='judgementButton', onclick='judge.submitJudgement(false);')
+            

@@ -1,0 +1,170 @@
+body {
+    background-color: #bbb;
+    color: white;
+}
+
+h3 {
+    cursor: pointer;
+    margin: 7px;    
+}
+
+h4 {
+    margin: 7px;
+    font-size: 14pt;
+}
+
+p {
+    margin: 4px;
+}
+
+button {
+	-moz-box-shadow:inset 0px 1px 3px 0px #91b8b3;
+	-webkit-box-shadow:inset 0px 1px 3px 0px #91b8b3;
+	box-shadow:inset 0px 1px 3px 0px #91b8b3;
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #768d87), color-stop(1, #6c7c7c));
+	background:-moz-linear-gradient(top, #768d87 5%, #6c7c7c 100%);
+	background:-webkit-linear-gradient(top, #768d87 5%, #6c7c7c 100%);
+	background:-o-linear-gradient(top, #768d87 5%, #6c7c7c 100%);
+	background:-ms-linear-gradient(top, #768d87 5%, #6c7c7c 100%);
+	background:linear-gradient(to bottom, #768d87 5%, #6c7c7c 100%);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#768d87', endColorstr='#6c7c7c',GradientType=0);
+	background-color:#768d87;
+	-moz-border-radius:5px;
+	-webkit-border-radius:5px;
+	border-radius:5px;
+	border:1px solid #566963;
+	display:inline-block;
+	cursor:pointer;
+	color:#ffffff;
+	font-family:Arial;
+	font-size:15px;
+	font-weight:bold;
+	padding:7px 13px;
+	text-decoration:none;
+	text-shadow:0px -1px 0px #2b665e;
+}
+button:hover {
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #6c7c7c), color-stop(1, #768d87));
+	background:-moz-linear-gradient(top, #6c7c7c 5%, #768d87 100%);
+	background:-webkit-linear-gradient(top, #6c7c7c 5%, #768d87 100%);
+	background:-o-linear-gradient(top, #6c7c7c 5%, #768d87 100%);
+	background:-ms-linear-gradient(top, #6c7c7c 5%, #768d87 100%);
+	background:linear-gradient(to bottom, #6c7c7c 5%, #768d87 100%);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#6c7c7c', endColorstr='#768d87',GradientType=0);
+	background-color:#6c7c7c;
+}
+button:active {
+	position:relative;
+	top:1px;
+}
+
+
+.competitionDiv {
+    width: 98%;
+    height: auto;
+    background-color: bisque;
+    color: #333;
+    margin: 1%;
+    padding: 2px;
+    border-radius: 4px;    
+    border: 1px solid #222;
+    text-align: center;
+}
+
+.competitionInfo {
+    background-color: rgba(150,150,150,0.5);
+    padding: 15px;
+    margin: 17px;
+    display: none;
+    border: 1px solid black;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+}
+
+.competitionRunning {
+    background-color: rgba(120, 250, 150, 0.3);
+    color: darkgreen;    
+}
+
+.competitionFinished {
+    background-color: #445;
+    color: #bbb;
+}
+
+.taskContainer {
+    display: flex;    
+    flex-wrap: wrap;
+    margin: 8px;
+}
+.taskDiv {    
+    background-color: lightgreen;
+    color: #222;
+    border-radius: 4px;    
+    display: block;
+    margin: 1px;
+    padding: 10px;
+    border: 1px solid #333;
+    flex-basis: 18%;
+}
+
+.taskRunning {
+    background-color: seagreen;
+    color: white;
+}
+
+.taskFinished {    
+    background-color: lightgrey;
+    color: #555;
+}
+
+.remainingTime {
+    color: gold;
+}
+
+.teamContainer {
+    display: flex;    
+    flex-wrap: wrap;
+    margin: 8px;
+    justify-content: center;
+}
+
+.teamDiv {
+    background-color: #eee;
+    color: #222;
+    border-radius: 4px;    
+    display: block;
+    margin: 4px;
+    padding: 4px;    
+    flex-basis: 15%;
+}
+
+.template {
+    display: none;
+    visibility: hidden;
+}
+
+#taskPreview {
+    position: absolute;
+    display: none;
+    z-index: 99999;
+    background-color: #333;
+    border: 1px solid #555;
+    border-radius: 4px;
+    color: white;
+    text-align: center;
+}
+
+#taskText {
+    background-color: rgba(0,0,0,0);
+    width: 400px;
+    color: white;    
+    border: 0px;
+    display: block;
+}
+
+.jconfirm-box {
+    /* center jquery-confirm dialogs */
+    margin-left: auto;
+    margin-right: auto;
+}
