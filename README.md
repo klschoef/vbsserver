@@ -49,7 +49,7 @@ Official server of the annual [Video Browser Showdown ](http://www.videobrowsers
 
 * edit: create and modify competitions, tasks and teams
 * control: start/stop competitions and tasks
-* viewer: shows the current state of the competition (query, submissions, results)
+* viewer: shows the current state of the competition (query, submissions, results). the layout can be adapted by zooming the various GUI components with ALT + mousewheel
 * judge: live judgement interface for AVS tasks
 * test: allows to simulate a competition by generating random competitions and submissions. only available if debugMode is set to true
 * inspect: post-hoc analysis of finished competitions (not implemented yet)
