@@ -4,7 +4,7 @@ Official server of the annual [Video Browser Showdown ](http://www.videobrowsers
 
 ## Prerequisites
 
-* Server: node.js
+* Server: node.js (at least v8.9.4)
 * Client: Google Chrome (not tested yet with other browsers)
 
 ## Getting Started
