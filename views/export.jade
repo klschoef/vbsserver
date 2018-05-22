@@ -1,0 +1,25 @@
+-var prefix = ""  // for local development
+//-var prefix = "/vbs/videos/"  // for deployment on demo2.itec.aau.at (because static content is served by nginx)
+
+
+doctype html
+html
+    head
+        title  VBSServer
+        link(rel='stylesheet', href=prefix+'stylesheets/indexStyle.css')
+        script(type="text/javascript").
+            function ready() {
+                var config = JSON.parse(new String('#{config}').replace(/&quot;/g, "\""));
+                if (config.debugMode) {
+                    document.getElementById("testLink").style.display = "block";
+                }
+            }
+    body(onload="ready()")        
+        div(id="container")
+            h1 VBS Server Menu
+            a(href='viewer' class="pageItem") Viewer  
+            a(href='inspect' class="pageItem" id="inspectLink") Inspect
+            a(href='judge' class="pageItem") Judge
+            a(href='control' class="pageItem") Control
+            a(href='edit' class="pageItem") Edit
+            a(href='test' class="pageItem" id="testLink") Test
