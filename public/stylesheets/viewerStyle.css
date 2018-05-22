@@ -303,5 +303,15 @@ button {
 }
 
 
+/* inspector */
 
+#taskListDiv {
+	display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
 
+#activeTaskSelector {
+	width: 30px;
+	margin-right: 10px;
+}

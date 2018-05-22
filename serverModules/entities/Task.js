@@ -29,6 +29,9 @@ class Task {
         // AVS tasks
         this.trecvidId = data.trecvidId;
         this.avsText = data.avsText;
+        
+        // LSC tasks
+        // TODO
 
     }
 
