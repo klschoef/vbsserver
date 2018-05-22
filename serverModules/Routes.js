@@ -73,7 +73,13 @@ class Routes {
             });
         });
 
-
+        app.get('/export', (req, res) => {
+            logger.info("Request for export page");
+            logger.verbose("Request for export page", {requestHeaders: req.headers});
+            res.render('export', {
+                config: JSON.stringify(config)
+            });
+        });
 
         // submission format:  <serveraddress:port>/vbs/submit?team=<int>&video=<int>&frame=<int>&shot=<int>
         // frame number is 0-based
@@ -116,6 +122,10 @@ class Routes {
                 controller.submissionHandler.handleSubmission(teamNumber, videoNumber, frameNumber, shotNumber, iseq, searchTime, res);
 
             });
+        });
+        
+        app.get('/lsc/submit', (req, res) => {
+            // TODO other format for LSC
         });
     }
 
