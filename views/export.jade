@@ -5,21 +5,21 @@
 doctype html
 html
     head
-        title  VBSServer
-        link(rel='stylesheet', href=prefix+'stylesheets/indexStyle.css')
+        title VBSServer
+        script(src=prefix + 'scripts/3rdParty/jquery.js')
+        script(src=prefix + 'scripts/3rdParty/jquery-ui.js')
+        script(src=prefix + 'scripts/3rdParty/jquery-confirm/dist/jquery-confirm.min.js')        
+        script(src=prefix + 'scripts/3rdParty/socket.io/dist/socket.io.js')
+        script(src=prefix + 'scripts/3rdParty/toastr/build/toastr.min.js')
+        link(rel='stylesheet', href=prefix + 'stylesheets/jquery-ui.css')
+        link(rel='stylesheet', href=prefix + 'scripts/3rdParty/jquery-confirm/dist/jquery-confirm.min.css')
+        link(rel='stylesheet', href=prefix + 'scripts/3rdParty/toastr/build/toastr.min.css')
+        link(rel='stylesheet', href=prefix+'stylesheets/exportStyle.css')
+        script(src=prefix + 'scripts/ClientSockets.js')
+        script(src=prefix + 'scripts/Export.js')
         script(type="text/javascript").
-            function ready() {
-                var config = JSON.parse(new String('#{config}').replace(/&quot;/g, "\""));
-                if (config.debugMode) {
-                    document.getElementById("testLink").style.display = "block";
-                }
-            }
-    body(onload="ready()")        
-        div(id="container")
-            h1 VBS Server Menu
-            a(href='viewer' class="pageItem") Viewer  
-            a(href='inspect' class="pageItem" id="inspectLink") Inspect
-            a(href='judge' class="pageItem") Judge
-            a(href='control' class="pageItem") Control
-            a(href='edit' class="pageItem") Edit
-            a(href='test' class="pageItem" id="testLink") Test
+            var config = JSON.parse(new String('#{config}').replace(/&quot;/g, "\""));
+    body()        
+        div
+            h1 VBS Server Export
+            
