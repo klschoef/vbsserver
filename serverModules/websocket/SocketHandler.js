@@ -2,7 +2,9 @@ var logger = require('winston'),
         controller = require('../Controller'),
         config = require('../../config.json'),
         AdminSocket = require('./AdminSocket'),
-        ViewerSocket = require('./ViewerSocket');
+        ViewerSocket = require('./ViewerSocket'),
+        InspectSocket = require('./InspectSocket'),
+        ExportSocket = require('./ExportSocket');
 
 class SocketHandler {
     constructor(io) {
@@ -12,7 +14,6 @@ class SocketHandler {
         this.admin = null;          // web socket for Admin user (we only allow one admin connection at a time!)
         this.viewers = new Array(); // web sockets for Viewer users (multiple connections allowed, but login required)
         this.judges = new Array();  // web sockets for registered judges
-        // TODO inspector sockets        
 
         /*
          * The admin user can maintain the list of teams and tasks, start/stop tasks and select already performed tasks to be displayed (at Viewer)
@@ -22,11 +23,12 @@ class SocketHandler {
 
         io.on('connection', (socket) => {
 
-            // TODO authentication (type, user, pwd)
+            // TODO proper authentication with user management (type, user, pwd)
             // TODO using express ?? ("Middleware", next)
             // TODO use sessions (reload, page change etc.)
+            
             var clientType = socket.handshake.query.clientType;
-
+            
             // unified format for web socket callbacks
             // success: boolean indicating whether the request was successfully fulfilled
             // data: requested data (if requested), error message in case of error
@@ -39,8 +41,11 @@ class SocketHandler {
                     this.registerAdmin(socket);
                     this.registerViewer(socket);
                     break;
-                case "viewer":      // has access to: viewer,inspect
+                case "viewer":      // has access to: viewer
                     this.registerViewer(socket);
+                    break;
+                case "inspect":      // has access to: inspect
+                    this.registerInspector(socket);
                     break;
                 case "judge":       // has access to: judge
                     this.registerJudge(socket, socket.handshake.query.name);
@@ -49,6 +54,9 @@ class SocketHandler {
                     if (config.debugMode) {
                         this.registerTest(socket);
                     }
+                    break;
+                case "export":
+                    this.registerExport(socket);
                     break;
                 default:
                     logger.warn("invalid clientType tries to register: " + clientType);
@@ -123,6 +131,25 @@ class SocketHandler {
         }
     }
 
+    // ####################
+    // #    INSPECTORS    #
+    // ####################
+
+    registerInspector(socket) {
+
+        InspectSocket.registerEvents(socket);
+
+        socket.on('disconnect', this.unregisterInspector.bind(this, socket));
+        socket.on('error', this.unregisterInspector.bind(this, socket));
+
+        logger.info("new Inspector registered");
+    }
+
+    unregisterInspector(socket) {
+        socket.disconnect(true);
+        logger.info("Inspector disconnected");
+    }
+
     // ################
     // #    JUDGES    #
     // ################
@@ -162,7 +189,7 @@ class SocketHandler {
     }
 
     sendToJudge(judge, data) {
-        judge.emit('judge', data);        
+        judge.emit('judge', data);
         logger.verbose("Submission is sent to judge", data);
     }
 
@@ -176,6 +203,20 @@ class SocketHandler {
         this.registerJudge(socket, "auto");
         this.registerViewer(socket);
         AdminSocket.registerEvents(socket);
+    }
+
+    // ################
+    // #    EXPORT    #
+    // ################
+
+    registerExport(socket) {
+        ExportSocket.registerEvents(socket);
+        InspectSocket.registerEvents(socket);
+
+        socket.on('disconnect', this.unregisterInspector.bind(this, socket));
+        socket.on('error', this.unregisterInspector.bind(this, socket));
+
+        logger.info("new Exporter registered");
     }
 
 }

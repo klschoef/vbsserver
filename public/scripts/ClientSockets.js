@@ -1,9 +1,10 @@
 class ClientSockets {
 
     constructor(params) {
+
         console.log("initializing WebSocket connection");
         this.socket = io.connect(config.server.websocketURL + ":" + config.server.port, {
-            'reconnect': true, 
+            'reconnect': true,
             'reconnection delay': 50,
             'max reconnection attempts': 300, // TODO check if all these parameters are appropriate...
             'query': params
@@ -16,14 +17,18 @@ class ClientSockets {
 
         this.socket.on('disconnect', function () {
             console.log("socket disconnected!");
+            $("body").empty();
+            $("body").append("Connection error");
         });
 
         this.socket.on('error', function (err) {
             console.log("socket connection error!! " + err);
+            $("body").empty();
+            $("body").append("Connection error");
         });
-        
+
     }
-    
+
     unload() {
         this.socket.disconnect();
     }
@@ -39,7 +44,7 @@ class ClientSockets {
     emit(event, data, callback) {
         this.socket.emit(event, data, callback);
     }
-    
+
     disconnect() {
         this.socket.disconnect();
     }
