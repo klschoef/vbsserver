@@ -2,6 +2,8 @@ var Competition = require('./entities/Competition'),
         logger = require('winston'),
         Task = require('./entities/Task'),
         config = require('../config.json'),
+        async = require("async"),
+        fs = require("fs"),
         // following modules are required during initialization because they require controller. 
         // if they are required here, controller is not exported yet!
         CompetitionState,
@@ -70,7 +72,7 @@ class Controller {
                 }
 
                 // and then setup web server etc.
-                this.submissionHandler = new SubmissionHandler();                
+                this.submissionHandler = new SubmissionHandler();
                 this.app = app; // express app
                 this.socket = new SocketHandler(io);  // web sockets for communication with clients
                 this.routes = new Routes(app);    // GET and POST routes     
@@ -91,10 +93,8 @@ class Controller {
     }
 
     test() {
-
 //        importVideos(this.db);
 //        importGroundTruth(this.db);
-
     }
 
     // reconstruct current competition state from database (e.g., after crash)
@@ -116,6 +116,9 @@ class Controller {
                         this.submissionHandler.handlerAVS.reconstruct(competitionState);
 
                         logger.info("resuming competition", competition.name);
+                        if (this.socket) {
+                            this.socket.sendToViewers("fullRefresh", competitionState);
+                        }
                         // currently a task is running
                         // first check if it has expired or is still valid
                         this.currentTask((task) => {
@@ -239,10 +242,12 @@ class Controller {
     setToleranceTask(task) {
         this.toleranceTask = task;
         logger.info("tolerance time: waiting for further submissions for " + config.task.KISTimeTolerance + " seconds");
+        this.socket.sendToViewers("toleranceExtension", config.task.KISTimeTolerance);
         clearTimeout(this.toleranceTaskTimeout);    // there might be an timeout running already (in case of recursive time extension)
         this.toleranceTaskTimeout = setTimeout(() => {
             this.toleranceTask = null;
             logger.info("tolerance time is over.");
+            this.socket.sendToViewers("toleranceTimeout", config.task.KISTimeTolerance);
         }, config.task.KISTimeTolerance * 1000);
     }
 

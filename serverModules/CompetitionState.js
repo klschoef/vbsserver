@@ -153,6 +153,7 @@ class CompetitionState {
 
     // updates the aggregate scores at the specified position in the task sequence
     // if no taskIdx is passed, the latest task is considered by default
+	// TODO do we even need this parameter?
     // requires that all corresponding TaskResults are up to date
     // 1. update sub score for respective task type
     //      - compute absolute total score for all teams for this type
@@ -175,7 +176,7 @@ class CompetitionState {
             for (var teamId in this.results) {
                 var absTeamSubScore = 0;
                 var taskResults = this.results[teamId].taskResults;
-                for (var i = 0; i < taskResults.length; i++) {
+                for (var i = 0; i < taskResults.length && i <= taskIdx; i++) {
                     if (this.tasks[i].type == taskType) {
                         absTeamSubScore += taskResults[i].taskScore;
                     }
@@ -199,7 +200,7 @@ class CompetitionState {
                 var numTypes = 0;
                 for (var type in this.results[teamId].subScores) {
                     var typeSubScores = this.results[teamId].subScores[type];
-                    sum += parseFloat(typeSubScores[typeSubScores.length - 1]);
+                    sum += parseFloat(typeSubScores[typeSubScores.length - 1]);	// TODO only working for last task!
                     numTypes++;
                 }
                 this.results[teamId].overallScores[taskIdx] = sum / numTypes;
@@ -251,9 +252,6 @@ class CompetitionState {
                     if (competitionState.activeTaskIdx < 0) {
                         // no task started yet...
                         reconstructionSuccess(competitionState);
-                        if (controller.socket) {
-                            controller.socket.sendToViewers("fullRefresh", competitionState);
-                        }
                     } else {
                         // load all submissions of active task (per team)
                         var taskId = competitionState.tasks[competitionState.activeTaskIdx]._id;
@@ -276,9 +274,6 @@ class CompetitionState {
                             } else {
 //                                competitionState.debug();
                                 reconstructionSuccess(competitionState);
-                                if (controller.socket) {
-                                    controller.socket.sendToViewers("fullRefresh", competitionState);
-                                }
                             }
                         });
                     }
