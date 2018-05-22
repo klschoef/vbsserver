@@ -36,7 +36,8 @@ class ResultsGUI {
                     textAnchor: 'end'})
             ],
         };
-
+		
+		this.currentSubChartType = "";
 
     }
 
@@ -46,8 +47,11 @@ class ResultsGUI {
 
     updateScores() {
         this.updateOverallChart();
-        this.updateSubChart();
-        this.updateAVSStatistics();
+		var task = this.viewer.getActiveTask();
+		if (task && task.type) {
+			this.updateSubChart(task.type);			
+		}
+		this.updateAVSStatistics();
     }
 
     updateChart(selector, type, data, options, colorAdapt) {
@@ -83,19 +87,36 @@ class ResultsGUI {
             });
         }
     }
+	
+	nextTaskTypeChart() {
+		// all types that have been used in the entire competition
+		var availableTypes = Array.from(new Set(this.viewer.competitionState.tasks.map((t) => t.type))).sort();
+		// filter to those types which had been used up to the active task (can be any task in inspect view)
+		availableTypes = availableTypes.filter((t) => {
+			for (var i=0; i<=this.viewer.competitionState.activeTaskIdx; i++) {
+				if (this.viewer.competitionState.tasks[i].type == t) {
+					return true;
+				}
+			}
+			return false;
+		});
+		var currentIdx = availableTypes.indexOf(this.currentSubChartType);
+		var nextIdx = (currentIdx + 1) % availableTypes.length;
+		this.updateSubChart(availableTypes[nextIdx]);
+	}
 
-    updateSubChart() {
-        var task = this.viewer.getActiveTask();
-        if (task) {
+    updateSubChart(taskType) {        
+        if (taskType) {
+			this.currentSubChartType = taskType;
             var teams = this.viewer.getTeams();
             var results = this.viewer.competitionState.results;
             // taskIdx relative to task type!        
             var taskIdx = this.viewer.getActiveTaskSubIdx();
             var sortedTeams = teams.sort((a, b) =>
-                results[a._id].subScores[task.type][taskIdx] - results[b._id].subScores[task.type][taskIdx]
+                results[a._id].subScores[taskType][taskIdx] - results[b._id].subScores[taskType][taskIdx]
             );
             var labels = sortedTeams.map((t) => t.name);
-            var series = [sortedTeams.map((t) => Math.round(results[t._id].subScores[task.type][taskIdx]))];
+            var series = [sortedTeams.map((t) => Math.round(results[t._id].subScores[taskType][taskIdx]))];
             var data = {
                 labels: labels,
                 series: series
@@ -107,7 +128,7 @@ class ResultsGUI {
                     });
                 }
             });
-            $("#subScoreTitle").html(task.type);
+            $("#subScoreTitle").html(taskType);
         }
     }
 

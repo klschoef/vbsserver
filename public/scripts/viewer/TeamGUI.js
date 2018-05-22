@@ -9,6 +9,7 @@ class TeamGUI {
     }
 
     init() {
+		this.resetThumbs();
         this.initTeamDivs();
         this.updateScores();
     }
@@ -58,7 +59,7 @@ class TeamGUI {
     }
 
     addThumb(submission, playbackInfo) {
-
+	
         // create the thumbnail element
         var parent = $(this.getTeamDiv(submission.teamId)).find(".thumbContainer");
         this.gui.renderTemplate("thumbTemplate", submission, parent, true);

@@ -21,6 +21,9 @@ class Viewer {
         // maps videoId to additional information
         this.videoMap = null;
 
+		// during a "tolerance extension" of a task, this flag is set to true
+		this.toleranceTaskFlag = false;
+		
         // TODO prompt credentials
         this.socket = new ClientSockets({clientType: "viewer"});
 
@@ -77,6 +80,18 @@ class Viewer {
             this.competitionState.tasks[this.competitionState.activeTaskIdx] = task;
             this.gui.stopTask();
         });
+		
+		this.socket.registerEvent('toleranceExtension', () => {
+            console.log("tolerance extension");
+			// TODO in case of reconnection during the extension period, this information should also be available
+			this.toleranceTaskFlag = true;
+        });
+		
+		this.socket.registerEvent('toleranceTimeout', () => {
+            console.log("tolerance time is over");
+			this.toleranceTaskFlag = false;
+			this.gui.stopTask();
+        });		
 
         this.socket.registerEvent('remainingTime', (data) => {
             this.gui.remainingTime(data.time);
@@ -84,6 +99,13 @@ class Viewer {
 
         this.socket.registerEvent('newSubmission', (submission) => {            
             this.playSound("incoming");
+			if (submission.judged) {	
+				if (submission.correct) {	
+					this.playSound("applause");
+				} else {
+					this.playSound("boo");
+				}
+			}
             this.competitionState.submissions[submission.teamId][submission._id] = submission;
             var playbackInfo = this.getSubmissionPlaybackInfo(submission);
             this.gui.newSubmission(submission, playbackInfo);

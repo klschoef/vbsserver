@@ -20,12 +20,16 @@ class ViewerGUI {
     }
 
     init() {
-        this.teamGUI.init();
-        this.queryGUI.init();
-        this.resultsGUI.init();
+        this.refresh();
         this.initZoom();
         this.showBody();
     }
+	
+	refresh() {
+		this.teamGUI.init();
+        this.queryGUI.init();
+        this.resultsGUI.init();
+	}
 
     showBody() {
         $("#content").show();
@@ -62,7 +66,9 @@ class ViewerGUI {
     stopTask() {
         this.queryGUI.stopTask();
         // in Textual and AVS tasks, submissions are hidden during the task and only revealed afterwards 
-        this.teamGUI.showAllSubmissions();
+		if (!this.viewer.toleranceTaskFlag) {
+			this.teamGUI.showAllSubmissions();
+		}
     }
 
     remainingTime(time) {

@@ -52,11 +52,15 @@ class QueryGUI {
                         resolve();
                     } else {
                         this.showQueryVideo().then(() => {
-                            this.unmuteVideo();
-                            this.showFullscreen("#queryVideo", config.client.initialFullscreenDuration, () => {
-                                this.muteVideo();
-                            });
-                            resolve();
+							if (this.viewer.isInspector) {
+								resolve();
+							} else {
+								this.unmuteVideo();
+								this.showFullscreen("#queryVideo", config.client.initialFullscreenDuration, () => {
+									this.muteVideo();
+								});
+								resolve();
+							}
                         });
                     }
                 }
@@ -88,14 +92,18 @@ class QueryGUI {
     }
 
     stopTask() {
-        this.updateTimer("TIME OVER");
-        var task = this.viewer.getActiveTask();
-        if (task) {
-            this.updateQueryState();
-        } else {
-            this.hideQueryVideo();
-            this.hideQueryText();
-        }
+		if (!this.viewer.toleranceTaskFlag) {
+			this.updateTimer("TIME OVER");
+			var task = this.viewer.getActiveTask();
+			if (task) {
+				this.updateQueryState();
+			} else {
+				this.hideQueryVideo();
+				this.hideQueryText();
+			}
+		} else {
+			this.updateTimer("WAITING...");
+		}
     }
 
     hideQueryVideo() {

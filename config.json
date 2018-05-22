@@ -9,8 +9,8 @@
         "playAudio": true,
         "initialFullscreenDuration": 20,
         "videoBlurProgress": {
-            "delay": [0,60,90,120,150,180,200,220,240,260,280],
-            "size": [0,1,2,3,4,5,6,7,8,9,10]
+            "delay": [0, 60, 90, 120, 150, 180, 200, 220, 240, 260, 280],
+            "size": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         },
         "chartAspectRatio": 1.5
     },
@@ -20,8 +20,8 @@
         "KISFrameTolerance": 25,
         "KISMinScore": 50,
         "KISPenalty": 10,
-        "KISTimeTolerance": 5,
-        "AVSRangeDuration": 120,
+        "KISTimeTolerance": 30,
+        "AVSRangeDuration": 180,
         "countdownTime": 5
     },
     "debugMode": true

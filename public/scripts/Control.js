@@ -87,12 +87,27 @@ class Control {
     }
 
     stopCompetition() {
-        this.socket.emit("stopCompetition", {}, (response) => {
-            if (response.success) {
-                toastr.success("Competition Stopped");
-                this.refreshCompetitions();
-            } else {
-                toastr.error("Competition could not be stopped: " + response.data);
+        $.confirm({
+            title: 'Stop Competition',
+            content: "Do you really want to stop this competition? "
+                    + "After stopping, no more tasks can be started or edited!",
+            theme: "dark",
+            boxWidth: '300px',
+            useBootstrap: false,
+            buttons: {
+                stop: () => {
+                    this.socket.emit("stopCompetition", {}, (response) => {
+                        if (response.success) {
+                            toastr.success("Competition Stopped");
+                            this.refreshCompetitions();
+                        } else {
+                            toastr.error("Competition could not be stopped: " + response.data);
+                        }
+                    });
+                },
+                cancel: () => {
+                    // nothing to do                        
+                }
             }
         });
     }
