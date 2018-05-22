@@ -1,11 +1,12 @@
 var express = require('express')
         , app = express()
-        , bodyParser = require("body-parser")
+//        , bodyParser = require("body-parser")
         , url = require('url')
         , fs = require('fs-extra')
         , server = require('http').createServer(app);
 
-app.use(bodyParser.urlencoded()); 
+//app.use(bodyParser.urlencoded());
+//app.use(express.bodyParser());
 
 // serve static content
 app.use(express.static(__dirname + '/public'));
@@ -153,6 +154,101 @@ function handleSubmission(teamId, videoId, framenumber, shotId, iseq, req, res, 
 
 }
 
+
+
+
+
+
+
+
+app.get('/lsc', function (req, res) {
+    res.send("<h2>Welcome to the LSC 2018 Test Server</h2>"
+            + "Submissions at the competition will be sent in the form of simple HTTP requests containing your team id and the id of an image belonging to the sought scene.<br>"   
+            + "For preliminary testing purposes please use the following URI: "
+            + "<br><br>http://demo2.itec.aau.at:80/vbs/lsc/submit"
+            + "<br><br> with the following parameters:"
+            + "<ul>"
+            + "<li>team=[your (numerical) team id, i.e. a number in the range 1-6]</li>"
+            + "<li>image=[id of the submitted image, e.g. 20160815_145016_000.jpg]</li>"
+            + "</ul>"
+            + "An exemplary submission could look like this: "
+            + "<p>http://demo2.itec.aau.at:80/vbs/lsc/submit?team=3&image=20160815_145016_000.jpg</p>"
+            + "<b>Important notes:</b><ul>"
+            + "<li>At the actual competition, the url will be different, so please make sure you can easily change the server address as well as the port and path!</li>"
+            + "<li>Team Ids are as follows: "
+            + "<ol>"
+            + "<li>AAU - Alpen-Adria University</li>"
+            + "<li>SIRET - SIRET Research Group, Charles University</li>"
+            + "<li>DCU - Dublin City University</li>"
+            + "<li>UUDCU - University Utrecht / Dublin City University</li>"
+            + "<li>VNU - Vietnam National University </li>"
+            + "<li>UPCDCU - Universitat Politècnica de Catalunya / Dublin City University</li>"
+            + "</ol></li></ul>"
+            + "<br>For testing purposes, try to find the following image and submit your answer according to the instructions above.<br>"
+            + "The response will tell you if the submission is correct. If it is wrong, it provides additional information about what is wrong.<br><br>"
+            + "<img width='400' src='lsc_example.jpg'/>"
+            + "<br><br> <i>Bernd Münzer, ITEC, Klagenfurt University, 2018</i>"
+            );
+
+});
+
+
+
+var lscTeams = [
+    "AAU - Alpen-Adria University",
+    "SIRET - SIRET Research Group, Charles University",
+    "DCU - Dublin City University",
+    "UUDCU - University Utrecht / Dublin City University",
+    "VNU - Vietnam National University",
+    "UPCDCU - Universitat Politècnica de Catalunya / Dublin City University"
+];
+
+// submission format:  <serveraddress:port>/submit?team=<int>&image=<string>
+// test image: 20160819_160610_000.jpg
+app.get('/lsc/submit', function (req, res) {
+
+    // parse parameters
+    var url_parts = url.parse(req.url, true);
+    var query = url_parts.query;
+    var teamId = query.team;
+    var imageId = query.image;
+
+    var submitTimeStamp = new Date(Date.now()).toLocaleString();
+
+    var response = "";
+
+    if (!teamId) {
+        response += "Missing team id. ";
+    }
+    if (!isNumeric(teamId) || teamId < 1 || teamId > 6) {
+        response += "Invalid team id (" + teamId + "). ";
+    }
+
+    if (!imageId) {
+        response += "Missing image id. ";
+    } else if (imageId !== "20160819_160610_000.jpg") {        
+        response += "Wrong image id (" + imageId + "). ";
+    }
+
+    if (response === "") {  // no error
+        response = "Correct answer from team " + lscTeams[teamId-1];
+    }
+
+    var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+
+    fs.appendFileSync("submissionLog_lsc.csv",
+            submitTimeStamp + ";" + ip
+            + ";teamId:" + teamId
+            + ";imageId:" + imageId            
+            + ";" + response + "\n");
+
+    res.send(response);
+
+});
+
+function isNumeric(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
 
 // *******************************************************************************************************
 // Start Server Listening ********************************************************************************
