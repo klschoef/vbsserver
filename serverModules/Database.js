@@ -131,7 +131,7 @@ class Database {
     }
 
     // query has the following format (depending on the task type):
-    // { type, videoRanges, textList, trecvidId, avsText} 
+    // { type, videoRanges, textList, trecvidId, avsText, imageList} 
     createTask(data, success, error) {
         this.createEntity(
                 this.db.tasks,

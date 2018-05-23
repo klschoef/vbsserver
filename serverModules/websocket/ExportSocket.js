@@ -8,6 +8,7 @@ var exportDir = "csv";
 var exportPath = process.cwd() + "/public/" + exportDir + "/";
 
 // TODO refactor, currently only a dirty hack...
+// TODO extend for LSC tasks
 
 class ExportSocket {
 
@@ -42,9 +43,11 @@ class ExportSocket {
                                 } else {
                                     csv += ";;;";
                                 }
-                            } else {
+                            } else if (task.type.startsWith("AVS")) {
                                 csv += ";;;;;;" + task.trecvidId + ";" + task.avsText;
-                            }
+                            } else if (task.type.startsWith("LSC")) {
+                                csv += "TODO: implement export for LSC tasks";
+                            }                            
                         }
                         csv += "\n";
                     }

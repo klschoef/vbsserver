@@ -21,7 +21,7 @@ class Task {
 
         // query is different for different task types and may contain different fields
         // TODO encapsulate in a type-specific query object
-        this.type = data.type;  
+        this.type = data.type;
         // currently supported types: 
         //      - KIS_Visual
         //      - KIS_Textual
@@ -29,8 +29,8 @@ class Task {
         //      - KIS_Visual_novice
         //      - KIS_Textual_novice
         //      - AVS_novice
-        //      - LSC
-        //      - LSC_novice
+        //      - LSC_Textual
+        //      - LSC_Textual_novice
 
         // KIS tasks
         this.videoRanges = data.videoRanges;    // KIS: array of {videoId, videoNumber, startFrame, endFrame} (to support duplicates)

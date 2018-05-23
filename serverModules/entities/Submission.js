@@ -20,7 +20,7 @@ class Submission {
         
         // for AVS tasks, judgement of the submission is asynchronous
         // for KIS and LSC tasks, this.judged can be ignored
-        this.judged = null;     // supported types of judgement: kis, tvgt, extgt, judge_<judgeName>  (for KIS tasks, Trecvid ground truth, extended ground truth, live judge)
+        this.judged = null;     // supported types of judgement: kis, lsc, tvgt, extgt, judge_<judgeName>  (for KIS tasks, Trecvid ground truth, extended ground truth, live judge)
         this.correct = null;    // we do not know yet...        
 
     }

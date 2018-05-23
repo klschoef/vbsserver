@@ -121,38 +121,45 @@ function taskEditor() {
 
             this.taskTypeSelected();    // show according fields
 
+            var video = null;
             var range = task.videoRanges[0];
-            var video = this.videoMap[range.videoNumber];
+            if (range) {
+                video = this.videoMap[range.videoNumber];
+            }
 
-            // fill KIS fields
-            $("#kisVideoNumber").val(video.videoNumber);
-            var segLength = ((range.endFrame - range.startFrame + 1) / video.fps).toFixed(3);
-            $("#kisSegmentLength").val(segLength);
-            $("#kisSegmentLength").attr("title", (range.endFrame - range.startFrame + 1) + " frames");
-            $("#kisStartFrame").val(range.startFrame);
-            $("#kisStartFrame").attr("title", this.formatTime(range.startFrame / video.fps));
-            $("#kisEndFrame").val(range.endFrame);
-            $("#kisEndFrame").attr("title", this.formatTime(range.endFrame / video.fps));
-            $("#kisVideoName").html(video.filename);
-            $("#kisVideoFps").val(video.fps);
-//        $("#kisDuplicates").val(video.duplicates.join()); // TODO
+            if (video) {
+                // fill KIS fields
+                $("#kisVideoNumber").val(video.videoNumber);
+                var segLength = ((range.endFrame - range.startFrame + 1) / video.fps).toFixed(3);
+                $("#kisSegmentLength").val(segLength);
+                $("#kisSegmentLength").attr("title", (range.endFrame - range.startFrame + 1) + " frames");
+                $("#kisStartFrame").val(range.startFrame);
+                $("#kisStartFrame").attr("title", this.formatTime(range.startFrame / video.fps));
+                $("#kisEndFrame").val(range.endFrame);
+                $("#kisEndFrame").attr("title", this.formatTime(range.endFrame / video.fps));
+                $("#kisVideoName").html(video.filename);
+                $("#kisVideoFps").val(video.fps);
+//                $("#kisDuplicates").val(video.duplicates.join()); // TODO
 
-            // load video
-            if ($("#queryVideo")[0].src != config.server.videoDir + "/" + video.filename) {
-                $("#queryVideo")[0].src = config.server.videoDir + "/" + video.filename;
+                // load video
+                if ($("#queryVideo")[0].src != config.server.videoDir + "/" + video.filename) {
+                    $("#queryVideo")[0].src = config.server.videoDir + "/" + video.filename;
+                }
             }
 
             // fill AVS fields
             $("#trecvidId").val(task.trecvidId);
             $("#avsQueryText").val(task.avsText);
 
+            // fill LSC fields
+            $("#lscImageText").val(task.imageList.join("\n"));
+
             // depending on the current state of the competition and task, modifications are allowed or not            
             this.refreshAllowedActions();
-            $("#taskBody").show();            
+            $("#taskBody").show();
         } else {
             $("#taskBody").hide();
             console.err("selecting task failed...");
-
         }
     }
 
@@ -165,39 +172,61 @@ function taskEditor() {
         this.socket.emit("randomVideo", {}, (response) => {
             if (response.success) {
                 var randomVideo = response.data;
-                var rangeNumFrames = Math.round(config.task.KISDefaultLength * randomVideo.fps);
-                var startFrame = Math.round(Math.random() * (randomVideo.numFrames - rangeNumFrames));
-                var endFrame = startFrame + rangeNumFrames - 1;
-                var newTask = {
-                    competitionId: this.activeCompetitionId,
-                    name: "Task " + (Object.keys(this.tasks).length + 1),
-                    maxSearchTime: config.task.defaultSearchTime,
-                    // by default, create a random KIS_Visual task
-                    type: "KIS_Visual",
-                    videoRanges: [{
-                            videoId: randomVideo._id,
-                            videoNumber: randomVideo.videoNumber,
-                            startFrame: startFrame,
-                            endFrame: endFrame
-                        }], // TODO consider duplicates
-                    textList: [{delay: 0, text: "Enter query text..."}],
-                    trecvidId: "avs_" + this.randomId(10),
-                    avsText: "Enter query text"
-                };
-                this.socket.emit("createTask", newTask, (response) => {
-                    if (response.success) {
-                        toastr.success("New task created");
-                        var task = response.data;
-                        console.log(task);
-                        this.activeTaskId = task._id;   // select the new id (that we got from the server)
-                        $("#videoLoop").prop("checked", true);
-                        this.refreshTasks();
-                    } else {
-                        toastr.error("Server error: creating tasks failed: " + response.data);
-                    }
-                });
+                var newTask;
+                if (randomVideo) {
+                    var rangeNumFrames = Math.round(config.task.KISDefaultLength * randomVideo.fps);
+                    var startFrame = Math.round(Math.random() * (randomVideo.numFrames - rangeNumFrames));
+                    var endFrame = startFrame + rangeNumFrames - 1;
+                    newTask = {
+                        competitionId: this.activeCompetitionId,
+                        name: "Task " + (Object.keys(this.tasks).length + 1),
+                        maxSearchTime: config.task.defaultSearchTime,
+                        // by default, create a random KIS_Visual task
+                        type: "KIS_Visual",
+                        videoRanges: [{
+                                videoId: randomVideo._id,
+                                videoNumber: randomVideo.videoNumber,
+                                startFrame: startFrame,
+                                endFrame: endFrame
+                            }], // TODO consider duplicates
+                        textList: [{delay: 0, text: "Enter query text..."}],
+                        trecvidId: "avs_" + this.randomId(10),
+                        avsText: "Enter query text",
+                        imageList: []
+                    };
+                } else {
+                    // if no randomVideo can be found, we create a new LSC_Textual task by default
+                    newTask = {
+                        competitionId: this.activeCompetitionId,
+                        name: "Task " + (Object.keys(this.tasks).length + 1),
+                        maxSearchTime: config.task.defaultSearchTime,
+                        // by default, create a random KIS_Visual task
+                        type: "LSC_Textual",
+                        videoRanges: [],
+                        textList: [{delay: 0, text: "Enter query text..."}],
+                        trecvidId: "avs_" + this.randomId(10),
+                        avsText: "Enter query text",
+                        imageList: ["Enter image names...", "image2", "image3", "..."]
+                    };
+                }
+                this.createTask(newTask);
             } else {
                 toastr.error("Internal server error.");
+            }
+        });
+    }
+
+    this.createTask = (newTask) => {
+        this.socket.emit("createTask", newTask, (response) => {
+            if (response.success) {
+                toastr.success("New task created");
+                var task = response.data;
+                console.log(task);
+                this.activeTaskId = task._id;   // select the new id (that we got from the server)
+                $("#videoLoop").prop("checked", true);
+                this.refreshTasks();
+            } else {
+                toastr.error("Server error: creating tasks failed: " + response.data);
             }
         });
     }
@@ -275,17 +304,27 @@ function taskEditor() {
                 $("#kisQueryDiv").show();
                 $("#kisTextualQueryDiv").hide();
                 $("#avsQueryDiv").hide();
+                $("#lscQueryDiv").hide();
                 $("#queryVideo")[0].play();
             } else if (task.type.startsWith("KIS_Textual")) {
                 this.buildTaskListDiv();
                 $("#kisQueryDiv").show();
                 $("#kisTextualQueryDiv").show();
                 $("#avsQueryDiv").hide();
+                $("#lscQueryDiv").hide();
                 $("#queryVideo")[0].play();
             } else if (task.type.startsWith("AVS")) {
                 $("#kisQueryDiv").hide();
                 $("#kisTextualQueryDiv").hide();
                 $("#avsQueryDiv").show();
+                $("#lscQueryDiv").hide();
+                $("#queryVideo")[0].pause();
+            } else if (task.type.startsWith("LSC_Textual")) {
+                this.buildTaskListDiv();
+                $("#kisQueryDiv").hide();
+                $("#kisTextualQueryDiv").show();
+                $("#avsQueryDiv").hide();
+                $("#lscQueryDiv").show();
                 $("#queryVideo")[0].pause();
             }
         }
@@ -302,7 +341,7 @@ function taskEditor() {
             delayInput.min = 0;
             delayInput.id = "kisTextDelay_" + i;
             $(delayInput).addClass("kisTextDelay");
-            $(delayInput).addClass("taskConditionallyEnabled");            
+            $(delayInput).addClass("taskConditionallyEnabled");
             delayInput.value = task.textList[i].delay;
             delayInput.onchange = this.kisQueryTextChanged.bind(this);
             var textInput = document.createElement("textarea");
@@ -310,7 +349,7 @@ function taskEditor() {
             textInput.cols = 100;
             textInput.id = "kisText_" + i;
             $(textInput).addClass("kisText");
-            $(textInput).addClass("taskConditionallyEnabled");            
+            $(textInput).addClass("taskConditionallyEnabled");
             textInput.value = task.textList[i].text;
             textInput.onchange = this.kisQueryTextChanged.bind(this);
             div.append("Delay: ", delayInput, textInput);
@@ -451,6 +490,75 @@ function taskEditor() {
         var task = this.activeTask();
         task.avsText = $("#avsQueryText").val();
         this.updateTask(task);
+    }
+
+    this.lscImageIdsChanged = () => {
+        var task = this.activeTask();
+        task.imageList = $("#lscImageText").val().split("\n");
+        this.updateTask(task);
+    }
+
+    this.showImportTasks = () => {
+//        $("#taskImportDiv").fadeIn();
+        $("#taskImportFile").click(); // user does not have to click a second time...
+    }
+
+    this.hideImportTasks = () => {
+//        $("#taskImportDiv").fadeOut();
+    }
+
+    this.importTasks = () => {
+        var file = $("#taskImportFile")[0].files[0];
+        var reader = new FileReader();
+        reader.onload = () => {
+            var xml = $.parseXML(reader.result);
+            var topics = $(xml).find("Topic");
+            for (var i = 0; i < topics.length; i++) {
+                var topic = topics[i];
+                var duration = $(topic).attr("duration");
+                var name = $(topic).find("TopicID")[0].textContent;
+
+                var topicType = $(topic).find("TopicType")[0].textContent.toLowerCase();
+                var taskType;
+                if (topicType.includes("expert")) {
+                    taskType = "LSC_Textual";
+                } else if (topicType.includes("novice")) {
+                    taskType = "LSC_Textual_novice";
+                } else {
+                    toastr.warning("Invalid TopicType '" + topicType + "' (must contain 'expert' or 'novice'");
+                    continue;
+                }
+
+                var descriptions = $(topic).find("Description");
+                var textList = [];
+                for (var j = 0; j < descriptions.length; j++) {
+                    var text = descriptions[j].textContent;
+                    var timestamp = parseInt($(descriptions[j]).attr("timestamp"));
+                    textList.push({delay: timestamp, text: text});
+                }
+
+                var imageIds = $(topic).find("ImageID");
+                var imageList = [];
+                for (var j = 0; j < imageIds.length; j++) {
+                    imageList.push(imageIds[j].textContent);
+                }
+
+                var newTask = {
+                    competitionId: this.activeCompetitionId,
+                    name: name,
+                    maxSearchTime: duration,
+                    type: taskType,
+                    videoRanges: [],
+                    textList: textList,
+                    trecvidId: "avs_" + this.randomId(10),
+                    avsText: "Enter query text",
+                    imageList: imageList
+                };
+                this.createTask(newTask);
+            }
+
+        }
+        reader.readAsText(file);
     }
 
     this.formatTime = (seconds) => {

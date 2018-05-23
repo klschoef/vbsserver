@@ -175,13 +175,15 @@ class ValidationConstraints {
                 } else if (attributes.type.startsWith("LSC")) {
                     if (!Array.isArray(attributes.imageList) || attributes.imageList.length == 0) {
                         resolve("A list of valid imageIds is required");
-                    } else {
+                    } else if (attributes.type.startsWith("LSC_Textual")) {
                         var msg = validateTextList(attributes);
                         if (msg === "OK") {
                             resolve();
                         } else {
                             resolve(msg);
                         }
+                    } else {
+                        resolve("Task type '" + attributes.type + "' is currently not supported");
                     }
 
                 } else {
@@ -253,7 +255,7 @@ ValidationConstraints.TASK = {
     },
     type: {
         inclusion: {
-            within: ["KIS_Visual", "KIS_Textual", "AVS", "KIS_Visual_novice", "KIS_Textual_novice", "AVS_novice", "LSC", "LSC_novice"],
+            within: ["KIS_Visual", "KIS_Textual", "AVS", "KIS_Visual_novice", "KIS_Textual_novice", "AVS_novice", "LSC_Textual", "LSC_Textual_novice"],
             message: "Invalid task type: %{value}"
         },
         taskCheck: true

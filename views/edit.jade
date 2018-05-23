@@ -57,7 +57,11 @@ html
                     select(id="taskSelect" onchange="edit.taskSelected()")
                     button(type="button" id="addTaskButton" onclick="edit.addTaskButtonClicked()") Add
                     button(type="button" id="deleteTaskButton" onclick="edit.deleteTaskButtonClicked()") Delete
-                    
+                    button(type="button" id="taskImportButton" onclick="edit.showImportTasks()") XML Import
+                    span(id="taskImportDiv")
+                        input(type="file" id="taskImportFile" accept=".xml" onchange="edit.importTasks()")
+                        button(type="button" onclick="edit.hideImportTasks()") X
+
                     hr
                     div(id="taskBody" class="bodyDiv")
                         label Name
@@ -78,6 +82,8 @@ html
                             option()= 'KIS_Visual_novice'
                             option()= 'KIS_Textual_novice'
                             option()= 'AVS_novice'
+                            option()= 'LSC_Textual'
+                            option()= 'LSC_Textual_novice'
                         div(id="taskQueryDiv" class="containerDiv")
                             div(id="kisQueryDiv" class="taskQueryOption")
                                 span
@@ -110,25 +116,30 @@ html
                                                 td
                                                     input(type="number" id="kisSegmentLength" class="taskConditionallyEnabled" onchange="edit.kisSegmentLengthChanged()" min=1)
                                             tr
-                                                td                                               
-                                                    label Loop                                
+                                                td
+                                                    label Loop
                                                 td(id="loopField")
-                                                    input(type="checkbox" id="videoLoop" checked)                                    
+                                                    input(type="checkbox" id="videoLoop" checked)
                                 div(id="queryVideoInfo")                                           
                                     div(id="kisVideoName" disabled) video name                                    
                                     label Framerate
                                     input(type="number" step="any" id="kisVideoFps" disabled)
                                     label Duplicates
                                     input(type="text" id="kisDuplicates" disabled value="TODO...")                                
-                                div(id="kisTextualQueryDiv" class="taskQueryOption")
-                                    div(id="kisTextListContainer")                                    
-                                    button(type="button" id="addKISTextBtn" class="taskConditionallyEnabled" onclick="edit.addKISText()") Add
-                                    button(type="button" id="deleteKISTextBtn" class="taskConditionallyEnabled" onclick="edit.deleteKISText()") Delete
+                            div(id="kisTextualQueryDiv" class="taskQueryOption")
+                                div(id="kisTextListContainer")                                    
+                                button(type="button" id="addKISTextBtn" class="taskConditionallyEnabled" onclick="edit.addKISText()") Add
+                                button(type="button" id="deleteKISTextBtn" class="taskConditionallyEnabled" onclick="edit.deleteKISText()") Delete
                             div(id="avsQueryDiv" class="taskQueryOption")
                                 label TrecvidId
                                 input(type="text" id="trecvidId" class="taskConditionallyEnabled" onchange="edit.trecvidIdChanged()")                                
                                 textarea(id="avsQueryText" rows="8" cols="100" class="taskConditionallyEnabled" onchange="edit.avsQueryTextChanged()")
-                            
+                            div(id="lscQueryDiv" class="taskQueryOption")
+                                label ImageIds
+                                br
+                                textarea(id="lscImageText" rows="10" cols="50" class="taskConditionallyEnabled" onchange="edit.lscImageIdsChanged()")
+
+
                 div(id="teamDiv" class="containerDiv")
                     label Team
                     select(id="teamSelect" onchange="edit.teamSelected()")

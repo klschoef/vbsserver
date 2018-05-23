@@ -60,6 +60,10 @@ hr {
     cursor: pointer;
 }
 
+#taskImportDiv {
+    display: none;    
+}
+
 label {
     margin: 10px;
 }
