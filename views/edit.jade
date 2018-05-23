@@ -145,7 +145,10 @@ html
                     select(id="teamSelect" onchange="edit.teamSelected()")
                     button(type="button" id="addTeamButton" onclick="edit.addTeamButtonClicked()") Add
                     button(type="button" id="deleteTeamButton" onclick="edit.deleteTeamButtonClicked()") Delete
-                    button(type="button" id="presetTeamButton" onclick="edit.presetTeamButtonClicked()") 2018 Preset                   
+                    button(type="button" id="presetTeamButton" onclick="edit.presetTeamButtonClicked()") Preset
+                    select(id="teamPresetSelect") 
+                        option()= 'VBS 2018'
+                        option()= 'LSC 2018'
                     hr
                     div(id="teamBody" class="bodyDiv")                        
                         img(src="images/logos/default.png" id="teamLogo" height=64 onclick="edit.showTeamLogoUpload()")

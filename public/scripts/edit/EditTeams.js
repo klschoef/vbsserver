@@ -115,17 +115,46 @@ function teamEditor() {
 
     this.presetTeamButtonClicked = () => {
 
-        var teams2018 = ["VIREO", "VITRIVR", "ITEC1", "ITEC2", "VNU", "SIRET", "NECTEC", "VERGE", "HTW"];
-        var hueStep = 1 / teams2018.length;
+        var preset = $("#teamPresetSelect").val();
+        var teams = [];
+        var logos = [];
+
+        switch (preset) {
+            case "VBS 2018":
+                teams = ["VIREO", "VITRIVR", "ITEC1", "ITEC2", "VNU", "SIRET", "NECTEC", "VERGE", "HTW"];
+                logos = ["images/logos/2018/vireo.png",
+                    "images/logos/2018/vitrivr.png",
+                    "images/logos/2018/itec1.png",
+                    "images/logos/2018/itec2.png",
+                    "images/logos/2018/vnu.png",
+                    "images/logos/2018/siret.png",
+                    "images/logos/2018/nectec.png",
+                    "images/logos/2018/verge.png",
+                    "images/logos/2018/htw.png"];
+                break;
+            case "LSC 2018":
+                teams = ["AAU", "SIRET", "DCU", "UUDCU", "VNU", "UPCDCU"];
+                logos = ["images/logos/2018/aau.png",
+                    "images/logos/2018/siret.png",
+                    "images/logos/2018/dcu.png",
+                    "images/logos/2018/uudcu.png",
+                    "images/logos/2018/vnu.png",
+                    "images/logos/2018/upcdcu.png"];
+                break;
+            default :
+                toastr.warning("Team Preset '" + preset + "' is not defined");
+        } 
+
+        var hueStep = 1 / teams.length;        
         var offset = 0.34;
 
-        for (var i = 0; i < teams2018.length; i++) {
+        for (var i = 0; i < teams.length; i++) {
             var newTeam = {
                 competitionId: this.activeCompetitionId,
-                name: teams2018[i],
+                name: teams[i],
                 teamNumber: i + 1,
                 color: this.HSVtoRGB((hueStep * i + offset ) % 1, 1, 0.8),
-                logoSrc: "images/logos/2018/" + teams2018[i].toLowerCase() + ".png"
+                logoSrc: logos[i]
             };
 
             this.socket.emit("createTeam", newTeam, (response) => {
