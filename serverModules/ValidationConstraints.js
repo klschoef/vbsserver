@@ -73,7 +73,7 @@ class ValidationConstraints {
                     controller.currentTask((task) => {
                         if (!task) {
                             resolve("no task running.");
-                        } else if (task.type.startsWith("LSC")) {
+                        } else if (task.type.startsWith("LSC")) {                            
                             if (typeof attributes.imageId === "string" && attributes.imageId.length > 0) {
                                 resolve();
                             } else {
@@ -318,7 +318,7 @@ ValidationConstraints.SUBMISSION = {
     },
     taskId: {
         presence: true
-    },
+    },    
     videoNumber: {
         presence: true,
         validVideoNumber: true
@@ -328,6 +328,9 @@ ValidationConstraints.SUBMISSION = {
     },
     shotNumber: {
         dummy: true     // submissionCheck checks frameNumber and shotNumber
+    },
+    imageId: {
+        dummy: true
     }
 };
 

@@ -65,7 +65,7 @@ class Test {
                 if (this.competitionState.activeTaskIdx >= 0) {
                     this.currentTask = this.competitionState.tasks[this.competitionState.activeTaskIdx];
                     $("#currentTask").html(this.formatTask(this.currentTask));
-                    if (this.currentTask.type.startsWith("KIS")) {
+                    if (this.currentTask.type.startsWith("KIS") || this.currentTask.type.startsWith("LSC")) {
                         $("#kisBtns").show();
                         $("#avsBtns").show();
                     } else {
@@ -141,14 +141,24 @@ class Test {
         if (!team) {
             team = this.getSelectedTeam();
         }
-        var range = this.currentTask.videoRanges[0];
         var teamNumber = team.teamNumber;
-        var videoNumber = range.videoNumber;
-        var frameNumber = range.startFrame + Math.round(Math.random() * (range.endFrame - range.startFrame));
-        this.submit(teamNumber, videoNumber, frameNumber);
+        if (this.currentTask.type.startsWith("KIS")) {
+            var range = this.currentTask.videoRanges[0];
+            var videoNumber = range.videoNumber;
+            var frameNumber = range.startFrame + Math.round(Math.random() * (range.endFrame - range.startFrame));
+            this.submit("VBS", teamNumber, videoNumber, frameNumber);
+        } else if (this.currentTask.type.startsWith("LSC")) {
+            var images = this.currentTask.imageList;
+            var randomIdx = Math.floor(Math.random() * images.length);
+            var imageId = images[randomIdx];
+            this.submit("LSC", teamNumber, null, null, imageId);
+        } else {
+            toastr.warning("Correct submit is not possible for task type " + this.currentTask.type);
+        }
     }
 
-    allCorrect() {
+    allCorrect()
+    {
         for (let teamId in this.competitionState.results) {
             setTimeout(() => {
                 this.correctSubmit(this.competitionState.results[teamId].team);
@@ -157,23 +167,34 @@ class Test {
     }
 
     wrongSubmit() {
-        var video = this.getRandomVideo();
-        if (video._id == this.currentTask.videoRanges[0].videoId) {
-            wrongSubmit();  // try again
+        var teamNumber = this.getSelectedTeam().teamNumber;
+        if (this.currentTask.type.startsWith("KIS")) {
+            var video = this.getRandomVideo();
+            if (video._id == this.currentTask.videoRanges[0].videoId) {
+                wrongSubmit();  // try again
+            } else {
+                var videoNumber = video.videoNumber;
+                var frameNumber = Math.floor(Math.random() * video.numFrames);
+                this.submit("VBS", teamNumber, videoNumber, frameNumber);
+            }
+        } else if (this.currentTask.type.startsWith("LSC")) {
+            this.submit("LSC", teamNumber, null, null, "someWrongImageId");
         } else {
-            var teamNumber = this.getSelectedTeam().teamNumber;
-            var videoNumber = video.videoNumber;
-            var frameNumber = Math.floor(Math.random() * video.numFrames);
-            this.submit(teamNumber, videoNumber, frameNumber);
+            toastr.warning("Wrong submit is not possible for task type " + this.currentTask.type);
         }
     }
 
     randomSubmit() {
-        var video = this.getRandomVideo();
-        var teamNumber = this.getSelectedTeam().teamNumber;
-        var videoNumber = video.videoNumber;
-        var frameNumber = Math.floor(Math.random() * video.numFrames);
-        this.submit(teamNumber, videoNumber, frameNumber);
+        if (this.currentTask.type.startsWith("AVS")) {
+            var video = this.getRandomVideo();
+            var teamNumber = this.getSelectedTeam().teamNumber;
+            var videoNumber = video.videoNumber;
+            var frameNumber = Math.floor(Math.random() * video.numFrames);
+            this.submit("VBS", teamNumber, videoNumber, frameNumber);
+        } else {
+            toastr.warning("Random submit is not possible for task type " + this.currentTask.type);
+        }
+
     }
 
     randomBatch() {
@@ -194,12 +215,21 @@ class Test {
         }
     }
 
-    submit(teamNumber, videoNumber, frameNumber) {
-        var url = "http://" + config.server.websocketURL + ":" + config.server.port + "/vbs/submit?";
-        url += "team=" + teamNumber
-        url += "&video=" + videoNumber;
-        url += "&frame=" + frameNumber;
-        url += "&iseq=" + this.randomIseq();
+    submit(competitionType, teamNumber, videoNumber, frameNumber, imageId) {
+        if (competitionType == "VBS") {
+            var url = "http://" + config.server.websocketURL + ":" + config.server.port + "/vbs/submit?";
+            url += "team=" + teamNumber;
+            url += "&video=" + videoNumber;
+            url += "&frame=" + frameNumber;
+            url += "&iseq=" + this.randomIseq();
+        } else if (competitionType == "LSC") {
+            var url = "http://" + config.server.websocketURL + ":" + config.server.port + "/lsc/submit?";
+            url += "team=" + teamNumber;
+            url += "&image=" + imageId;
+        } else {
+            toastr.warning("Submission failed");
+            return;
+        }
         this.log(url);
         $.ajax({
             url: url,
@@ -306,17 +336,17 @@ class Test {
         var videoNumbers = Object.keys(this.videoMap);
         if (this.videoPool) {
             videoNumbers = this.videoPool;
-        }        
+        }
         var randomVideoNumber = videoNumbers[Math.floor(Math.random() * videoNumbers.length)];
         return this.videoMap[randomVideoNumber];
     }
-    
+
     limitVideos() {
         if ($("#limitNumVideos").is(":checked")) {
             this.videoPool = [];
             var numVideos = parseInt($("#numVideos").val());
             var videoNumbers = Object.keys(this.videoMap);
-            for (var i=0; i<numVideos; i++) {
+            for (var i = 0; i < numVideos; i++) {
                 this.videoPool.push(videoNumbers[Math.floor(Math.random() * videoNumbers.length)]);
             }
         } else {

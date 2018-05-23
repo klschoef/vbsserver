@@ -130,10 +130,10 @@ class Routes {
                 // parse parameters
                 var url_parts = url.parse(req.url, true);
                 var query = url_parts.query;
-                var teamNumber = parseInt(query.team);
-                var imageId = query.image;                
+                var teamNumber = parseInt(query.team);               
+                var imageId = query.image;
 
-                controller.submissionHandler.handleSubmission(teamNumber, null, null, null, imageId, null, searchTime, res);
+                controller.submissionHandler.handleSubmission(teamNumber, 0, 0, 0, imageId, undefined, searchTime, res);
             });
         });
     }
