@@ -1,6 +1,7 @@
 var controller = require('../Controller'),
-        SubmissionHandlerKIS = require('./SubmissionHandlerKIS'),        
+        SubmissionHandlerKIS = require('./SubmissionHandlerKIS'),
         SubmissionHandlerAVS = require('./SubmissionHandlerAVS'),
+        SubmissionHandlerLSC = require('./SubmissionHandlerLSC'),
         Video = require('../entities/Video'),
         logger = require('winston'),
         async = require('async');
@@ -13,6 +14,7 @@ class SubmissionHandler {
 
         this.handlerKIS = new SubmissionHandlerKIS(this);
         this.handlerAVS = new SubmissionHandlerAVS(this);
+        this.handlerLSC = new SubmissionHandlerLSC(this);
 
         // updating scores (TaskResults) should be an atomic operation
         // otherwise, multiple updates triggered by concurrent judgements
@@ -22,7 +24,7 @@ class SubmissionHandler {
         //  (kind of a critical section)
         this.updateQueue = async.queue((update, finished) => {
             update(finished);
-        }, 1);        
+        }, 1);
     }
 
     // when a new task is started, some things have to be reset
@@ -32,7 +34,7 @@ class SubmissionHandler {
     }
 
     // first step of submission handling is the same for all task types
-    handleSubmission(teamNumber, videoNumber, frameNumber, shotNumber, iseq, searchTime, res) {
+    handleSubmission(teamNumber, videoNumber, frameNumber, shotNumber, imageId, iseq, searchTime, res) {
         // first, retrieve the current task
         controller.currentTask((task) => {
             if (!task) {
@@ -46,8 +48,9 @@ class SubmissionHandler {
                     teamNumber: teamNumber,
                     videoNumber: videoNumber,
                     // for KIS tasks, shot number is ignored (and later calculated from frame number)
-                    shotNumber: (task.type.startsWith("AVS") ? shotNumber : null),   
+                    shotNumber: (task.type.startsWith("AVS") ? shotNumber : null),
                     frameNumber: frameNumber,
+                    imageId: imageId, // only relevant for LSC tasks
                     iseq: iseq,
                     searchTime: searchTime},
                         (submission) => {
@@ -64,19 +67,22 @@ class SubmissionHandler {
     handleValidSubmission(submission, task, res) {
 
         logger.info("New Submission", {teamNumber: submission.teamNumber, videoNumber: submission.videoNumber,
-            shotNumber: submission.shotNumber, frameNumber: submission.frameNumber, searchTime: submission.searchTime, submissionId: submission._id});
+            shotNumber: submission.shotNumber, frameNumber: submission.frameNumber, imageId: submission.imageId,
+            searchTime: submission.searchTime, submissionId: submission._id});
         logger.verbose("New Submission", {submission: submission, task: task});
         // submission has already been validated (contains all required fields)
         // but some details are still missing: 
         //  - teamId and videoId: we only know the teamNumber and videoNumber, but we also need the db _ids
         //  - shotNumber and frameNumber: usually only one is submitted, but for AVS tasks both are required
         //          (shotNumber for judgement, frameNumber for preview image on client)
-        this.enrichSubmission(submission, () => {            
-            // we have to differentiate between KIS and AVS tasks: AVS allows multiple correct submissions!                    
+        this.enrichSubmission(submission, () => {
+            // we have to differentiate between task types: AVS allows multiple correct submissions!
             if (task.type.startsWith("KIS")) {
                 this.handlerKIS.handleSubmission(submission, task, res);
             } else if (task.type.startsWith("AVS")) {
                 this.handlerAVS.handleSubmission(submission, task, res);
+            } else if (task.type.startsWith("LSC")) {
+                this.handlerLSC.handleSubmission(submission, task, res);
             } else {
                 // should not be possible, because type is already checked in validation
                 this.db.deleteSubmission(submission);
@@ -91,27 +97,33 @@ class SubmissionHandler {
     enrichSubmission(submission, callback, error) {
         this.db.findTeam({competitionId: submission.competitionId, teamNumber: submission.teamNumber}, (team) => {
             submission.teamId = team._id;
-            var video = controller.videoMap[submission.videoNumber];
-            if (!submission.shotNumber) {
-                submission.shotNumber = Video.frameToTrecvidShotNumber(submission.frameNumber, video);
-            }
-            if (!submission.frameNumber) {
-                submission.frameNumber = Video.getShotCenterFrame(submission.shotNumber, video);
-            }
-            submission.videoId = video._id;
-            this.db.updateSubmission(submission, () => {
-                callback();
-            }, (err) => {
-                logger.error("updating submission failed", {submission: submission, errorMsg: err});
-                error(err);
-            });
+            this.db.findTask({_id: submission.taskId}, (task) => {
+
+                if (task.type.startsWith("KIS") || task.type.startsWith("AVS")) {
+                    var video = controller.videoMap[submission.videoNumber];
+                    if (!submission.shotNumber) {
+                        submission.shotNumber = Video.frameToTrecvidShotNumber(submission.frameNumber, video);
+                    }
+                    if (!submission.frameNumber) {
+                        submission.frameNumber = Video.getShotCenterFrame(submission.shotNumber, video);
+                    }
+                    submission.videoId = video._id;
+                }
+
+                this.db.updateSubmission(submission, () => {
+                    callback();
+                }, (err) => {
+                    logger.error("updating submission failed", {submission: submission, errorMsg: err});
+                    error(err);
+                });
+
+            }, error);
         }, error);
     }
 
-
     // result updates are performed strictly sequential,
     // otherwise they could interleave and produce an inconsistent state (due to asynchronous database accesses)
-    criticalSection(criticalFunction) {        
+    criticalSection(criticalFunction) {
         var ts1 = (new Date()).getTime();
         this.updateQueue.push(criticalFunction, (err) => {
             var ts2 = (new Date()).getTime();

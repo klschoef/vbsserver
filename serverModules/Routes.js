@@ -11,8 +11,8 @@ class Routes {
 
         app.get('/', (req, res) => {
             res.render('index', {
-                    config: JSON.stringify(config)
-                });
+                config: JSON.stringify(config)
+            });
         });
 
         app.get('/test', (req, res) => {
@@ -98,7 +98,7 @@ class Routes {
                 var shotNumber = parseInt(query.shot);
                 var iseq = query.iseq;
 
-                controller.submissionHandler.handleSubmission(teamNumber, videoNumber, frameNumber, shotNumber, iseq, searchTime, res);
+                controller.submissionHandler.handleSubmission(teamNumber, videoNumber, frameNumber, shotNumber, undefined, iseq, searchTime, res);
             });
         });
 
@@ -119,13 +119,22 @@ class Routes {
                 var shotNumber = parseInt(req.body.shot);
                 var iseq = req.body.iseq;
 
-                controller.submissionHandler.handleSubmission(teamNumber, videoNumber, frameNumber, shotNumber, iseq, searchTime, res);
+                controller.submissionHandler.handleSubmission(teamNumber, videoNumber, frameNumber, shotNumber, null, iseq, searchTime, res);
 
             });
         });
-        
+
         app.get('/lsc/submit', (req, res) => {
-            // TODO other format for LSC
+            this.computeSearchTime((searchTime) => {
+
+                // parse parameters
+                var url_parts = url.parse(req.url, true);
+                var query = url_parts.query;
+                var teamNumber = parseInt(query.team);
+                var imageId = query.image;                
+
+                controller.submissionHandler.handleSubmission(teamNumber, null, null, null, imageId, null, searchTime, res);
+            });
         });
     }
 

@@ -20,18 +20,29 @@ class Task {
         this.endTimeStamp = null;
 
         // query is different for different task types and may contain different fields
-        this.type = data.type;  // currently supported types: KIS_Visual, KIS_Textual, AVS, KIS_Visual_novice, KIS_Textual_novice, AVS_novice
+        // TODO encapsulate in a type-specific query object
+        this.type = data.type;  
+        // currently supported types: 
+        //      - KIS_Visual
+        //      - KIS_Textual
+        //      - AVS
+        //      - KIS_Visual_novice
+        //      - KIS_Textual_novice
+        //      - AVS_novice
+        //      - LSC
+        //      - LSC_novice
 
         // KIS tasks
         this.videoRanges = data.videoRanges;    // KIS: array of {videoId, videoNumber, startFrame, endFrame} (to support duplicates)
-        this.textList = data.textList;          // KIS_Textual: array of {delay, text}, textual descriptions (for refining the query)
+        this.textList = data.textList;          // KIS_Textual, LSC: array of {delay, text}, textual descriptions (for refining the query)
 
         // AVS tasks
         this.trecvidId = data.trecvidId;
         this.avsText = data.avsText;
         
         // LSC tasks
-        // TODO
+        this.imageList = data.imageList;        // LSC: a list of valid imageIds
+        // this.textList is also used
 
     }
 

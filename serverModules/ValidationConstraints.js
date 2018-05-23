@@ -8,7 +8,7 @@ class ValidationConstraints {
 
         var db = controller.db;
 
-        // dummy validator to simply assure that the attribute is include in other validators
+        // dummy validator to simply assure that the attribute is included in other validators
         validate.validators.dummy = () => {
             return null;
         };
@@ -44,12 +44,21 @@ class ValidationConstraints {
 
         validate.validators.validVideoNumber = (value, options, key, attributes) => {
             return new validate.Promise((resolve, reject) => {
-                db.isValidVideoNumber(value, () => {
-                    resolve();
+                db.findTask({_id: attributes.taskId}, (task) => {
+                    if (task.type.startsWith("KIS") || task.type.startsWith("AVS")) {
+                        db.isValidVideoNumber(value, () => {
+                            resolve();
+                        }, () => {
+                            resolve("Video number missing or invalid");
+                        }, (err) => {
+                            resolve("Video number missing or invalid");
+                        });
+                    } else {
+                        // for LSC tasks, videoNumbers are not in use and therefore cannot be validated
+                        resolve();
+                    }
                 }, () => {
-                    resolve("Video number missing or invalid");
-                }, (err) => {
-                    resolve("Video number missing or invalid");
+                    resolve("Invalid Task");
                 });
             });
         };
@@ -62,43 +71,51 @@ class ValidationConstraints {
                     resolve();
                 } else {
                     controller.currentTask((task) => {
-                        var video = controller.videoMap[attributes.videoNumber];
                         if (!task) {
                             resolve("no task running.");
-                        } else if (task.type.startsWith("KIS")) {                            
-                            var shotNumber = Video.frameToTrecvidShotNumber(attributes.frameNumber, video);
-                            if (!Utils.isNumber(attributes.frameNumber)) {
-                                resolve("Frame number missing");
-                            } else if (!Video.isValidShotNumber(shotNumber, video)){
-                                resolve("Invalid frame number");
-                            } else {
+                        } else if (task.type.startsWith("LSC")) {
+                            if (typeof attributes.imageId === "string" && attributes.imageId.length > 0) {
                                 resolve();
-                            }
-                        } else if (task.type.startsWith("AVS")) {
-                            if (!Utils.isNumber(attributes.frameNumber) && !Utils.isNumber(attributes.shotNumber)) {
-                                resolve("Neither frame nor shot specified");
-                            } else {                                
-                                if (!video) {
-                                    resolve("Invalid video number");    // should already have been checked, but to be on the safe side, check again...
-                                } else {
-                                    if (!attributes.shotNumber) {
-                                        attributes.shotNumber = Video.frameToTrecvidShotNumber(attributes.frameNumber, video);
-                                    }
-                                    db.isDuplicateAVSSubmission(attributes, () => {
-                                        resolve("Duplicate submission is ignored.");
-                                    }, () => {
-                                        if (!Video.isValidShotNumber(attributes.shotNumber, video)) {
-                                            resolve("Invalid shot number");
-                                        } else {
-                                            resolve();
-                                        }
-                                    }, (err) => {
-                                        resolve("Internal error (duplicate checking failed)");
-                                    });
-                                }
+                            } else {
+                                resolve("Invalid imageId");
                             }
                         } else {
-                            resolve("Internal error (unsupported task type)");
+                            var video = controller.videoMap[attributes.videoNumber];
+                            if (task.type.startsWith("KIS")) {
+                                var shotNumber = Video.frameToTrecvidShotNumber(attributes.frameNumber, video);
+                                if (!Utils.isNumber(attributes.frameNumber)) {
+                                    resolve("Frame number missing");
+                                } else if (!Video.isValidShotNumber(shotNumber, video)) {
+                                    resolve("Invalid frame number");
+                                } else {
+                                    resolve();
+                                }
+                            } else if (task.type.startsWith("AVS")) {
+                                if (!Utils.isNumber(attributes.frameNumber) && !Utils.isNumber(attributes.shotNumber)) {
+                                    resolve("Neither frame nor shot specified");
+                                } else {
+                                    if (!video) {
+                                        resolve("Invalid video number");    // should already have been checked, but to be on the safe side, check again...
+                                    } else {
+                                        if (!attributes.shotNumber) {
+                                            attributes.shotNumber = Video.frameToTrecvidShotNumber(attributes.frameNumber, video);
+                                        }
+                                        db.isDuplicateAVSSubmission(attributes, () => {
+                                            resolve("Duplicate submission is ignored.");
+                                        }, () => {
+                                            if (!Video.isValidShotNumber(attributes.shotNumber, video)) {
+                                                resolve("Invalid shot number");
+                                            } else {
+                                                resolve();
+                                            }
+                                        }, (err) => {
+                                            resolve("Internal error (duplicate checking failed)");
+                                        });
+                                    }
+                                }
+                            } else {
+                                resolve("Internal error (unsupported task type)");
+                            }
                         }
                     });
                 }
@@ -131,30 +148,12 @@ class ValidationConstraints {
                         }
                         // check text list for KIS_Textual                                    
                         if (attributes.type.startsWith("KIS_Textual")) {
-                            if (!Array.isArray(attributes.textList) || attributes.textList.length == 0) {
-                                resolve("Missing textList");
-                            } else {
-                                var textList = attributes.textList;
-                                var prevDelay = -1;
-                                for (var i = 0; i < textList.length; i++) {
-                                    var textItem = textList[i];
-                                    if (typeof textItem != "object") {
-                                        resolve("Invalid textList");
-                                        return;
-                                    } else if (!Utils.isNumber(textItem.delay)) {
-                                        resolve("Delay must be number");
-                                        return;
-                                    } else if (textItem.delay <= prevDelay) {
-                                        resolve("Delays have to be strictly increasing");
-                                        return;
-                                    } else if (typeof textItem.text !== "string" || textItem.text.length < 10) {
-                                        resolve("Query text has to be a string (with some minimum length)");
-                                        return;
-                                    }
-                                    prevDelay = textItem.delay;                                    
-                                }
+                            var msg = validateTextList(attributes);
+                            if (msg === "OK") {
                                 resolve();
-                            }                            
+                            } else {
+                                resolve(msg);
+                            }
                         } else if (!attributes.type.startsWith("KIS_Visual")) {
                             resolve("Invalid task type");
                         } else {
@@ -171,13 +170,51 @@ class ValidationConstraints {
                     } else {
                         resolve();
                     }
+
+                    // check LSC task
+                } else if (attributes.type.startsWith("LSC")) {
+                    if (!Array.isArray(attributes.imageList) || attributes.imageList.length == 0) {
+                        resolve("A list of valid imageIds is required");
+                    } else {
+                        var msg = validateTextList(attributes);
+                        if (msg === "OK") {
+                            resolve();
+                        } else {
+                            resolve(msg);
+                        }
+                    }
+
                 } else {
                     resolve("Invalid task type");
                 }
             });
         };
     }
+}
 
+function validateTextList(attributes) {
+    if (!attributes) {
+        return "Invalid attributes";
+    }
+    var textList = attributes.textList;
+    if (!Array.isArray(textList) || attributes.textList.length == 0) {
+        return "Missing textList";
+    }
+    var prevDelay = -1;
+    for (var i = 0; i < textList.length; i++) {
+        var textItem = textList[i];
+        if (typeof textItem != "object") {
+            return "Invalid textList";
+        } else if (!Utils.isNumber(textItem.delay)) {
+            return "Delay must be number";
+        } else if (textItem.delay <= prevDelay) {
+            return "Delays have to be strictly increasing";
+        } else if (typeof textItem.text !== "string" || textItem.text.length < 10) {
+            return "Query text has to be a string (with some minimum length)";
+        }
+        prevDelay = textItem.delay;
+    }
+    return "OK";
 }
 
 ValidationConstraints.USER = {
@@ -216,7 +253,7 @@ ValidationConstraints.TASK = {
     },
     type: {
         inclusion: {
-            within: ["KIS_Visual", "KIS_Textual", "AVS", "KIS_Visual_novice", "KIS_Textual_novice", "AVS_novice"],
+            within: ["KIS_Visual", "KIS_Textual", "AVS", "KIS_Visual_novice", "KIS_Textual_novice", "AVS_novice", "LSC", "LSC_novice"],
             message: "Invalid task type: %{value}"
         },
         taskCheck: true
@@ -232,8 +269,10 @@ ValidationConstraints.TASK = {
     },
     avsText: {
         presence: true
+    },
+    imageList: {
+        presence: true
     }
-
 };
 
 ValidationConstraints.TASKRESULT = {};
@@ -289,9 +328,5 @@ ValidationConstraints.SUBMISSION = {
         dummy: true     // submissionCheck checks frameNumber and shotNumber
     }
 };
-
-
-
-
 
 module.exports = ValidationConstraints;
