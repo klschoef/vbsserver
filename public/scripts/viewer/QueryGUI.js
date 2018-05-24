@@ -5,6 +5,7 @@ class QueryGUI {
 //            depending on task type
 //                    Visual: show video (with progressive blurring)
 //                    Textual/AVS: show text (later refined)
+//                    LSC_Textual: also show text (later refined)
 //            starting in fullscreen for n seconds (initialFullscreenDuration)
 //
 //    - stop task
@@ -12,6 +13,7 @@ class QueryGUI {
 //                    Visual: reset blurring, continue video loop
 //                    Textual: show video
 //                    AVS: no change
+//                    LSC: show sequence of relevant images
 //
 //    - running task at loading time -> resume
 //            same as on start (except for fullscreen)
@@ -52,15 +54,15 @@ class QueryGUI {
                         resolve();
                     } else {
                         this.showQueryVideo().then(() => {
-							if (this.viewer.isInspector) {
-								resolve();
-							} else {
-								this.unmuteVideo();
-								this.showFullscreen("#queryVideo", config.client.initialFullscreenDuration, () => {
-									this.muteVideo();
-								});
-								resolve();
-							}
+                            if (this.viewer.isInspector) {
+                                resolve();
+                            } else {
+                                this.unmuteVideo();
+                                this.showFullscreen("#queryVideo", config.client.initialFullscreenDuration, () => {
+                                    this.muteVideo();
+                                });
+                                resolve();
+                            }
                         });
                     }
                 }
@@ -92,18 +94,18 @@ class QueryGUI {
     }
 
     stopTask() {
-		if (!this.viewer.toleranceTaskFlag) {
-			this.updateTimer("TIME OVER");
-			var task = this.viewer.getActiveTask();
-			if (task) {
-				this.updateQueryState();
-			} else {
-				this.hideQueryVideo();
-				this.hideQueryText();
-			}
-		} else {
-			this.updateTimer("WAITING...");
-		}
+        if (!this.viewer.toleranceTaskFlag) {
+            this.updateTimer("TIME OVER");
+            var task = this.viewer.getActiveTask();
+            if (task) {
+                this.updateQueryState();
+            } else {
+                this.hideQueryVideo();
+                this.hideQueryText();
+            }
+        } else {
+            this.updateTimer("WAITING...");
+        }
     }
 
     hideQueryVideo() {

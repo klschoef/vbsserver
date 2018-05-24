@@ -2,7 +2,8 @@
     "server": {
         "port": 80,
         "websocketURL": "localhost",
-        "videoDir": "videos/"
+        "videoDir": "videos/",
+        "imageDir": "images/images/"
     },
     "client": {
         "extractorPoolSize": 4,

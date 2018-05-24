@@ -9,7 +9,7 @@ class TeamGUI {
     }
 
     init() {
-		this.resetThumbs();
+        this.resetThumbs();
         this.initTeamDivs();
         this.updateScores();
     }
@@ -50,7 +50,7 @@ class TeamGUI {
         this.thumbZoom = 1;
         this.frameExtractor.reset();    // cancel current extraction job
     }
-    
+
     adaptThumbSize() {
         while (this.thumbZoom > 0.25 && ($(document).width() > $(window).width() || $(document).height() > $(window).height())) {
             this.thumbZoom *= 0.98;
@@ -59,7 +59,7 @@ class TeamGUI {
     }
 
     addThumb(submission, playbackInfo) {
-	
+
         // create the thumbnail element
         var parent = $(this.getTeamDiv(submission.teamId)).find(".thumbContainer");
         this.gui.renderTemplate("thumbTemplate", submission, parent, true);
@@ -78,7 +78,7 @@ class TeamGUI {
         $(thumb).on("click", () => {
             window.open(playbackInfo.src, '_blank');
         });
-        
+
         this.adaptThumbSize();
     }
 
@@ -148,7 +148,7 @@ class TeamGUI {
         } else {
             $(thumb).addClass("thumbPending");
         }
-        
+
         this.adaptThumbSize();
     }
 
@@ -169,8 +169,8 @@ class TeamGUI {
                 $(div).find(".teamScore").html(Math.round(teamResult.taskScore));
                 if (task.type.startsWith("AVS")) {
 //                    $(div).find(".scoreDetails").html(teamResult.numCorrect + " / " + teamResult.numAttempts);
-                    $(div).find(".scoreDetails").html(teamResult.numAttempts + " / " 
-                            + teamResult.numCorrect + " / " 
+                    $(div).find(".scoreDetails").html(teamResult.numAttempts + " / "
+                            + teamResult.numCorrect + " / "
                             + teamResult.numRanges + " / "
                             + teamResult.numVideos);
                 } else {
@@ -185,7 +185,7 @@ class TeamGUI {
                 teamOrder.push({teamId: team._id, value: 100000 - team.teamNumber, value2: 0});  // to get a descending order
             }
         }
-        teamOrder.sort((a, b) => {            
+        teamOrder.sort((a, b) => {
             if (a.value == b.value) {
                 return b.value2 - a.value2;
             } else {
