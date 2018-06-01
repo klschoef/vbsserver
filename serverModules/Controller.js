@@ -27,7 +27,7 @@ var optional = (callback) => {
 
 class Controller {
 
-    init(app) {
+    init(app, io) {
 
         // require necessary modules ("classes")
         CompetitionState = require('./CompetitionState');
@@ -74,7 +74,7 @@ class Controller {
                 // and then setup web server etc.
                 this.submissionHandler = new SubmissionHandler();
                 this.app = app; // express app
-                this.socket = null; // web sockets for communication with clients (are initialized later)
+                this.socket = new SocketHandler(io); // web sockets for communication with clients (are initialized later)
                 this.routes = new Routes(app);    // GET and POST routes     
 
                 // reconstruct current competition state from database (e.g., after crash)
@@ -90,10 +90,6 @@ class Controller {
                 logger.error("loading video info failed", {errorMsg: err});
             });
         });
-    }
-    
-    initSocketHandler(io) {
-        this.socket = new SocketHandler(io);  // web sockets for communication with clients
     }
 
     test() {

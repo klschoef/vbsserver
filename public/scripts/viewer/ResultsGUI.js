@@ -36,8 +36,8 @@ class ResultsGUI {
                     textAnchor: 'end'})
             ],
         };
-		
-		this.currentSubChartType = "";
+
+        this.currentSubChartType = "";
 
     }
 
@@ -47,11 +47,11 @@ class ResultsGUI {
 
     updateScores() {
         this.updateOverallChart();
-		var task = this.viewer.getActiveTask();
-		if (task && task.type) {
-			this.updateSubChart(task.type);			
-		}
-		this.updateAVSStatistics();
+        var task = this.viewer.getActiveTask();
+        if (task && task.type) {
+            this.updateSubChart(task.type);
+        }
+        this.updateAVSStatistics();
     }
 
     updateChart(selector, type, data, options, colorAdapt) {
@@ -87,27 +87,27 @@ class ResultsGUI {
             });
         }
     }
-	
-	nextTaskTypeChart() {
-		// all types that have been used in the entire competition
-		var availableTypes = Array.from(new Set(this.viewer.competitionState.tasks.map((t) => t.type))).sort();
-		// filter to those types which had been used up to the active task (can be any task in inspect view)
-		availableTypes = availableTypes.filter((t) => {
-			for (var i=0; i<=this.viewer.competitionState.activeTaskIdx; i++) {
-				if (this.viewer.competitionState.tasks[i].type == t) {
-					return true;
-				}
-			}
-			return false;
-		});
-		var currentIdx = availableTypes.indexOf(this.currentSubChartType);
-		var nextIdx = (currentIdx + 1) % availableTypes.length;
-		this.updateSubChart(availableTypes[nextIdx]);
-	}
 
-    updateSubChart(taskType) {        
+    nextTaskTypeChart() {
+        // all types that have been used in the entire competition
+        var availableTypes = Array.from(new Set(this.viewer.competitionState.tasks.map((t) => t.type))).sort();
+        // filter to those types which had been used up to the active task (can be any task in inspect view)
+        availableTypes = availableTypes.filter((t) => {
+            for (var i = 0; i <= this.viewer.competitionState.activeTaskIdx; i++) {
+                if (this.viewer.competitionState.tasks[i].type == t) {
+                    return true;
+                }
+            }
+            return false;
+        });
+        var currentIdx = availableTypes.indexOf(this.currentSubChartType);
+        var nextIdx = (currentIdx + 1) % availableTypes.length;
+        this.updateSubChart(availableTypes[nextIdx]);
+    }
+
+    updateSubChart(taskType) {
         if (taskType) {
-			this.currentSubChartType = taskType;
+            this.currentSubChartType = taskType;
             var teams = this.viewer.getTeams();
             var results = this.viewer.competitionState.results;
             // taskIdx relative to task type!        
@@ -138,7 +138,7 @@ class ResultsGUI {
             var stats = this.viewer.competitionState.avsStatistics;
             $("#avsNumSubmissions").html(stats.submissions);
             $("#avsNumOpenJudgements").html(stats.unjudged);
-            $("#avsNumVideos").html(stats.videos);            
+            $("#avsNumVideos").html(stats.videos);
             $("#avsNumRanges").html(stats.ranges);
             $("#avsExtraInfo").show();
         } else {

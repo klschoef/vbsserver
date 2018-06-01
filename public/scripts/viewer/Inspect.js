@@ -6,6 +6,7 @@ $(document).ready(function () {
 
 
 // General Architecture of this view is analoguous to Viewer.js, but without receiving events from the server
+// TODO incorporate adaptations of Viewer.js for LSC
 class Inspect {
     constructor() {
         this.config = config;   // globally defined in viewer.jade

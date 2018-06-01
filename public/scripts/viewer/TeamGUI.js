@@ -3,8 +3,6 @@ class TeamGUI {
     constructor(gui) {
         this.gui = gui;
         this.viewer = gui.viewer;
-
-        this.frameExtractor = new ExtractorPool();
         this.thumbZoom = 1;
     }
 
@@ -36,7 +34,7 @@ class TeamGUI {
             $(div).find(".scoreDetails").html("");
             for (var submissionId in this.viewer.competitionState.submissions[team._id]) {
                 var s = this.viewer.competitionState.submissions[team._id][submissionId];
-                this.addThumb(s, this.viewer.getSubmissionPlaybackInfo(s));
+                this.addThumb(s);
                 this.updateSubmission(s);
             }
         }
@@ -48,7 +46,7 @@ class TeamGUI {
         $(".thumbOverlay").css("background-image", "url(../images/thumb_loading.png)");
         $(".thumbOverlay").css("background-color", "white");
         this.thumbZoom = 1;
-        this.frameExtractor.reset();    // cancel current extraction job
+        this.viewer.thumbManager.reset();    // cancel current extraction job
     }
 
     adaptThumbSize() {
@@ -58,7 +56,7 @@ class TeamGUI {
         }
     }
 
-    addThumb(submission, playbackInfo) {
+    addThumb(submission) {
 
         // create the thumbnail element
         var parent = $(this.getTeamDiv(submission.teamId)).find(".thumbContainer");
@@ -68,30 +66,26 @@ class TeamGUI {
 
         // extract the corresponding frame
         var canvas = $(thumb).find(".thumbCanvas")[0];
-        this.frameExtractor.extractFrame(playbackInfo, canvas, () => {
+        this.viewer.thumbManager.loadThumb(submission, canvas, () => {
             thumb.frameLoaded = true;
             this.updateSubmission(submission);
         });
 
         // adapt thumb zoom        
         $(thumb).css("zoom", this.thumbZoom);
-        $(thumb).on("click", () => {
-            window.open(playbackInfo.src, '_blank');
-        });
-
         this.adaptThumbSize();
     }
 
     // update appearance of the submission, 
     // depending on task type and finished status
     updateSubmission(submission) {
-        // we cannot rely on the submission object to be up-to-date        
+        // we cannot rely on the submission object to be up-to-date
         //  e.g., the call after successful frame extraction passes a possibly outdated version
         var submission = this.viewer.getSubmission(submission.teamId, submission._id);
-        var playbackInfo = this.viewer.getSubmissionPlaybackInfo(submission);
+
         var thumb = this.getThumbDiv(submission._id);
-        thumb.title = submission.videoNumber + "-" + submission.shotNumber + ": "
-                + this.viewer.formatTime(playbackInfo.thumbTimeCode) + "; " + submission.judged + "; " + submission.iseq;
+        thumb.title = this.viewer.thumbManager.getThumbTooltip(submission);
+
         var overlay = $(thumb).find(".thumbOverlay");
 
         // different task types require different behaviour
@@ -108,7 +102,7 @@ class TeamGUI {
             if (task.type.startsWith("KIS_Visual")) {
                 $(overlay).css("background-image", "url(../images/thumb_show.png)");
                 $(overlay).css("background-color", "transparent");
-            } else if (task.type.startsWith("KIS_Textual")) {
+            } else if (task.type.startsWith("KIS_Textual") || task.type.startsWith("LSC_Textual")) {
                 if (submission.correct) {
                     $(overlay).css("background-image", "url(../images/thumb_correct.png)");
                 } else {

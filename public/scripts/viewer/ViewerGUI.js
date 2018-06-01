@@ -16,7 +16,7 @@ class ViewerGUI {
         this.zoomWithMouseWheel("#teamContainer", zoomStep, zoomMin, zoomMax);
         this.zoomWithMouseWheel("#overallScore", zoomStep, zoomMin, zoomMax);
         this.zoomWithMouseWheel("#subScore", zoomStep, zoomMin, zoomMax);
-        this.zoomWithMouseWheel("#avsExtraInfo", zoomStep, zoomMin, zoomMax);        
+        this.zoomWithMouseWheel("#avsExtraInfo", zoomStep, zoomMin, zoomMax);
     }
 
     init() {
@@ -24,12 +24,12 @@ class ViewerGUI {
         this.initZoom();
         this.showBody();
     }
-	
-	refresh() {
-		this.teamGUI.init();
+
+    refresh() {
+        this.teamGUI.init();
         this.queryGUI.init();
         this.resultsGUI.init();
-	}
+    }
 
     showBody() {
         $("#content").show();
@@ -44,7 +44,7 @@ class ViewerGUI {
             console.log("init zoom: " + id + " -> " + localStorage[key]);
         }
     }
-    
+
     resetZoom() {
         var zoomKeys = Object.keys(localStorage).filter((k) => k.startsWith("vbs_zoom_"));
         for (var i = 0; i < zoomKeys.length; i++) {
@@ -66,23 +66,23 @@ class ViewerGUI {
     stopTask() {
         this.queryGUI.stopTask();
         // in Textual and AVS tasks, submissions are hidden during the task and only revealed afterwards 
-		if (!this.viewer.toleranceTaskFlag) {
-			this.teamGUI.showAllSubmissions();
-		}
+        if (!this.viewer.toleranceTaskFlag) {
+            this.teamGUI.showAllSubmissions();
+        }
     }
 
     remainingTime(time) {
         this.queryGUI.updateTimer(time);
     }
 
-    newSubmission(submission, playbackInfo) {
-        this.teamGUI.addThumb(submission, playbackInfo);
+    newSubmission(submission) {
+        this.teamGUI.addThumb(submission);
     }
 
     newJudgement(submission) {
-        this.teamGUI.updateSubmission(submission);        
+        this.teamGUI.updateSubmission(submission);
     }
-    
+
     updateAVSStatistics() {
         this.resultsGUI.updateAVSStatistics();
     }
@@ -101,7 +101,7 @@ class ViewerGUI {
     }
 
     // page is build dynamically using templates,
-    // which rendered using this method
+    // which are rendered using this method
     // finally, the result is appended to the given target
     renderTemplate(templateId, data, target, prependFlag) {
         var template = document.getElementById(templateId).innerHTML;

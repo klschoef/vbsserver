@@ -17,17 +17,17 @@ class Viewer {
         this.config = config;   // globally defined in viewer.jade
 
         // CompetitionState object summarizing all relevant information about the current competition
-        this.competitionState = null;
-        // maps videoId to additional information
-        this.videoMap = null;
+        this.competitionState = null;        
 
-		// during a "tolerance extension" of a task, this flag is set to true
-		this.toleranceTaskFlag = false;
-		
+        // during a "tolerance extension" of a task, this flag is set to true
+        this.toleranceTaskFlag = false;
+
         // TODO prompt credentials
         this.socket = new ClientSockets({clientType: "viewer"});
 
         this.gui = new ViewerGUI(this);
+        
+        this.thumbManager = new ThumbManager(this);
 
         this.init();
     }
@@ -35,7 +35,7 @@ class Viewer {
     init() {
         $("#countdownDiv").hide();
         var promises = [];
-        promises.push(this.loadVideoMap());
+        promises.push(this.thumbManager.init());
         promises.push(this.updateCompetitionState());
         Promise.all(promises).then(() => {
             this.registerEvents();
@@ -80,35 +80,34 @@ class Viewer {
             this.competitionState.tasks[this.competitionState.activeTaskIdx] = task;
             this.gui.stopTask();
         });
-		
-		this.socket.registerEvent('toleranceExtension', () => {
+
+        this.socket.registerEvent('toleranceExtension', () => {
             console.log("tolerance extension");
-			// TODO in case of reconnection during the extension period, this information should also be available
-			this.toleranceTaskFlag = true;
+            // TODO in case of reconnection during the extension period, this information should also be available
+            this.toleranceTaskFlag = true;
         });
-		
-		this.socket.registerEvent('toleranceTimeout', () => {
+
+        this.socket.registerEvent('toleranceTimeout', () => {
             console.log("tolerance time is over");
-			this.toleranceTaskFlag = false;
-			this.gui.stopTask();
-        });		
+            this.toleranceTaskFlag = false;
+            this.gui.stopTask();
+        });
 
         this.socket.registerEvent('remainingTime', (data) => {
             this.gui.remainingTime(data.time);
         });
 
-        this.socket.registerEvent('newSubmission', (submission) => {            
+        this.socket.registerEvent('newSubmission', (submission) => {
             this.playSound("incoming");
-			if (submission.judged) {	
-				if (submission.correct) {	
-					this.playSound("applause");
-				} else {
-					this.playSound("boo");
-				}
-			}
-            this.competitionState.submissions[submission.teamId][submission._id] = submission;
-            var playbackInfo = this.getSubmissionPlaybackInfo(submission);
-            this.gui.newSubmission(submission, playbackInfo);
+            if (submission.judged) {
+                if (submission.correct) {
+                    this.playSound("applause");
+                } else {
+                    this.playSound("boo");
+                }
+            }
+            this.competitionState.submissions[submission.teamId][submission._id] = submission;            
+            this.gui.newSubmission(submission);
         });
 
         this.socket.registerEvent('newJudgement', (submission) => {
@@ -120,10 +119,10 @@ class Viewer {
             this.competitionState.submissions[submission.teamId][submission._id] = submission;
             this.gui.newJudgement(submission);
         });
-        
+
         this.socket.registerEvent('updateAVSStatistics', (avsStatistics) => {
-           this.competitionState.avsStatistics = avsStatistics;
-           this.gui.updateAVSStatistics();           
+            this.competitionState.avsStatistics = avsStatistics;
+            this.gui.updateAVSStatistics();
         });
 
         this.socket.registerEvent('scoreUpdate', (results) => {
@@ -228,52 +227,11 @@ class Viewer {
         };
     }
 
-    // playback info for a given shot
-    getSubmissionPlaybackInfo(submission) {
-        var video = this.videoMap[submission.videoNumber];
-        return {
-            src: config.server.videoDir + "/" + video.filename,
-            thumbTimeCode: submission.frameNumber / video.fps,
-            startTimeCode: video.shots[submission.shotNumber - 1].from / video.fps,
-            endTimeCode: video.shots[submission.shotNumber - 1].to / video.fps
-        }
-    }
-
-    // playback info for a KIS task
-    getTaskPlaybackInfo(task) {
-        if (task.type.startsWith("KIS")) {
-            var range = task.videoRanges[0];
-            var video = this.videoMap[range.videoNumber];
-            return {
-                src: config.server.videoDir + "/" + video.filename,
-                startTimeCode: range.startFrame / video.fps,
-                endTimeCode: range.endFrame / video.fps
-            }
-        } else {
-            return null;
-        }
-    }
-
     playSound(title) {
         if (config.client.playAudio) {
             var sound = new Audio('./sounds/' + title + '.mp3');
             sound.play();
         }
-    }
-
-    loadVideoMap() {
-        return new Promise((resolve, reject) => {
-            // request videoMap (for computing playback times)
-            this.socket.emit("getVideoMap", {}, (response) => {
-                if (response.success) {
-                    this.videoMap = response.data;
-                    resolve();
-                } else {
-                    console.err("couldn't load video map from server");
-                    reject();
-                }
-            });
-        });
     }
 
     formatTime(seconds) {

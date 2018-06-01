@@ -49,7 +49,7 @@ class QueryGUI {
                     });
                 } else {
                     this.updateQueryText();
-                    if (task.type.startsWith("AVS") || task.running) {
+                    if (task.type.startsWith("AVS") || task.type.startsWith("LSC") || task.running) {
                         this.hideQueryVideo();
                         resolve();
                     } else {
@@ -123,35 +123,39 @@ class QueryGUI {
         return new Promise((resolve, reject) => {
             var task = this.viewer.getActiveTask();
             if (task) {
-                $("#queryVideo").show();
-                $(".videoCtrlButton").show();
-                var video = $("#queryVideo")[0];
-                var playbackInfo = this.viewer.getTaskPlaybackInfo(task);
-                video.src = playbackInfo.src;
-                video.play().then(() => {
-                    var blurDelayList = config.client.videoBlurProgress.delay;
-                    var blurSizeList = config.client.videoBlurProgress.size;
-                    video.ontimeupdate = () => {
-                        if (video.currentTime < playbackInfo.startTimeCode || video.currentTime > playbackInfo.endTimeCode) {
-                            video.currentTime = playbackInfo.startTimeCode;
-                        }
-                        if (task.type.startsWith("KIS_Visual") && this.viewer.isTaskRunning()) {
-                            var idx = blurDelayList.findIndex((d) => d > this.elapsedTime);
-                            if (idx < 0) {
-                                idx = blurDelayList.length - 1;
-                            } else {
-                                idx--;
+                var playbackInfo = this.viewer.thumbManager.getTaskPlaybackInfo(task);
+                if (playbackInfo) {
+                    $("#queryVideo").show();
+                    $(".videoCtrlButton").show();
+                    var video = $("#queryVideo")[0];
+                    video.src = playbackInfo.src;
+                    video.play().then(() => {
+                        var blurDelayList = config.client.videoBlurProgress.delay;
+                        var blurSizeList = config.client.videoBlurProgress.size;
+                        video.ontimeupdate = () => {
+                            if (video.currentTime < playbackInfo.startTimeCode || video.currentTime > playbackInfo.endTimeCode) {
+                                video.currentTime = playbackInfo.startTimeCode;
                             }
-                            this.blurQueryVideo(blurSizeList[idx]);
-                        } else {
-                            this.blurQueryVideo(0);
-                        }
-                    };
-                    resolve();
-                });
+                            if (task.type.startsWith("KIS_Visual") && this.viewer.isTaskRunning()) {
+                                var idx = blurDelayList.findIndex((d) => d > this.elapsedTime);
+                                if (idx < 0) {
+                                    idx = blurDelayList.length - 1;
+                                } else {
+                                    idx--;
+                                }
+                                this.blurQueryVideo(blurSizeList[idx]);
+                            } else {
+                                this.blurQueryVideo(0);
+                            }
+                        };
+                        resolve();
+                    });
+                } else {
+                    reject("Active task has no query video");
+                }
             } else {
                 this.hideQueryVideo();
-                reject();
+                reject("No active task");
             }
         });
     }
@@ -201,7 +205,7 @@ class QueryGUI {
     updateQueryText() {
         var task = this.viewer.getActiveTask();
         if (task) {
-            if (task.type.startsWith("KIS_Textual")) {
+            if (task.type.startsWith("KIS_Textual") || task.type.startsWith("LSC_Textual")) {
                 var textIndex = 0;
                 while (textIndex < task.textList.length - 1 && task.textList[textIndex + 1].delay <= this.elapsedTime) {
                     textIndex++;
