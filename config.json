@@ -3,7 +3,7 @@
         "port": 80,
         "websocketURL": "localhost",
         "videoDir": "videos/",
-        "imageDir": "images/images/"
+        "lscImageDir": "images/lsc_images/"
     },
     "client": {
         "extractorPoolSize": 4,

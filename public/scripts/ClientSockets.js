@@ -11,17 +11,28 @@ class ClientSockets {
         });
 
         // default behaviour that can optionally be extended by further event handlers
-        this.socket.on('connect', function () {
-            console.log("socket connected!");
+        this.socket.on('connect', () => {
+            if (this.needsRefresh) {
+                // connection was lost before, so we have to refresh entire page
+                // but before, disconnect (otherwise admin socket might not get freed on server)
+                this.socket.disconnect();
+            } else {
+                console.log("socket connected!");
+            }
         });
 
-        this.socket.on('disconnect', function () {
-            console.log("socket disconnected!");
-            $("body").empty();
-            $("body").append("Connection error");
+        this.socket.on('disconnect', () => {
+            if (this.needsRefresh) {
+                location.reload();
+            } else {
+                console.log("socket disconnected!");
+                $("body").empty();
+                $("body").append("Connection error");
+                this.needsRefresh = true;
+            }
         });
 
-        this.socket.on('error', function (err) {
+        this.socket.on('error', (err) => {
             console.log("socket connection error!! " + err);
             $("body").empty();
             $("body").append("Connection error");

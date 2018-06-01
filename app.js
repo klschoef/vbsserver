@@ -83,7 +83,6 @@ logger.info("RESTARTING SERVER");
 
 // Controller is a singleton object that handles all the application logic
 // it can be required from any module
-Controller.init(app, io);
-
+Controller.init(app);
 server.listen(config.server.port);
-
+Controller.initSocketHandler(io);   // web sockets have to be initialized after web server
