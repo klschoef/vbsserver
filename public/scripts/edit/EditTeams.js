@@ -119,6 +119,8 @@ function teamEditor() {
         var teams = [];
         var logos = [];
 
+        var offset = 0.34;
+
         switch (preset) {
             case "VBS 2018":
                 teams = ["VIREO", "VITRIVR", "ITEC1", "ITEC2", "VNU", "SIRET", "NECTEC", "VERGE", "HTW"];
@@ -140,13 +142,13 @@ function teamEditor() {
                     "images/logos/2018/uudcu.png",
                     "images/logos/2018/vnu.png",
                     "images/logos/2018/upcdcu.png"];
+                offset += 2/teams.length;
                 break;
             default :
                 toastr.warning("Team Preset '" + preset + "' is not defined");
         } 
 
         var hueStep = 1 / teams.length;        
-        var offset = 0.34;
 
         for (var i = 0; i < teams.length; i++) {
             var newTeam = {

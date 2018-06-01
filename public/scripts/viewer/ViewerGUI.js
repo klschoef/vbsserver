@@ -12,6 +12,7 @@ class ViewerGUI {
         var zoomMax = 4;
         this.zoomWithMouseWheel("#queryVideo", zoomStep, zoomMin, zoomMax);
         this.zoomWithMouseWheel("#queryText", zoomStep, zoomMin, zoomMax);
+        this.zoomWithMouseWheel("#querySlideshow", zoomStep, zoomMin, zoomMax);
         this.zoomWithMouseWheel("#timer", zoomStep, zoomMin, zoomMax);
         this.zoomWithMouseWheel("#teamContainer", zoomStep, zoomMin, zoomMax);
         this.zoomWithMouseWheel("#overallScore", zoomStep, zoomMin, zoomMax);

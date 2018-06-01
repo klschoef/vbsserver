@@ -71,6 +71,11 @@ class TeamGUI {
             this.updateSubmission(submission);
         });
 
+        // link to video/image
+        $(thumb).on("click", () => {
+            window.open(this.viewer.thumbManager.getClickLink(submission), '_blank');
+        });
+
         // adapt thumb zoom        
         $(thumb).css("zoom", this.thumbZoom);
         this.adaptThumbSize();

@@ -17,7 +17,7 @@ class Viewer {
         this.config = config;   // globally defined in viewer.jade
 
         // CompetitionState object summarizing all relevant information about the current competition
-        this.competitionState = null;        
+        this.competitionState = null;
 
         // during a "tolerance extension" of a task, this flag is set to true
         this.toleranceTaskFlag = false;
@@ -26,7 +26,7 @@ class Viewer {
         this.socket = new ClientSockets({clientType: "viewer"});
 
         this.gui = new ViewerGUI(this);
-        
+
         this.thumbManager = new ThumbManager(this);
 
         this.init();
@@ -106,7 +106,7 @@ class Viewer {
                     this.playSound("boo");
                 }
             }
-            this.competitionState.submissions[submission.teamId][submission._id] = submission;            
+            this.competitionState.submissions[submission.teamId][submission._id] = submission;
             this.gui.newSubmission(submission);
         });
 
@@ -155,6 +155,21 @@ class Viewer {
 
     hasCompetitionStarted() {
         return this.competitionState && (this.competitionState.running || this.competitionState.finished);
+    }
+
+    // playback info for a KIS task
+    getTaskPlaybackInfo(task) {
+        if (task.type.startsWith("KIS")) {
+            var range = task.videoRanges[0];
+            var video = this.thumbManager.videoMap[range.videoNumber];
+            return {
+                src: config.server.videoDir + "/" + video.filename,
+                startTimeCode: range.startFrame / video.fps,
+                endTimeCode: range.endFrame / video.fps
+            }
+        } else {
+            return null;
+        }
     }
 
     isTaskRunning() {

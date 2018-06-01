@@ -24,8 +24,8 @@ class ExtractorPool {
 
     // extracts the frame for a given videoSrc and timeCode and draw it to the given canvas
     // upon successful extraction, callback is called
-    extractFrame(playbackInfo, canvas, callback) {
-        var job = new ExtractionJob(playbackInfo.src, playbackInfo.thumbTimeCode, canvas, callback);
+    extractFrame(videoSrc, timeCode, canvas, callback) {
+        var job = new ExtractionJob(videoSrc, timeCode, canvas, callback);
         this.addExtractionJob(job);
     }
 

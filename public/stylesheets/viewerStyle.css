@@ -302,6 +302,11 @@ button {
     visibility: hidden;
 }
 
+#querySlideshow {
+    display:none;
+    margin: 3px;    
+}
+
 
 /* inspector */
 

@@ -24,6 +24,7 @@ class QueryGUI {
     constructor(gui) {
         this.gui = gui;
         this.viewer = gui.viewer;
+        this.slideshow = new ImageSlideshow(500);
         this.elapsedTime = -1;   // elapsed time (in seconds) since the active task was started
     }
 
@@ -39,20 +40,29 @@ class QueryGUI {
                 if (!task.running) {
                     this.updateTimer("TIME OVER");
                 }
+                this.hideSlideshow();
                 if (task.type.startsWith("KIS_Visual")) {
                     this.hideQueryText();
+                    this.hideSlideshow();
                     this.showQueryVideo().then(() => {
                         if (task.finished) {
                             this.blurQueryVideo(0);
                         }
                         resolve();
                     });
+                } else if (task.type.startsWith("LSC_Textual")) {
+                    this.updateQueryText();
+                    this.hideQueryVideo();
+                    if (!task.running) {
+                        this.showSlideshow(task);
+                    }
+                    resolve();
                 } else {
                     this.updateQueryText();
-                    if (task.type.startsWith("AVS") || task.type.startsWith("LSC") || task.running) {
+                    if (task.type.startsWith("AVS") || task.running) {
                         this.hideQueryVideo();
                         resolve();
-                    } else {
+                    } else {    // KIS Textual tasks has finished -> show video
                         this.showQueryVideo().then(() => {
                             if (this.viewer.isInspector) {
                                 resolve();
@@ -69,6 +79,7 @@ class QueryGUI {
             } else {
                 this.hideQueryVideo();
                 this.hideQueryText();
+                this.hideSlideshow();
                 resolve();
             }
         });
@@ -202,13 +213,27 @@ class QueryGUI {
         $("#queryText").show();
     }
 
+    hideSlideshow() {
+        this.slideshow.hide();
+    }
+
+    showSlideshow(task) {
+        this.slideshow.setTask(task);
+        this.slideshow.show();
+    }
+
     updateQueryText() {
         var task = this.viewer.getActiveTask();
         if (task) {
             if (task.type.startsWith("KIS_Textual") || task.type.startsWith("LSC_Textual")) {
                 var textIndex = 0;
-                while (textIndex < task.textList.length - 1 && task.textList[textIndex + 1].delay <= this.elapsedTime) {
-                    textIndex++;
+                if (task.running) {
+                    while (textIndex < task.textList.length - 1 && task.textList[textIndex + 1].delay <= this.elapsedTime) {
+                        textIndex++;
+                    }
+                } else {
+                    // when the task is finished, show the entire query text
+                    textIndex = task.textList.length - 1;
                 }
                 this.showQueryText(task.textList[textIndex].text);
             } else if (task.type.startsWith("AVS")) {
