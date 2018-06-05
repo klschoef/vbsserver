@@ -40,6 +40,11 @@ class ThumbManager {
             var img = new Image();
             img.src = thumbInfo.image.filePath;
             img.onload = () => {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                var ratio = img.width / img.height;
+                var parentDiv = $(canvas).parent();
+                $(parentDiv).height($(parentDiv).width() / ratio);
                 canvas.getContext("2d").drawImage(img, 0, 0);
                 callback();
             };
@@ -101,7 +106,6 @@ class ThumbManager {
         }
     }
 
-    
     static getImagePath(imageName) {
         // LSC image directory has a specific format which we simply assume for now
         // TODO implement in a more generic fashion            

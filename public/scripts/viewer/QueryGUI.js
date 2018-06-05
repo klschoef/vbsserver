@@ -218,8 +218,9 @@ class QueryGUI {
     }
 
     showSlideshow(task) {
-        this.slideshow.setTask(task);
-        this.slideshow.show();
+        this.slideshow.setTask(task).then(() => {
+            this.slideshow.show();
+        });        
     }
 
     updateQueryText() {
