@@ -125,6 +125,7 @@ class Controller {
                             if (task) {
                                 var remainingTime = Task.getRemainingTime(task);
                                 if (remainingTime > 0) {
+                                    this.db.disableAutocompaction();
                                     logger.info("resuming task", {taskName: task.name, remainingTime: remainingTime});
                                     // set timeout that stops the task after maxSearchTime
                                     // set inverval for client timer updates                                    
@@ -278,6 +279,7 @@ class Controller {
                         this.submissionHandler.resetTask(); // reset the pool of correct shots (for AVS)
 
                         this.startCountdown().then(() => {
+                            this.db.disableAutocompaction();
                             Task.start(task);
                             this.currentCompetition.currentTaskId = task._id;
                             this.currentCompetition.taskSequence.push(task._id);
@@ -344,13 +346,18 @@ class Controller {
                 if (!task) {
                     logger.error("task could not be stopped!", {taskId: this.currentCompetition.currentTaskId});
                     error("Internal server error.");
-                } else {
+                } else {                    
                     Task.stop(task);
                     this.currentCompetition.currentTaskId = null;
                     this.db.updateTask(task);
                     this.db.updateCompetition(this.currentCompetition);
 
                     this.competitionState.taskStop(task);
+
+                    // when the task is finished, re-enable datafile autocompaction (but wait a few seconds)
+                    setTimeout(() => {
+                        this.db.enableAutocompaction();
+                    }, 10000);
 
                     success();
                 }

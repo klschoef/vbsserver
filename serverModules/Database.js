@@ -47,6 +47,9 @@ class Database {
                 // db is also needed (e.g., for uniqueness constraints)
                 ValidationConstraints.addCustomValidators(validate);
 
+                // datafiles are compacted every 30 seconds
+                this.enableAutocompaction();
+
                 resolve();
             }, () => {
                 logger.error("loading database failed");
@@ -54,11 +57,25 @@ class Database {
             });
         });
     }
+    
+    enableAutocompaction() {
+        logger.info("database autocompaction enabled");
+        for (var datastoreName in this.db) {
+            this.db[datastoreName].persistence.setAutocompactionInterval(30000);   // compact datafile every 30 seconds
+        }
+    }
+    
+    disableAutocompaction() {
+        logger.info("database autocompaction disabled");
+        for (var datastoreName in this.db) {
+            this.db[datastoreName].persistence.stopAutocompaction();   // during tasks, we disable autocompaction
+        }
+    }
 
     loadDatastore(target, filename) {
         return new Promise((resolve, reject) => {
             this.db[target] = new Datastore({filename: filename, autoload: true, onload: resolve});
-            this.db[target].name = target;  // assign a "name" field to the Datastores (for logging)
+            this.db[target].name = target;  // assign a "name" field to the Datastores (for logging)            
         });
     }
 
