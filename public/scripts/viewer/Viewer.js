@@ -86,7 +86,7 @@ class Viewer {
             if (this.haveAllTeamsSucceeded()) {
                 setTimeout(() => {  // wait a short time for the applause to diminish
                     this.playSound("winning");
-                }, 1500);
+                }, 1000);
             } else {
                 this.playSound("losing");
             }
