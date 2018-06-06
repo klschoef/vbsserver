@@ -64,11 +64,15 @@ class Viewer {
         this.socket.registerEvent('countdown', (time) => {
             $("#countdownDiv").fadeIn();
             $("#countdownTime").html(time);
+            if (time > 0) {
+                this.playSound("beep");
+            }
         });
 
         this.socket.registerEvent('startTask', (task) => {
             $("#countdownDiv").fadeOut("slow");
             console.log("TASK START");
+            this.playSound("startup");
             this.competitionState.tasks.push(task);
             this.competitionState.activeTaskIdx = this.competitionState.tasks.length - 1;
             this.resetSubmissions();
@@ -79,6 +83,13 @@ class Viewer {
             console.log("TASK STOP");
             this.competitionState.tasks[this.competitionState.activeTaskIdx] = task;
             this.gui.stopTask();
+            if (this.haveAllTeamsSucceeded()) {
+                setTimeout(() => {  // wait a short time for the applause to diminish
+                    this.playSound("winning");
+                }, 1500);
+            } else {
+                this.playSound("losing");
+            }
         });
 
         this.socket.registerEvent('toleranceExtension', () => {
@@ -95,6 +106,25 @@ class Viewer {
 
         this.socket.registerEvent('remainingTime', (data) => {
             this.gui.remainingTime(data.time);
+            if (Math.abs(data.time - 10) < 0.3) {
+                this.playSound("hurry");
+            }
+            if (data.time < 9.5 && data.time > 0) {
+                this.playSound("beep");
+                if (data.time < 5.5) {
+                    setTimeout(() => {
+                        this.playSound("beep");
+                    }, 500);
+                    if (data.time < 2.5) {
+                        setTimeout(() => {
+                            this.playSound("beep");
+                        }, 250);
+                        setTimeout(() => {
+                            this.playSound("beep");
+                        }, 750);
+                    }
+                }
+            }
         });
 
         this.socket.registerEvent('newSubmission', (submission) => {
@@ -155,6 +185,17 @@ class Viewer {
 
     hasCompetitionStarted() {
         return this.competitionState && (this.competitionState.running || this.competitionState.finished);
+    }
+
+    haveAllTeamsSucceeded() {
+        var teamIds = this.getTeamIds();
+        for (var i = 0; i < teamIds.length; i++) {
+            var teamResult = this.getCurrentTeamResult(teamIds[i]);
+            if (!teamResult || teamResult.numCorrect == 0) {
+                return false;
+            }
+        }
+        return true;
     }
 
     // playback info for a KIS task

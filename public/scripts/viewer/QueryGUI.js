@@ -236,6 +236,10 @@ class QueryGUI {
                     // when the task is finished, show the entire query text
                     textIndex = task.textList.length - 1;
                 }
+                if (textIndex > 0 && textIndex != this.previousTextIndex) {
+                    this.viewer.playSound("ding");
+                }
+                this.previousTextIndex = textIndex;
                 this.showQueryText(task.textList[textIndex].text);
             } else if (task.type.startsWith("AVS")) {
                 this.showQueryText(task.avsText);
