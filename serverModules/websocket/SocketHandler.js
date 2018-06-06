@@ -15,62 +15,72 @@ class SocketHandler {
         this.viewers = new Array(); // web sockets for Viewer users (multiple connections allowed, but login required)
         this.judges = new Array();  // web sockets for registered judges
 
-        /*
-         * The admin user can maintain the list of teams and tasks, start/stop tasks and select already performed tasks to be displayed (at Viewer)
-         * Viewer users see the current query, timer, submissions and chart. The "current" query can either be a running one or an already finished one.
-         * Both types of users need to login (via websocket).
-         */
-
+        // TODO use sessions (reload, page change etc.)
         io.on('connection', (socket) => {
-
-            // TODO proper authentication with user management (type, user, pwd)
-            // TODO using express ?? ("Middleware", next)
-            // TODO use sessions (reload, page change etc.)
-            
-            var clientType = socket.handshake.query.clientType;
-            
-            // unified format for web socket callbacks
-            // success: boolean indicating whether the request was successfully fulfilled
-            // data: requested data (if requested), error message in case of error
-            socket.respond = (callback, success, data) => {
-                callback({success: success, data: data});
-            };
-
-            switch (clientType) {
-                case "admin":       // has access to: edit,control,viewer,inspect
-                    this.registerAdmin(socket);
-                    this.registerViewer(socket);
-                    break;
-                case "viewer":      // has access to: viewer
-                    this.registerViewer(socket);
-                    break;
-                case "inspect":      // has access to: inspect
-                    this.registerInspector(socket);
-                    break;
-                case "judge":       // has access to: judge
-                    this.registerJudge(socket, socket.handshake.query.name);
-                    break;
-                case "test":       // only for testing, disabled in productive environment!
-                    if (config.debugMode) {
-                        this.registerTest(socket);
-                    }
-                    break;
-                case "export":
-                    this.registerExport(socket);
-                    break;
-                default:
-                    logger.warn("invalid clientType tries to register: " + clientType);
-                    socket.disconnect(true);
-                    break;
-            }
-
-
-            socket.on('authenticate', () => {
-                // ??? login...
-            });
-
-
+            // nothing to do?
         });
+
+        // authentication
+        require('socketio-auth')(io, {
+            authenticate: function (socket, data, callback) {
+
+                //get credentials sent by the client
+                var username = data.username;
+                var password = data.password;            
+                
+                // TODO do not hardcode password, but store in database!
+                var authenticated = config.debugMode || password === "topsecret";
+                if (!authenticated) {
+                    logger.warn("login failed!!", JSON.stringify(socket.handshake));                    
+                }                
+                callback(null, authenticated);   
+            },
+            postAuthenticate: (socket, data) => {
+                var clientType = socket.handshake.query.clientType;
+
+                // unified format for web socket callbacks
+                // success: boolean indicating whether the request was successfully fulfilled
+                // data: requested data (if requested), error message in case of error
+                socket.respond = (callback, success, data) => {
+                    callback({success: success, data: data});
+                };
+
+                /*
+                 * The admin user can maintain the list of teams and tasks, start/stop tasks and select already performed tasks to be displayed (at Viewer)
+                 * Viewer users see the current query, timer, submissions and chart. The "current" query can either be a running one or an already finished one.
+                 * All types of users need to login (via websocket).
+                 */
+
+                switch (clientType) {
+                    case "admin":       // has access to: edit,control,viewer,inspect
+                        this.registerAdmin(socket);
+                        this.registerViewer(socket);
+                        break;
+                    case "viewer":      // has access to: viewer
+                        this.registerViewer(socket);
+                        break;
+                    case "inspect":      // has access to: inspect
+                        this.registerInspector(socket);
+                        break;
+                    case "judge":       // has access to: judge
+                        this.registerJudge(socket, socket.handshake.query.name);
+                        break;
+                    case "test":       // only for testing, disabled in productive environment!
+                        if (config.debugMode) {
+                            this.registerTest(socket);
+                        }
+                        break;
+                    case "export":
+                        this.registerExport(socket);
+                        break;
+                    default:
+                        logger.warn("invalid clientType tries to register: " + clientType);
+                        socket.disconnect(true);
+                        break;
+                }
+            }
+        });
+
     }
 
     // ###############

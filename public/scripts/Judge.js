@@ -24,8 +24,9 @@ class Judge {
         this.promptJudgeName().then(() => {
             $("#nicknameDiv").html(this.judgeName);
             // TODO prompt credentials
-            this.socket = new ClientSockets({clientType: "judge", name: this.judgeName});
-            this.registerEvents();
+            this.socket = new ClientSockets({clientType: "judge", name: this.judgeName}, () => {
+                this.registerEvents();
+            });
         });
     }
 
@@ -64,7 +65,7 @@ class Judge {
             }
         });
     }
-    
+
     changeNickname() {
         this.promptJudgeName(true).then(() => {
             $("#nicknameDiv").html(this.judgeName);

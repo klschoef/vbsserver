@@ -16,13 +16,12 @@ class Inspect {
         // maps videoId to additional information
         this.videoMap = null;
 
-        // TODO prompt credentials
-        this.socket = new ClientSockets({clientType: "inspect"});
+        this.socket = new ClientSockets({clientType: "inspect"}, () => {
+            this.isInspector = true; // flag for avoiding fullscreen query video
+            this.gui = new ViewerGUI(this);
 
-        this.isInspector = true; // flag for avoiding fullscreen query video
-        this.gui = new ViewerGUI(this);
-
-        this.init();
+            this.init();
+        });
     }
 
     init() {

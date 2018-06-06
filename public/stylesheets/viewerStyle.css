@@ -16,8 +16,7 @@ body {
     justify-content: center;
 }
 
-#countdownDiv {
-    display: none;
+#countdownDiv {    
     width: 100%;
     height: 100%;
     position: absolute;

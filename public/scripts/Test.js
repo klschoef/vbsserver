@@ -16,31 +16,32 @@ class Test {
         // for testing AVS, it is better to only submit videos from a restricted pool (e.g., 20 videos)
         this.videoPool = null;
 
-        // TODO prompt credentials
-        this.socket = new ClientSockets({clientType: "test"});
-
-        this.socket.registerEvent("startCompetition", () => {
-            this.refresh();
-        });
-        this.socket.registerEvent("startTask", () => {
-            this.refresh();
-        });
-        this.socket.registerEvent("stopCompetition", () => {
-            this.refresh();
-        });
-        this.socket.registerEvent("stopTask", () => {
-            this.refresh();
-        });
-        this.socket.registerEvent("judge", (assignment) => {
-            var judgeMinDelay = parseInt($("#judgeMinDelay").val());
-            var judgeMaxDelay = parseInt($("#judgeMaxDelay").val());
-            var judgeDelay = Math.round(judgeMinDelay + Math.random() * (judgeMaxDelay - judgeMinDelay));
-            this.log("delaying judgement by " + judgeDelay + "ms");
-            setTimeout(() => {
-                var correct = (Math.random() > 0.4) ? true : false;
-                this.socket.emit('submitJudgement', {submissionId: assignment.submissionId, correct: correct});
-                this.log("judgement submitted: " + correct);
-            }, judgeDelay);
+        this.socket = new ClientSockets({clientType: "test"}, () => {
+            this.socket.registerEvent("startCompetition", () => {
+                this.refresh();
+            });
+            this.socket.registerEvent("startTask", () => {
+                this.refresh();
+            });
+            this.socket.registerEvent("stopCompetition", () => {
+                this.refresh();
+            });
+            this.socket.registerEvent("stopTask", () => {
+                this.refresh();
+            });
+            this.socket.registerEvent("judge", (assignment) => {
+                var judgeMinDelay = parseInt($("#judgeMinDelay").val());
+                var judgeMaxDelay = parseInt($("#judgeMaxDelay").val());
+                var judgeDelay = Math.round(judgeMinDelay + Math.random() * (judgeMaxDelay - judgeMinDelay));
+                this.log("delaying judgement by " + judgeDelay + "ms");
+                setTimeout(() => {
+                    var correct = (Math.random() > 0.4) ? true : false;
+                    this.socket.emit('submitJudgement', {submissionId: assignment.submissionId, correct: correct});
+                    this.log("judgement submitted: " + correct);
+                }, judgeDelay);
+            });
+            
+            this.init();
         });
 
         this.lastLogTime = 0;
@@ -48,8 +49,6 @@ class Test {
         this.logFreq = 3;   // log refreshs per second
         this.logTimeout = null;
         this.logMaxLength = 100000;
-
-        this.init();
     }
 
     init() {

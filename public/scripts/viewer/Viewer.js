@@ -1,6 +1,7 @@
 var viewer;
 $(document).ready(function () {
     console.log("ready");
+    $("#countdownDiv").hide();
     viewer = new Viewer();
 });
 
@@ -22,18 +23,14 @@ class Viewer {
         // during a "tolerance extension" of a task, this flag is set to true
         this.toleranceTaskFlag = false;
 
-        // TODO prompt credentials
-        this.socket = new ClientSockets({clientType: "viewer"});
-
-        this.gui = new ViewerGUI(this);
-
-        this.thumbManager = new ThumbManager(this);
-
-        this.init();
+        this.socket = new ClientSockets({clientType: "viewer"}, () => {
+            this.gui = new ViewerGUI(this);
+            this.thumbManager = new ThumbManager(this);
+            this.init();
+        });
     }
 
-    init() {
-        $("#countdownDiv").hide();
+    init() {        
         var promises = [];
         promises.push(this.thumbManager.init());
         promises.push(this.updateCompetitionState());

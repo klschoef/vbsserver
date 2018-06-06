@@ -13,6 +13,7 @@
     "nedb": "^1.8.0",
     "npm": "^5.7.1",
     "socket.io": "^2.0.4",
+    "socketio-auth": "^0.1.1",
     "unique-filename": "^1.1.0",
     "url": "^0.11.0",
     "validate.js": "^0.12.0",

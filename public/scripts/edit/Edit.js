@@ -2,16 +2,6 @@ var edit;
 $(document).ready(function () {
     console.log("ready");
     edit = new Edit();
-
-    // code is distributed over multiple files for better readability...
-    userEditor.call(edit);
-    competitionEditor.call(edit);
-    taskEditor.call(edit);
-    teamEditor.call(edit);
-
-    edit.init(() => {
-        console.log("initialized");
-    });
 });
 
 class Edit {
@@ -30,11 +20,20 @@ class Edit {
         this.activeCompetitionId = null;
         this.activeTaskId = null;
         this.activeTeamId = null;
-        
+
         this.videoMap = null;
 
-        // TODO prompt credentials
-        this.socket = new ClientSockets({clientType: "admin"});
+        this.socket = new ClientSockets({clientType: "admin"}, () => {
+            // code is distributed over multiple files for better readability...
+            userEditor.call(edit);
+            competitionEditor.call(edit);
+            taskEditor.call(edit);
+            teamEditor.call(edit);
+
+            edit.init(() => {
+                console.log("initialized");
+            });
+        });
 
     }
 
@@ -67,7 +66,7 @@ class Edit {
             callback();
         });
     }
-    
+
     loadVideoMap() {
         return new Promise((resolve, reject) => {
             // request videoMap (for computing playback times)
@@ -86,7 +85,7 @@ class Edit {
     unload() {
         this.socket.disconnect();
     }
-        
+
     // re-arrange data as associative array mapping _id to object (for easier access)
     listToMap(list) {
         var map = {};

@@ -6,9 +6,6 @@ $(document).ready(function () {
 
 class Control {
     constructor() {
-        // TODO nicht sofort, sondern erst wenn credentials eingegeben wurden
-        //  (bzw. session überprüft ist)
-        this.socket = new ClientSockets({clientType: "admin"});
 
         this.competitions = [];
         this.tasks = [];
@@ -16,9 +13,11 @@ class Control {
         // at each time, at most one competition is active (tasks are shown)
         this.activeCompetition;
 
-        this.init(() => {
-            console.log("initialized");
-        })
+        this.socket = new ClientSockets({clientType: "admin"}, () => {
+            this.init(() => {
+                console.log("initialized");
+            })
+        });
 
     }
 
