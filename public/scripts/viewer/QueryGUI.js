@@ -134,7 +134,7 @@ class QueryGUI {
         return new Promise((resolve, reject) => {
             var task = this.viewer.getActiveTask();
             if (task) {
-                var playbackInfo = this.viewer.thumbManager.getTaskPlaybackInfo(task);
+                var playbackInfo = this.viewer.getTaskPlaybackInfo(task);
                 if (playbackInfo) {
                     $("#queryVideo").show();
                     $(".videoCtrlButton").show();
