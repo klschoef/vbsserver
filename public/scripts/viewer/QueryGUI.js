@@ -24,7 +24,7 @@ class QueryGUI {
     constructor(gui) {
         this.gui = gui;
         this.viewer = gui.viewer;
-        this.slideshow = new ImageSlideshow(500);
+        this.slideshow = new ImageSlideshow(1000);
         this.elapsedTime = -1;   // elapsed time (in seconds) since the active task was started
     }
 

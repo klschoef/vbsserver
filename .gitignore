@@ -5,3 +5,5 @@ public/videos
 public/images/logos/upload/
 public/images/lsc_images
 public/csv
+run.bat
+*.zip
