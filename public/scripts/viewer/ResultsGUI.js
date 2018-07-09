@@ -10,7 +10,8 @@ class ResultsGUI {
                 showLabel: true,
                 showGrid: true,
                 integerOnly: true,
-                scaleMinSpace: 50
+                scaleMinSpace: 50,
+                low: 0  // always start scale with 0 -> TODO: render chart scale dynamically
             },
             axisY: {
                 showLabel: true,
