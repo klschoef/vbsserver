@@ -64,7 +64,7 @@ app.get('/', function (req, res) {
 });
 
 // submission format:  <serveraddress:port>/submit?team=<int>&video=<int>&frame=<int>&shot=<int>&iseq=<string>
-// test clip: 
+// test clip:
 // video 38956 ClaudeBesson-festival2008LaroquebrouMonteeDuChateau257-2._-o-_.ClaudeBesson-festival2008LaroquebrouMonteeDuChateau257_512kb
 // frame 1675 - 2175(1:07 - 1:27)
 // old test clip: 
@@ -92,7 +92,6 @@ app.post('/submit', function (req, res) {
         return;
     }
 
-
     // parse parameters
     var teamId = parseInt(req.body.team);
     var videoId = parseInt(req.body.video);
@@ -118,14 +117,14 @@ function handleSubmission(teamId, videoId, framenumber, shotId, iseq, req, res, 
     }
 
     if (!videoId) {
-        response += "Missing video id. ";
+        response += "Missing video id. ";    
     } else if (videoId != 38956) {
-        //} else if (videoId != 38988) {
+//    } else if (videoId != 38988) {
         response += "Wrong video id (" + videoId + "). ";
     }
 
     if (!framenumber) {
-        response += "No frame specified. ";
+        response += "No frame specified. ";    
     } else if (framenumber < 1675 || framenumber > 2175) {
 //    } else if (framenumber < 11326 || framenumber > 11926){
         response += "Wrong frame number (" + framenumber + "). ";
@@ -163,7 +162,7 @@ function handleSubmission(teamId, videoId, framenumber, shotId, iseq, req, res, 
 
 app.get('/lsc', function (req, res) {
     res.send("<h2>Welcome to the LSC 2018 Test Server</h2>"
-            + "Submissions at the competition will be sent in the form of simple HTTP requests containing your team id and the id of an image belonging to the sought scene.<br>"   
+            + "Submissions at the competition will be sent in the form of simple HTTP requests containing your team id and the id of an image belonging to the sought scene.<br>"
             + "For preliminary testing purposes please use the following URI: "
             + "<br><br>http://demo2.itec.aau.at:80/vbs/lsc/submit"
             + "<br><br> with the following parameters:"
@@ -203,7 +202,7 @@ var lscTeams = [
     "UPCDCU - Universitat Politècnica de Catalunya / Dublin City University"
 ];
 
-// submission format:  <serveraddress:port>/submit?team=<int>&image=<string>
+// submission format:  <serveraddress:port>lsc/submit?team=<int>&image=<string>
 // test image: 20160819_160610_000.jpg
 app.get('/lsc/submit', function (req, res) {
 
@@ -226,12 +225,12 @@ app.get('/lsc/submit', function (req, res) {
 
     if (!imageId) {
         response += "Missing image id. ";
-    } else if (imageId !== "20160819_160610_000.jpg") {        
+    } else if (imageId !== "20160819_160610_000.jpg") {
         response += "Wrong image id (" + imageId + "). ";
     }
 
     if (response === "") {  // no error
-        response = "Correct answer from team " + lscTeams[teamId-1];
+        response = "Correct answer from team " + lscTeams[teamId - 1];
     }
 
     var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
@@ -239,15 +238,107 @@ app.get('/lsc/submit', function (req, res) {
     fs.appendFileSync("submissionLog_lsc.csv",
             submitTimeStamp + ";" + ip
             + ";teamId:" + teamId
-            + ";imageId:" + imageId            
+            + ";imageId:" + imageId
             + ";" + response + "\n");
 
     res.send(response);
 
 });
 
+
+
+
+
+
+app.get('/aau', function (req, res) {
+    res.send("<h2>Welcome to the Video Retrieval Test Server</h2>"
+            + "To submit a result please send an HTTP GET request to the following URI:"
+            + "<br><br>http://demo2.itec.aau.at:80/vbs/aau/submit"
+            + "<br><br> with the following parameters:"
+            + "<ul>"
+            + "<li>team=[your team id (1-3)]</li>"
+            + "<li>video=[id of the video according to the TRECVID 2016 data set (35345-35780)]</li>"
+            + "<li>frame=[zero-based frame number (this frame must be <u>within</u> the target segment in order to be rated as correct)]</li>"            
+            + "</ul><br>"
+            + "<b>Important notes:</b><ul>"
+            + "<li>The videos have different framerates, so be careful in case you need to convert timecodes to frame numbers.</li>"
+            + "<li>At the actual competition, the url, port and path will be different, so please make sure you can easily change them.</li>"            
+            + "<li>Team Ids are as follows: "
+            + "<ol>"
+            + "<li>Students 1 (4 persons)</li>"
+            + "<li>Students 2 (3 persons)</li>"            
+            + "<li>ITEC</li>"            
+            + "</ol></li></ul>"
+            + "An exemplary submission could look like this: "
+            + "<p>http://demo2.itec.aau.at:80/vbs/aau/submit?team=3&video=35678&frame=2435</p>"            
+            + "<br><br>For testing purposes, please try to find the following scene and submit your answer according to the instructions above.<br>"
+            + "The response will tell you if the submission is correct. If it is wrong, it provides additional information about what is wrong.<br><br>"
+            + "<video autoplay loop ><source src='/vbs/demo_aau.mp4'></source></video>"
+            + "<br><br> <i>Bernd Münzer, ITEC, Klagenfurt University, 2016-2018</i>"
+            );
+
+});
+
+
+
+// submission format:  <serveraddress:port>aau/submit?team=<int>&video=<int>&frame=<int>
+// test clip: 
+// video 35763  mtproduct._-o-_.SOCCER_MANIAClow_512kb.mp4
+// frame 2063 - 2562
+app.get('/aau/submit', function (req, res) {
+
+    // parse parameters
+    var url_parts = url.parse(req.url, true);
+    var query = url_parts.query;
+    var teamId = parseInt(query.team);
+    var videoId = parseInt(query.video);
+    var framenumber = parseInt(query.frame);
+  
+    var submitTimeStamp = new Date(Date.now()).toLocaleString();
+
+    var response = "";
+
+    if (!teamId) {
+        response += "Missing team id. ";
+    }
+    if (teamId < 1 || teamId > 3) {
+        response += "Invalid team id (" + teamId + "). ";
+    }
+
+    if (!videoId) {
+        response += "Missing video id. ";
+    } else if (videoId != 35763) {
+        response += "Wrong video id (" + videoId + "). ";
+    }
+
+    if (!framenumber) {
+        response += "No frame specified. ";
+    } else if (framenumber < 2063 || framenumber > 2562) {
+        response += "Wrong frame number (" + framenumber + "). ";
+    }
+
+    if (response === "") {  // no error
+        response = "Correct!";
+    }
+
+    var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+
+    fs.appendFileSync("submissionLog_aau.csv",
+            submitTimeStamp + ";" + ip
+            + ";teamId:" + teamId
+            + ";videoId:" + videoId
+            + ";frame:" + framenumber            
+            + ";" + response + "\n");
+
+    res.send(response);
+
+});
+
+
+
+
 function isNumeric(n) {
-  return !isNaN(parseFloat(n)) && isFinite(n);
+    return !isNaN(parseFloat(n)) && isFinite(n);
 }
 
 // *******************************************************************************************************
