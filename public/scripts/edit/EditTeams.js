@@ -9,9 +9,9 @@ function teamEditor() {
     };
 
 
-    // loads a list of all teams for the currently selected competition from the server 
+    // loads a list of all teams for the currently selected competition from the server
     // and fills the according selector
-    // if previously a team had been selected, it is re-selected 
+    // if previously a team had been selected, it is re-selected
     // (unless it has been deleted in the meantime)
     this.refreshTeams = () => {
         return new Promise((resolve, reject) => {
@@ -36,8 +36,8 @@ function teamEditor() {
                             $("#teamSelect").append(option);
                         }
 
-                        // refresh can also be triggered after some changes, 
-                        // so we re-select the previous value (unless that one has been deleted)                
+                        // refresh can also be triggered after some changes,
+                        // so we re-select the previous value (unless that one has been deleted)
                         if (this.activeTeam()) {
                             $("#teamSelect").val(this.activeTeamId);
                             this.teamSelected();
@@ -134,6 +134,15 @@ function teamEditor() {
                     "images/logos/2018/verge.png",
                     "images/logos/2018/htw.png"];
                 break;
+            case "VBS 2019":
+                teams = ["VITRIVR", "VIREO", "VERGE", "VIRET", "VISIONE", "ITEC"];
+                logos = ["images/logos/2018/vitrivr.png",
+                    "images/logos/2019/vireo.png",
+                    "images/logos/2019/verge.png",
+                    "images/logos/2019/viret.png",
+                    "images/logos/2019/visione.png",
+                    "images/logos/2019/itec.png"];
+                break;
             case "LSC 2018":
                 teams = ["AAU", "SIRET", "DCU", "UUDCU", "VNU", "UPCDCU"];
                 logos = ["images/logos/2018/aau.png",
@@ -146,9 +155,9 @@ function teamEditor() {
                 break;
             default :
                 toastr.warning("Team Preset '" + preset + "' is not defined");
-        } 
+        }
 
-        var hueStep = 1 / teams.length;        
+        var hueStep = 1 / teams.length;
 
         for (var i = 0; i < teams.length; i++) {
             var newTeam = {
@@ -196,7 +205,7 @@ function teamEditor() {
                         });
                     },
                     cancel: () => {
-                        // nothing to do                        
+                        // nothing to do
                     }
                 }
             });

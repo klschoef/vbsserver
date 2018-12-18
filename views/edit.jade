@@ -9,8 +9,8 @@ html
         script(src=prefix + 'scripts/3rdParty/jquery-ui.js')
         script(src=prefix + 'scripts/3rdParty/jquery-confirm/dist/jquery-confirm.min.js')
         script(src=prefix + 'scripts/3rdParty/socket.io/dist/socket.io.js')
-        script(src=prefix + 'scripts/3rdParty/toastr/build/toastr.min.js')        
-        script(src=prefix + 'scripts/ClientSockets.js')                
+        script(src=prefix + 'scripts/3rdParty/toastr/build/toastr.min.js')
+        script(src=prefix + 'scripts/ClientSockets.js')
         script(src=prefix + 'scripts/edit/EditUsers.js')
         script(src=prefix + 'scripts/edit/EditCompetitions.js')
         script(src=prefix + 'scripts/edit/EditTasks.js')
@@ -23,18 +23,18 @@ html
         script(type="text/javascript").
             var config = JSON.parse(new String('#{config}').replace(/&quot;/g, "\""));
     body(onunload="edit.unload()")
-    
+
         div(id="userDiv" class="containerDiv")
             label User
             select(id="userSelect" onchange="edit.userSelected()")
-            hr    
+            hr
             div(id="userBody" class="bodyDiv")
                 label Name
                 input(type="text" id="userName")
                 label TODO...
-                
+
         div(id="competitionDiv" class="containerDiv")
-            label Competition 
+            label Competition
             select(id="competitionSelect" onchange="edit.competitionSelected()")
             button(type="button" id="addCompetitionButton" onclick="edit.addCompetitionButtonClicked()") Add
             button(type="button" id="deleteCompetitionButton" onclick="edit.deleteCompetitionButtonClicked()") Delete
@@ -51,7 +51,7 @@ html
                 label Finished
                 input(type="checkbox" id="competitionFinished" disabled)
                 label(id="competitionEndTime")
-                
+
                 div(id="taskDiv" class="containerDiv")
                     label Task
                     select(id="taskSelect" onchange="edit.taskSelected()")
@@ -104,12 +104,12 @@ html
                                                 td
                                                     input(type="number" id="kisStartFrame" class="taskConditionallyEnabled" min=0 onchange="edit.kisStartFrameChanged()")
                                                 td
-                                                    button(type="button" class="taskConditionallyEnabled" onclick="edit.kisVideoSetStart()") Set Start                                        
+                                                    button(type="button" class="taskConditionallyEnabled" onclick="edit.kisVideoSetStart()") Set Start
                                             tr
                                                 td
                                                     label End frame
                                                 td
-                                                    input(type="number" id="kisEndFrame" disabled)                                                
+                                                    input(type="number" id="kisEndFrame" disabled)
                                             tr
                                                 td
                                                     label Duration
@@ -120,19 +120,19 @@ html
                                                     label Loop
                                                 td(id="loopField")
                                                     input(type="checkbox" id="videoLoop" checked)
-                                div(id="queryVideoInfo")                                           
-                                    div(id="kisVideoName" disabled) video name                                    
+                                div(id="queryVideoInfo")
+                                    div(id="kisVideoName" disabled) video name
                                     label Framerate
                                     input(type="number" step="any" id="kisVideoFps" disabled)
                                     label Duplicates
-                                    input(type="text" id="kisDuplicates" disabled value="TODO...")                                
+                                    input(type="text" id="kisDuplicates" disabled value="TODO...")
                             div(id="kisTextualQueryDiv" class="taskQueryOption")
-                                div(id="kisTextListContainer")                                    
+                                div(id="kisTextListContainer")
                                 button(type="button" id="addKISTextBtn" class="taskConditionallyEnabled" onclick="edit.addKISText()") Add
                                 button(type="button" id="deleteKISTextBtn" class="taskConditionallyEnabled" onclick="edit.deleteKISText()") Delete
                             div(id="avsQueryDiv" class="taskQueryOption")
                                 label TrecvidId
-                                input(type="text" id="trecvidId" class="taskConditionallyEnabled" onchange="edit.trecvidIdChanged()")                                
+                                input(type="text" id="trecvidId" class="taskConditionallyEnabled" onchange="edit.trecvidIdChanged()")
                                 textarea(id="avsQueryText" rows="8" cols="100" class="taskConditionallyEnabled" onchange="edit.avsQueryTextChanged()")
                             div(id="lscQueryDiv" class="taskQueryOption")
                                 label ImageIds
@@ -146,11 +146,12 @@ html
                     button(type="button" id="addTeamButton" onclick="edit.addTeamButtonClicked()") Add
                     button(type="button" id="deleteTeamButton" onclick="edit.deleteTeamButtonClicked()") Delete
                     button(type="button" id="presetTeamButton" onclick="edit.presetTeamButtonClicked()") Preset
-                    select(id="teamPresetSelect") 
+                    select(id="teamPresetSelect")
+                        option()= 'VBS 2019'
                         option()= 'LSC 2018'
                         option()= 'VBS 2018'
                     hr
-                    div(id="teamBody" class="bodyDiv")                        
+                    div(id="teamBody" class="bodyDiv")
                         img(src="images/logos/default.png" id="teamLogo" height=64 onclick="edit.showTeamLogoUpload()")
                         label Name
                         input(type="text" id="teamName" onchange="edit.teamNameChanged()")
@@ -159,8 +160,7 @@ html
                         label Color
                         input(type="color" id="teamColor" onchange="edit.teamColorChanged()")
                         //- label Score
-                        //- input(type="number" width=50 id="teamScore" disabled)         
+                        //- input(type="number" width=50 id="teamScore" disabled)
                         div(id="teamLogoUpload")
                             input(type="file" id="teamLogoFile" accept=".png" onchange="edit.teamLogoUpload()")
                             button(type="button" onclick="edit.hideTeamLogoUpload()") X
-                   
