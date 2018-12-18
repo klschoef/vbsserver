@@ -4,13 +4,16 @@ var Competition = require('./entities/Competition'),
         config = require('../config.json'),
         async = require("async"),
         fs = require("fs"),
-        // following modules are required during initialization because they require controller. 
+        // following modules are required during initialization because they require controller.
         // if they are required here, controller is not exported yet!
         CompetitionState,
         Routes,
         SubmissionHandler,
         Database,
         SocketHandler;
+
+        // helper scripts that have been used for import of new dataset
+//		    importVideos = require('../helper/VideoImport2');
 //        importVideos = require('../helper/VideoImport'),
 //        importGroundTruth = require('../helper/GroundTruthImport');
 
@@ -58,7 +61,7 @@ class Controller {
             // this eliminates the unfair situation where one team submits shortly before the deadline and gets points,
             // while another team submits only shortly later, but misses the deadline and gets zero points
             // in this case, toleranceTask is set for that short time span
-            // note: currently only implemented for KIS tasks (for AVS it is far more complicated, 
+            // note: currently only implemented for KIS tasks (for AVS it is far more complicated,
             // as it's possible that a positive judgement that would trigger the time tolerance arrives after the deadline)
             this.toleranceTask = null;
             this.toleranceTaskTimeout = null;   // we also need a reference to the timeout here, otherwise we can't stop it
@@ -75,14 +78,15 @@ class Controller {
                 this.submissionHandler = new SubmissionHandler();
                 this.app = app; // express app
                 this.socket = new SocketHandler(io); // web sockets for communication with clients (are initialized later)
-                this.routes = new Routes(app);    // GET and POST routes     
+                this.routes = new Routes(app);    // GET and POST routes
 
                 // reconstruct current competition state from database (e.g., after crash)
                 this.reconstructServerState().then(() => {
 
                     logger.info("SERVER READY");
 
-                    this.test();
+                    // importVideos(this.db);
+                    // importGroundTruth(this.db);
                 }, (rejectReason) => {
                     logger.warn("reconstructing server state failed", rejectReason);
                 });
@@ -92,10 +96,6 @@ class Controller {
         });
     }
 
-    test() {
-//        importVideos(this.db);
-//        importGroundTruth(this.db);
-    }
 
     // reconstruct current competition state from database (e.g., after crash)
     reconstructServerState() {
@@ -110,9 +110,9 @@ class Controller {
                         this.currentCompetition = competition;
                         this.competitionState = competitionState;
 
-                        // competitionState already contains all submissions of the "active" task, i.e., the latest task. 
+                        // competitionState already contains all submissions of the "active" task, i.e., the latest task.
                         // - check whether there are unjudged submissions left
-                        // - reconstruct correctPool                        
+                        // - reconstruct correctPool
                         this.submissionHandler.handlerAVS.reconstruct(competitionState);
 
                         logger.info("resuming competition", competition.name);
@@ -128,7 +128,7 @@ class Controller {
                                     this.db.disableAutocompaction();
                                     logger.info("resuming task", {taskName: task.name, remainingTime: remainingTime});
                                     // set timeout that stops the task after maxSearchTime
-                                    // set inverval for client timer updates                                    
+                                    // set inverval for client timer updates
                                     this.taskInterval = setInterval(() => {
                                         var time = Task.getRemainingTime(task);
                                         if (time > 0) {
@@ -168,7 +168,7 @@ class Controller {
         this.socket.sendToViewers("remainingTime", {time: Task.getRemainingTime(task)});
     }
 
-    // checks if currently a competition is running. 
+    // checks if currently a competition is running.
     // if so, returns the _id, otherwise false
     isCompetitionRunning() {
         if (this.currentCompetition !== null && this.currentCompetition.running) {
@@ -179,7 +179,7 @@ class Controller {
 
     // tries to start a new competition with given id
     // in case of success, success callback is called and delivers the Competition object
-    // otherwise, error callback is called with an error message    
+    // otherwise, error callback is called with an error message
     startCompetition(competitionId, success, error) {
         error = optional(error);
         this.db.findCompetition({_id: competitionId}, (competition) => {
@@ -254,7 +254,7 @@ class Controller {
 
     // tries to start a task with given id
     // in case of success, success callback is called and delivers the Task object
-    // otherwise, error callback is called with an error message  
+    // otherwise, error callback is called with an error message
     startTask(taskId, success, error) {
         error = optional(error);
         this.db.findTask({_id: taskId}, (task) => {
@@ -333,7 +333,7 @@ class Controller {
     // task is finished for one of the following reasons
     // 1. time up
     // 2. all teams submitted a correct answer (only for KIS tasks)
-    // 3. manual stop    
+    // 3. manual stop
     stopCurrentTask(success, error) {
         success = optional(success);
         error = optional(error);
@@ -346,7 +346,7 @@ class Controller {
                 if (!task) {
                     logger.error("task could not be stopped!", {taskId: this.currentCompetition.currentTaskId});
                     error("Internal server error.");
-                } else {                    
+                } else {
                     Task.stop(task);
                     this.currentCompetition.currentTaskId = null;
                     this.db.updateTask(task);
@@ -365,7 +365,7 @@ class Controller {
         }
     }
 
-    // TODO check database for consistency 
+    // TODO check database for consistency
     // (e.g., not multiple competitions or tasks running etc.)
     checkConsistency() {
 
