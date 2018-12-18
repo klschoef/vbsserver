@@ -26,9 +26,9 @@ function taskEditor() {
         }
     }
 
-    // loads a list of all tasks for the currently selected competition from the server 
+    // loads a list of all tasks for the currently selected competition from the server
     // and fills the according selector
-    // if previously a task had been selected, it is re-selected 
+    // if previously a task had been selected, it is re-selected
     // (unless it has been deleted in the meantime)
     this.refreshTasks = () => {
         return new Promise((resolve, reject) => {
@@ -53,8 +53,8 @@ function taskEditor() {
                             $("#taskSelect").append(option);
                         }
 
-                        // refresh can also be triggered after some changes, 
-                        // so we re-select the previous value (unless that one has been deleted)                
+                        // refresh can also be triggered after some changes,
+                        // so we re-select the previous value (unless that one has been deleted)
                         if (this.activeTask()) {
                             $("#taskSelect").val(this.activeTaskId);
                             this.taskSelected();
@@ -154,7 +154,7 @@ function taskEditor() {
             // fill LSC fields
             $("#lscImageText").val(task.imageList.join("\n"));
 
-            // depending on the current state of the competition and task, modifications are allowed or not            
+            // depending on the current state of the competition and task, modifications are allowed or not
             this.refreshAllowedActions();
             $("#taskBody").show();
         } else {
@@ -166,7 +166,7 @@ function taskEditor() {
 
     // when a new task is added, we create a random KIS_Visual task as default
     //  (so we always have a valid task object, otherwise the autosave policy would be problematic)
-    // however, also all fields of the other task types are filled with default values    
+    // however, also all fields of the other task types are filled with default values
     this.addTaskButtonClicked = () => {
 
         this.socket.emit("randomVideo", {}, (response) => {
@@ -262,7 +262,7 @@ function taskEditor() {
                         });
                     },
                     cancel: () => {
-                        // nothing to do                        
+                        // nothing to do
                     }
                 }
             });
@@ -509,56 +509,99 @@ function taskEditor() {
 
     this.importTasks = () => {
         var file = $("#taskImportFile")[0].files[0];
-        var reader = new FileReader();
-        reader.onload = () => {
-            var xml = $.parseXML(reader.result);
-            var topics = $(xml).find("Topic");
-            for (var i = 0; i < topics.length; i++) {
-                var topic = topics[i];
-                var duration = $(topic).attr("duration");
-                var name = $(topic).find("TopicID")[0].textContent;
+        if (file.name.endsWith(".xml")) {
+            this.importTasksXML(file);
+        } else if (file.name.endsWith(".json")) {
+            this.importTasksJSON(file);
+        } else {
+            toastr.error("Invalid file");
+        }
+    }
 
-                var topicType = $(topic).find("TopicType")[0].textContent.toLowerCase();
-                var taskType;
-                if (topicType.includes("expert")) {
-                    taskType = "LSC_Textual";
-                } else if (topicType.includes("novice")) {
-                    taskType = "LSC_Textual_novice";
-                } else {
-                    toastr.warning("Invalid TopicType '" + topicType + "' (must contain 'expert' or 'novice'");
-                    continue;
-                }
+    this.importTasksXML = (file) => {
+      var reader = new FileReader();
+      reader.onload = () => {
+          var xml = $.parseXML(reader.result);
+          var topics = $(xml).find("Topic");
+          for (var i = 0; i < topics.length; i++) {
+              var topic = topics[i];
+              var duration = $(topic).attr("duration");
+              var name = $(topic).find("TopicID")[0].textContent;
 
-                var descriptions = $(topic).find("Description");
-                var textList = [];
-                for (var j = 0; j < descriptions.length; j++) {
-                    var text = descriptions[j].textContent;
-                    var timestamp = parseInt($(descriptions[j]).attr("timestamp"));
-                    textList.push({delay: timestamp, text: text});
-                }
+              var topicType = $(topic).find("TopicType")[0].textContent.toLowerCase();
+              var taskType;
+              if (topicType.includes("expert")) {
+                  taskType = "LSC_Textual";
+              } else if (topicType.includes("novice")) {
+                  taskType = "LSC_Textual_novice";
+              } else {
+                  toastr.warning("Invalid TopicType '" + topicType + "' (must contain 'expert' or 'novice'");
+                  continue;
+              }
 
-                var imageIds = $(topic).find("ImageID");
-                var imageList = [];
-                for (var j = 0; j < imageIds.length; j++) {
-                    imageList.push(imageIds[j].textContent);
-                }
+              var descriptions = $(topic).find("Description");
+              var textList = [];
+              for (var j = 0; j < descriptions.length; j++) {
+                  var text = descriptions[j].textContent;
+                  var timestamp = parseInt($(descriptions[j]).attr("timestamp"));
+                  textList.push({delay: timestamp, text: text});
+              }
 
+              var imageIds = $(topic).find("ImageID");
+              var imageList = [];
+              for (var j = 0; j < imageIds.length; j++) {
+                  imageList.push(imageIds[j].textContent);
+              }
+
+              var newTask = {
+                  competitionId: this.activeCompetitionId,
+                  name: name,
+                  maxSearchTime: duration,
+                  type: taskType,
+                  videoRanges: [],
+                  textList: textList,
+                  trecvidId: "avs_" + this.randomId(10),
+                  avsText: "Enter query text",
+                  imageList: imageList
+              };
+              this.createTask(newTask);
+          }
+
+      }
+      reader.readAsText(file);
+    }
+
+    // currently tailored to match deprecated json format from old server
+    this.importTasksJSON = (file) => {
+      var reader = new FileReader();
+      reader.onload = () => {
+
+          var json = JSON.parse(reader.result);
+          if (Array.isArray(json)) {
+              for (let i=0; i<json.length; i++) {
+                var t = json[i];
                 var newTask = {
                     competitionId: this.activeCompetitionId,
-                    name: name,
-                    maxSearchTime: duration,
-                    type: taskType,
-                    videoRanges: [],
-                    textList: textList,
-                    trecvidId: "avs_" + this.randomId(10),
-                    avsText: "Enter query text",
-                    imageList: imageList
+                    name: t.desc,
+                    maxSearchTime: t.maxSearchTime,
+                    type: t.type,
+                    videoRanges: (t.type.startsWith("KIS")
+                      ? [{videoId: null,
+                        videoNumber: parseInt(t.videoId),
+                        startFrame: t.startframe,
+                        endFrame: t.endframe}]
+                      : []),
+                    textList: (t.type.startsWith("KIS") ? [{delay: 0, text: t.text}] : ""),
+                    trecvidId: t.trecvidId ? t.trecvidId : "avs_" + this.randomId(10),
+                    avsText: (t.type.startsWith("AVS") ? t.text : ""),
+                    imageList: []
                 };
+                console.log(newTask);
                 this.createTask(newTask);
-            }
-
-        }
-        reader.readAsText(file);
+              }
+          }
+      }
+      reader.readAsText(file);
     }
 
     this.formatTime = (seconds) => {

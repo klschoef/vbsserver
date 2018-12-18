@@ -57,9 +57,9 @@ html
                     select(id="taskSelect" onchange="edit.taskSelected()")
                     button(type="button" id="addTaskButton" onclick="edit.addTaskButtonClicked()") Add
                     button(type="button" id="deleteTaskButton" onclick="edit.deleteTaskButtonClicked()") Delete
-                    button(type="button" id="taskImportButton" onclick="edit.showImportTasks()") XML Import
+                    button(type="button" id="taskImportButton" onclick="edit.showImportTasks()") XML/JSON Import
                     span(id="taskImportDiv")
-                        input(type="file" id="taskImportFile" accept=".xml" onchange="edit.importTasks()")
+                        input(type="file" id="taskImportFile" accept=".xml, .json" onchange="edit.importTasks()")
                         button(type="button" onclick="edit.hideImportTasks()") X
 
                     hr

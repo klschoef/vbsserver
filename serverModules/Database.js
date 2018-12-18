@@ -43,7 +43,7 @@ class Database {
                 this.db.users.ensureIndex({fieldName: 'username', unique: true}, function (err) {});
                 this.db.videos.ensureIndex({fieldName: 'videoNumber', unique: true}, function (err) {});
 
-                // add custom validators 
+                // add custom validators
                 // db is also needed (e.g., for uniqueness constraints)
                 ValidationConstraints.addCustomValidators(validate);
 
@@ -57,14 +57,14 @@ class Database {
             });
         });
     }
-    
+
     enableAutocompaction() {
         logger.info("database autocompaction enabled");
         for (var datastoreName in this.db) {
             this.db[datastoreName].persistence.setAutocompactionInterval(30000);   // compact datafile every 30 seconds
         }
     }
-    
+
     disableAutocompaction() {
         logger.info("database autocompaction disabled");
         for (var datastoreName in this.db) {
@@ -75,14 +75,14 @@ class Database {
     loadDatastore(target, filename) {
         return new Promise((resolve, reject) => {
             this.db[target] = new Datastore({filename: filename, autoload: true, onload: resolve});
-            this.db[target].name = target;  // assign a "name" field to the Datastores (for logging)            
+            this.db[target].name = target;  // assign a "name" field to the Datastores (for logging)
         });
     }
 
     /*
      * TODO little bit of documentation
      * unified format for db operations (collection, data, success, error)
-     * 
+     *
      */
 
 
@@ -94,7 +94,7 @@ class Database {
 //  Create Entities     //
 //////////////////////////
 
-    // inserts the given entity to the given collection 
+    // inserts the given entity to the given collection
     // and returns the new document (including _id) via callback
     // in case of an error, the callback returns null
     createEntity(collection, data, constraints, success, error) {
@@ -148,7 +148,7 @@ class Database {
     }
 
     // query has the following format (depending on the task type):
-    // { type, videoRanges, textList, trecvidId, avsText, imageList} 
+    // { type, videoRanges, textList, trecvidId, avsText, imageList}
     createTask(data, success, error) {
         this.createEntity(
                 this.db.tasks,
@@ -167,7 +167,7 @@ class Database {
                 error);
     }
 
-    // creates "empty" taskResults for all teams for the given task    
+    // creates "empty" taskResults for all teams for the given task
     createTaskResults(competitionId, taskId, success, error) {
         error = optional(error);
         // first, verify that no such TaskResults already exist
@@ -216,7 +216,7 @@ class Database {
                 logger.error("finding entity failed", {query: query, errorMsg: err, collection: collection.name});
                 error(err);
             } else if (allowMultiple) {
-                success(docs); // return array  
+                success(docs); // return array
             } else if (docs.length === 0) {
                 logger.verbose("nothing found", {query: query, collection: collection.name});
                 success(null);
@@ -411,7 +411,7 @@ class Database {
             this.deleteTeams({competitionId: competition._id});
             this.deleteTasks({competitionId: competition._id});
             this.deleteTaskResults({competitionId: competition._id});
-            this.deleteSubmissions({competitionId: competition._id});            
+            this.deleteSubmissions({competitionId: competition._id});
         }
     }
 
@@ -426,23 +426,23 @@ class Database {
     deleteTaskResult(taskResult, success, error) {
         this.deleteEntity(this.db.taskResults, taskResult, success, error);
     }
-    
+
     deleteSubmission(submission, success, error) {
         this.deleteEntities(this.db.submissions, submission, success, error);
     }
-    
+
     deleteTeams(query, success, error) {
         this.deleteEntities(this.db.teams, query, success, error);
     }
-    
+
     deleteTasks(query, success, error) {
         this.deleteEntities(this.db.tasks, query, success, error);
     }
-    
+
     deleteTaskResults(query, success, error) {
         this.deleteEntities(this.db.taskResults, query, success, error);
     }
-    
+
     deleteSubmissions(query, success, error) {
         this.deleteEntities(this.db.submissions, query, success, error);
     }
@@ -542,7 +542,7 @@ class Database {
     }
 
     isValidVideoNumber(videoNumber, yes, no, error) {
-        this.exists(this.db.videos, {videoNumber: videoNumber}, yes, no, error);
+        this.exists(this.db.videos, {videoNumber: parseInt(videoNumber)}, yes, no, error);
     }
 
     randomVideo(success, error) {
