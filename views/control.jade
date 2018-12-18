@@ -7,11 +7,11 @@ html
         title VBSServer - Control
         script(src=prefix + 'scripts/3rdParty/jquery.js')
         script(src=prefix + 'scripts/3rdParty/jquery-ui.js')
-        script(src=prefix + 'scripts/3rdParty/jquery-confirm/dist/jquery-confirm.min.js')        
+        script(src=prefix + 'scripts/3rdParty/jquery-confirm/dist/jquery-confirm.min.js')
         script(src=prefix + 'scripts/3rdParty/socket.io/dist/socket.io.js')
         script(src=prefix + 'scripts/3rdParty/toastr/build/toastr.min.js')
         script(src=prefix + 'scripts/3rdParty/mustache.js/mustache.min.js')
-        script(src=prefix + 'scripts/ClientSockets.js')        
+        script(src=prefix + 'scripts/ClientSockets.js')
         script(src=prefix + 'scripts/Control.js')
         link(rel='stylesheet', href=prefix + 'stylesheets/controlStyle.css')
         link(rel='stylesheet', href=prefix + 'stylesheets/jquery-ui.css')
@@ -20,13 +20,15 @@ html
         script(type="text/javascript").
             var config = JSON.parse(new String('#{config}').replace(/&quot;/g, "\""));
     body(onunload="control.unload()")
+        a(href='edit' class="pageLink") Edit
+        a(href='viewer' target="_blank" class="pageLink") Viewer
         div(id="competitionsContainer")
-        
-        div(id="taskPreview" )            
+
+        div(id="taskPreview" )
             button(onclick="control.closePreview()") Close
-            button(onclick="control.playPreview()") Play            
-            textarea(id="taskText" spellcheck="false" disabled)            
-        
+            button(onclick="control.playPreview()") Play
+            textarea(id="taskText" spellcheck="false" disabled)
+
         div(id="competitionTemplate" class="template")
             div(class="competitionDiv" id="competition_{{competition._id}}")
                 h3(class="header") {{competition.name}}
@@ -61,17 +63,16 @@ html
                 | {{#task.finished}}
                 p Started: {{startTime}}
                 p Finished: {{endTime}}
-                button(type="button" onclick="control.taskPreview('{{task._id}}', event)") Preview                
-                button(type="button" onclick="control.resetTask('{{task._id}}')") Reset                
+                button(type="button" onclick="control.taskPreview('{{task._id}}', event)") Preview
+                button(type="button" onclick="control.resetTask('{{task._id}}')") Reset
                 | {{/task.finished}}
                 | {{#startable}}
                 button(type="button" onclick="control.startTask('{{task._id}}')") Start
                 button(type="button" onclick="control.taskPreview('{{task._id}}', event)") Preview
                 | {{/startable}}
-                | {{/task.running}}                
+                | {{/task.running}}
 
         div(id="teamTemplate" class="template")
             div(class="teamDiv" id="team_{{_id}}")
                 h4 {{teamNumber}}: {{name}}
                 img(src="{{logoSrc}}" height="32")
-        

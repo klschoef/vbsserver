@@ -24,6 +24,9 @@ html
             var config = JSON.parse(new String('#{config}').replace(/&quot;/g, "\""));
     body(onunload="edit.unload()")
 
+        a(href='control' class="pageLink") Control
+        a(href='viewer' target="_blank" class="pageLink") Viewer
+
         div(id="userDiv" class="containerDiv")
             label User
             select(id="userSelect" onchange="edit.userSelected()")

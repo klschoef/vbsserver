@@ -5,7 +5,7 @@ body {
 
 h3 {
     cursor: pointer;
-    margin: 7px;    
+    margin: 7px;
 }
 
 h4 {
@@ -66,7 +66,7 @@ button:active {
     color: #333;
     margin: 1%;
     padding: 2px;
-    border-radius: 4px;    
+    border-radius: 4px;
     border: 1px solid #222;
     text-align: center;
 }
@@ -84,7 +84,7 @@ button:active {
 
 .competitionRunning {
     background-color: rgba(120, 250, 150, 0.3);
-    color: darkgreen;    
+    color: darkgreen;
 }
 
 .competitionFinished {
@@ -93,14 +93,14 @@ button:active {
 }
 
 .taskContainer {
-    display: flex;    
+    display: flex;
     flex-wrap: wrap;
     margin: 8px;
 }
-.taskDiv {    
+.taskDiv {
     background-color: lightgreen;
     color: #222;
-    border-radius: 4px;    
+    border-radius: 4px;
     display: block;
     margin: 1px;
     padding: 10px;
@@ -113,7 +113,7 @@ button:active {
     color: white;
 }
 
-.taskFinished {    
+.taskFinished {
     background-color: lightgrey;
     color: #555;
 }
@@ -123,7 +123,7 @@ button:active {
 }
 
 .teamContainer {
-    display: flex;    
+    display: flex;
     flex-wrap: wrap;
     margin: 8px;
     justify-content: center;
@@ -132,10 +132,10 @@ button:active {
 .teamDiv {
     background-color: #eee;
     color: #222;
-    border-radius: 4px;    
+    border-radius: 4px;
     display: block;
     margin: 4px;
-    padding: 4px;    
+    padding: 4px;
     flex-basis: 15%;
 }
 
@@ -158,7 +158,7 @@ button:active {
 #taskText {
     background-color: rgba(0,0,0,0);
     width: 400px;
-    color: white;    
+    color: white;
     border: 0px;
     display: block;
 }
@@ -167,4 +167,17 @@ button:active {
     /* center jquery-confirm dialogs */
     margin-left: auto;
     margin-right: auto;
+}
+
+.pageLink {
+    color: #bbb;
+    font-size: 1rem;
+    font-style: normal;
+    background-color: #111;
+    padding: 4px;
+    text-align: center;
+    border: 1px solid #222;
+    border-radius: 4px;
+    margin: 1px;
+    text-decoration: none;
 }
