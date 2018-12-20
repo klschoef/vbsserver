@@ -19,7 +19,7 @@ class SubmissionHandler {
         // updating scores (TaskResults) should be an atomic operation
         // otherwise, multiple updates triggered by concurrent judgements
         // could interleave and produce an inconsistent state (due to async database accesses)
-        //  -> use an async Queue (with concurrency 1), 
+        //  -> use an async Queue (with concurrency 1),
         //  i.e., always wait until an update is complete, before the next starts
         //  (kind of a critical section)
         this.updateQueue = async.queue((update, finished) => {
@@ -34,7 +34,7 @@ class SubmissionHandler {
     }
 
     // first step of submission handling is the same for all task types
-    handleSubmission(teamNumber, videoNumber, frameNumber, shotNumber, imageId, iseq, searchTime, res) {
+    handleSubmission(teamNumber, videoNumber, frameNumber, shotNumber, imageId, iseq, searchTime, timestamp, res) {
         // first, retrieve the current task
         controller.currentTask((task) => {
             if (!task) {
@@ -52,8 +52,10 @@ class SubmissionHandler {
                     frameNumber: frameNumber,
                     imageId: imageId, // only relevant for LSC tasks
                     iseq: iseq,
-                    searchTime: searchTime},
-                        (submission) => {
+                    searchTime: searchTime,
+                    timestamp: timestamp
+                  },
+                  (submission) => {
                     this.handleValidSubmission(submission, task, res);
                 }, (errorMsg) => {
                     // creation failed (propably due to validation)
@@ -71,7 +73,7 @@ class SubmissionHandler {
             searchTime: submission.searchTime, submissionId: submission._id});
         logger.verbose("New Submission", {submission: submission, task: task});
         // submission has already been validated (contains all required fields)
-        // but some details are still missing: 
+        // but some details are still missing:
         //  - teamId and videoId: we only know the teamNumber and videoNumber, but we also need the db _ids
         //  - shotNumber and frameNumber: usually only one is submitted, but for AVS tasks both are required
         //          (shotNumber for judgement, frameNumber for preview image on client)

@@ -87,7 +87,7 @@ class Routes {
         // TODO: maybe limit the number of submissions per second to avoid a denial of service attack like behaviour
         app.get('/vbs/submit', (req, res) => {
 
-            this.computeSearchTime((searchTime) => {
+            this.computeSearchTime((searchTime, timestamp) => {
 
                 // parse parameters
                 var url_parts = url.parse(req.url, true);
@@ -98,7 +98,7 @@ class Routes {
                 var shotNumber = parseInt(query.shot);
                 var iseq = query.iseq;
 
-                controller.submissionHandler.handleSubmission(teamNumber, videoNumber, frameNumber, shotNumber, undefined, iseq, searchTime, res);
+                controller.submissionHandler.handleSubmission(teamNumber, videoNumber, frameNumber, shotNumber, undefined, iseq, searchTime, timestamp, res);
             });
         });
 
@@ -110,7 +110,7 @@ class Routes {
                 return;
             }
 
-            this.computeSearchTime((searchTime) => {
+            this.computeSearchTime((searchTime, timestamp) => {
 
                 // parse parameters
                 var teamNumber = parseInt(req.body.team);
@@ -119,13 +119,13 @@ class Routes {
                 var shotNumber = parseInt(req.body.shot);
                 var iseq = req.body.iseq;
 
-                controller.submissionHandler.handleSubmission(teamNumber, videoNumber, frameNumber, shotNumber, null, iseq, searchTime, res);
+                controller.submissionHandler.handleSubmission(teamNumber, videoNumber, frameNumber, shotNumber, null, iseq, searchTime, timestamp, res);
 
             });
         });
 
         app.get('/lsc/submit', (req, res) => {
-            this.computeSearchTime((searchTime) => {
+            this.computeSearchTime((searchTime, timestamp) => {
 
                 // parse parameters
                 var url_parts = url.parse(req.url, true);
@@ -133,7 +133,7 @@ class Routes {
                 var teamNumber = parseInt(query.team);
                 var imageId = query.image;
 
-                controller.submissionHandler.handleSubmission(teamNumber, 0, 0, 0, imageId, undefined, searchTime, res);
+                controller.submissionHandler.handleSubmission(teamNumber, 0, 0, 0, imageId, undefined, searchTime, timestamp, res);
             });
         });
 
@@ -146,7 +146,7 @@ class Routes {
             }
 
             controller.currentTask((task) => {
-              this.computeSearchTime((searchTime) => {
+              this.computeSearchTime((searchTime, timestamp) => {
 
                   var jsonLog = req.body;
                   if (task) {
@@ -155,7 +155,7 @@ class Routes {
                   if (searchTime) {
                     jsonLog.searchTime = searchTime;
                   }
-                  jsonLog.serverTimestamp = Date.now();
+                  jsonLog.serverTimestamp = timestamp;
 
                   // TODO log format could be validated inside this function
                   controller.db.createActionLogEntry(jsonLog, () => {
@@ -169,11 +169,12 @@ class Routes {
     }
 
     computeSearchTime(callback) {
+        var timestamp = Date.now();
         controller.currentTask((task) => {
             if (task) {
-                callback(Utils.roundSeconds((Date.now() - task.startTimeStamp) / 1000));
+                callback(Utils.roundSeconds((timestamp - task.startTimeStamp) / 1000), timestamp);
             } else {
-                callback(NaN);
+                callback(NaN, timestamp);
             }
         });
 

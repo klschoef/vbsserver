@@ -218,7 +218,7 @@ class Test {
       var logObj = {
         team: Math.round(Math.random() * 10),
         member: Math.round(Math.random() * 5),
-        actions: Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 8).toUpperCase()        
+        actions: Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 8).toUpperCase()
       };
 
       $.ajax({
