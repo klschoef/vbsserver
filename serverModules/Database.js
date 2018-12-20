@@ -62,7 +62,9 @@ class Database {
     enableAutocompaction() {
         logger.info("database autocompaction enabled");
         for (var datastoreName in this.db) {
+          if (datastoreName !== "videos") { // videos collection never changes and needs no compaction, but is very large and therefore would take quite long...
             this.db[datastoreName].persistence.setAutocompactionInterval(30000);   // compact datafile every 30 seconds
+          }
         }
     }
 
