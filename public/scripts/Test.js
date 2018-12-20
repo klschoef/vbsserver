@@ -40,7 +40,7 @@ class Test {
                     this.log("judgement submitted: " + correct);
                 }, judgeDelay);
             });
-            
+
             this.init();
         });
 
@@ -212,6 +212,23 @@ class Test {
                 this.randomSubmit();
             }, Math.round(Math.random() * duration * 1000));
         }
+    }
+
+    actionLog() {
+      var logObj = {
+        team: Math.round(Math.random() * 10),
+        member: Math.round(Math.random() * 5),
+        actions: Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 8).toUpperCase()        
+      };
+
+      $.ajax({
+				url: 'vbs/actionLog',
+				type: 'post',
+				contentType: 'application/json',
+				data: JSON.stringify(logObj)
+			}).done((response) => {
+        this.log("log: " + JSON.stringify(logObj));
+      });
     }
 
     submit(competitionType, teamNumber, videoNumber, frameNumber, imageId) {

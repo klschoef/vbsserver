@@ -130,10 +130,40 @@ class Routes {
                 // parse parameters
                 var url_parts = url.parse(req.url, true);
                 var query = url_parts.query;
-                var teamNumber = parseInt(query.team);               
+                var teamNumber = parseInt(query.team);
                 var imageId = query.image;
 
                 controller.submissionHandler.handleSubmission(teamNumber, 0, 0, 0, imageId, undefined, searchTime, res);
+            });
+        });
+
+        app.post('/vbs/actionLog', (req, res) => {
+
+            if (!req.body || Object.keys(req.body) == 0) {
+                logger.verbose("submission with missing body in POST request");
+                res.send("Missing body in POST request!");
+                return;
+            }
+
+            controller.currentTask((task) => {
+              this.computeSearchTime((searchTime) => {
+
+                  var jsonLog = req.body;
+                  if (task) {
+                    jsonLog.taskId = task._id;
+                  }
+                  if (searchTime) {
+                    jsonLog.searchTime = searchTime;
+                  }
+                  jsonLog.serverTimestamp = Date.now();
+
+                  // TODO log format could be validated inside this function
+                  controller.db.createActionLogEntry(jsonLog, () => {
+                    res.send("actionLog OK");
+                  }, () => {
+                    res.send("actionLog Error");
+                  });
+              });
             });
         });
     }

@@ -37,6 +37,7 @@ class Database {
             promises.push(this.loadDatastore("submissions", "./database/submissions.db"));
             promises.push(this.loadDatastore("videos", "./database/videos.db"));
             promises.push(this.loadDatastore("groundTruth", "./database/groundTruth.db"));  // note: ground truth is shared over competitions (unique key: trecvidId)
+            promises.push(this.loadDatastore("actionLogs", "./database/actionLogs.db"));
 
             Promise.all(promises).then(() => {
                 logger.info("Database loaded...");
@@ -197,6 +198,15 @@ class Database {
                 ValidationConstraints.SUBMISSION,
                 success,
                 error);
+    }
+
+    createActionLogEntry(data, success, error) {
+        this.createEntity(
+              this.db.actionLogs,
+              data,
+              {},   // TODO validator for log format
+              success,
+              error);
     }
 
 /////////////////////////////

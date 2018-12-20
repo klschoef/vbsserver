@@ -5,12 +5,12 @@
 // Module dependencies //////////////////////////
 var express = require('express'),
         app = express(),
-        bodyParser = require("body-parser"),
+//        bodyParser = require("body-parser"),
         server = require('http').createServer(app),
         io = require('socket.io')(server),
         fs = require('fs-extra'),
         logger = require('winston'),
-        // Custom server modules        
+        // Custom server modules
         Controller = require('./serverModules/Controller'),
         config = require('./config.json');
 
@@ -21,10 +21,12 @@ app.use(function (req, res, next) {
     next();
 });
 
-// enable POST submissions
-app.use(bodyParser.urlencoded()); 
+// enable POST submissions (with JSON encoded body)
+//app.use(bodyParser.urlencoded());  // deprecated
+app.use(express.urlencoded());
+app.use(express.json());
 
-// Template engine 
+// Template engine
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 
@@ -56,8 +58,8 @@ if (!fs.existsSync("public/images/logos/upload/")){
 //  warn: 1,    -> console, vbslog
 //  info: 2,    -> console, vbslog
 //  verbose: 3, -> vbslog
-//  debug: 4,   
-//  silly: 5 
+//  debug: 4,
+//  silly: 5
 logger.configure({
     transports: [
         new (logger.transports.Console)({
