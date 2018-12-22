@@ -38,7 +38,9 @@ html
             span(id="avsBtns")
                 button(type="button" id="randomSubmitBtn" onclick="test.randomSubmit()") Random
                 button(type="button" id="randomBatch" onclick="test.randomBatch()") Random Batch
-                button(type="button" id="actionLogBtn" onclick="test.actionLog()") ActionLog
+                label ActionLog
+                input(type="checkbox" id="actionLog" title="include an action log to submission")
+                button(type="button" id"actionLogBtn" onclick="test.actionLog()" title="send an action log without submission") ActionLog
                 br
                 span(class="optionsGroup")
                     input(type="number" id="randomAmount" min=1 max=10000 value=10)

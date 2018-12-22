@@ -11,11 +11,11 @@ class Submission {
         this.videoId = data.videoId;  // when the submission is created, we do not know the _.id yet. it is determined later
 
         this.teamNumber = data.teamNumber;
+        this.memberNumber = data.memberNumber;
         this.videoNumber = data.videoNumber;
         this.shotNumber = data.shotNumber;  // 1-based shotNumber (according to msb)
         this.frameNumber = data.frameNumber;
         this.imageId = data.imageId;    // LSC tasks: submitted imageId
-        this.iseq = data.iseq;
         this.searchTime = data.searchTime;   // in seconds
         this.timestamp = data.timestamp;    // exact timestamp in ms when the submission was received at the server
 

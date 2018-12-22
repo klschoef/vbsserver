@@ -215,29 +215,19 @@ class Test {
     }
 
     actionLog() {
-      var logObj = {
-        team: Math.round(Math.random() * 10),
-        member: Math.round(Math.random() * 5),
-        actions: Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 8).toUpperCase()
-      };
-
-      $.ajax({
-				url: 'vbs/actionLog',
-				type: 'post',
-				contentType: 'application/json',
-				data: JSON.stringify(logObj)
-			}).done((response) => {
-        this.log("log: " + JSON.stringify(logObj));
-      });
+        this.submit("VBS", null, null, null, null, true);
     }
 
-    submit(competitionType, teamNumber, videoNumber, frameNumber, imageId) {
+    submit(competitionType, teamNumber, videoNumber, frameNumber, imageId, forceLog) {
         if (competitionType == "VBS") {
-            var url = "http://" + config.server.websocketURL + ":" + config.server.port + "/vbs/submit?";
-            url += "team=" + teamNumber;
-            url += "&video=" + videoNumber;
-            url += "&frame=" + frameNumber;
-            url += "&iseq=" + this.randomIseq();
+            var url = "http://" + config.server.websocketURL + ":" + config.server.port + "/vbs/submit";
+            if (Number.isInteger(videoNumber) && Number.isInteger(frameNumber)) {
+                url += "?";
+                url += "team=" + teamNumber;
+                url += "&video=" + videoNumber;
+                url += "&frame=" + frameNumber;
+                //url += "&iseq=" + this.randomIseq();
+            }
         } else if (competitionType == "LSC") {
             var url = "http://" + config.server.websocketURL + ":" + config.server.port + "/lsc/submit?";
             url += "team=" + teamNumber;
@@ -247,8 +237,21 @@ class Test {
             return;
         }
         this.log(url);
+
+        var logObj = {};
+        if (forceLog || $("#actionLog").is(":checked")) {
+            logObj = {
+                teamId: Math.round(Math.random() * 10),
+                memberId: Math.round(Math.random() * 5),
+                events:this.randomIseq()
+            };
+        }
+
         $.ajax({
             url: url,
+            type: "post",
+            contentType: 'application/json',
+            data: JSON.stringify(logObj),
             success: (data) => {
                 this.log(data);
             },
@@ -256,6 +259,7 @@ class Test {
                 console.error(err);
             }
         });
+
     }
 
     randomIseq() {

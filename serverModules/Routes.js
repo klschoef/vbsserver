@@ -81,10 +81,9 @@ class Routes {
             });
         });
 
-        // submission format:  <serveraddress:port>/vbs/submit?team=<int>&video=<int>&frame=<int>&shot=<int>
-        // frame number is 0-based
-        // shot id is 1-based (in accordance with the Trecvid master shot reference (msb)
-        // TODO: maybe limit the number of submissions per second to avoid a denial of service attack like behaviour
+
+        // attention: GET requests should not be used anymore, but are still included for backward compatibility
+        // same URL format as POST request
         app.get('/vbs/submit', (req, res) => {
 
             this.computeSearchTime((searchTime, timestamp) => {
@@ -93,34 +92,50 @@ class Routes {
                 var url_parts = url.parse(req.url, true);
                 var query = url_parts.query;
                 var teamNumber = parseInt(query.team);
+				var memberNumber = parseInt(query.member);
                 var videoNumber = parseInt(query.video);
                 var frameNumber = parseInt(query.frame);
                 var shotNumber = parseInt(query.shot);
-                var iseq = query.iseq;
 
-                controller.submissionHandler.handleSubmission(teamNumber, videoNumber, frameNumber, shotNumber, undefined, iseq, searchTime, timestamp, res);
+                controller.submissionHandler.handleSubmission(teamNumber, memberNumber, videoNumber, frameNumber, shotNumber, null, searchTime, timestamp, res).then(()=>{}, ()=>{});
             });
         });
 
+        /*
+          The preferred way to submit an answer to the server
+          submission format:  <serveraddress:port>/vbs/submit?team=<int>&member=<int>&video=<int>&frame=<int>&shot=<int>
+          frame number is 0-based
+          shot id is 1-based (in accordance with the Trecvid master shot reference (msb)
+          TODO: maybe limit the number of submissions per second to avoid a denial of service attack like behaviour
+          the submission can optionally include a JSON log object which should adhere to a defined format (which is not validated at submission time)
+          a log object can also be sent without a submission (if it includes no video and frame or shot number)
+        */
         app.post('/vbs/submit', (req, res) => {
 
-            if (!req.body) {
-                logger.verbose("submission with missing body in POST request");
-                res.send("Missing body in POST request!");
-                return;
-            }
+            this.computeSearchTime((searchTime, timestamp, task) => {
 
-            this.computeSearchTime((searchTime, timestamp) => {
+                // submission data is sent as URL parameters
+                var url_parts = url.parse(req.url, true);
+				var query = url_parts.query;
+				var teamNumber = parseInt(query.team);
+				var memberNumber = parseInt(query.member);
+				var videoNumber = parseInt(query.video);
+				var frameNumber = parseInt(query.frame);
+				var shotNumber = parseInt(query.shot);
 
-                // parse parameters
-                var teamNumber = parseInt(req.body.team);
-                var videoNumber = parseInt(req.body.video);
-                var frameNumber = parseInt(req.body.frame);
-                var shotNumber = parseInt(req.body.shot);
-                var iseq = req.body.iseq;
+                // action log can be sent as JSON encoded body (but is optional)
+                var actionLog = req.body;
 
-                controller.submissionHandler.handleSubmission(teamNumber, videoNumber, frameNumber, shotNumber, null, iseq, searchTime, timestamp, res);
-
+				// a submission request does not necessarily have to contain an actual submission, it also can contain a sole actionLog
+				if (Number.isInteger(videoNumber) && (Number.isInteger(frameNumber) || Number.isInteger(shotNumber))) {
+					controller.submissionHandler.handleSubmission(teamNumber, memberNumber, videoNumber, frameNumber, shotNumber, null, searchTime, timestamp, res).then((submission) => {
+                        this.handleActionLog(actionLog, task, submission, teamNumber, memberNumber, searchTime, timestamp);
+                    }, () => {
+                        this.handleActionLog(actionLog, task, null, teamNumber, memberNumber, searchTime, timestamp);   // action log with invalid submission (e.g., because time over)
+                    });
+				} else {
+                    this.handleActionLog(actionLog, task, null, teamNumber, memberNumber, searchTime, timestamp);  // action log without submission
+                }
             });
         });
 
@@ -133,46 +148,50 @@ class Routes {
                 var teamNumber = parseInt(query.team);
                 var imageId = query.image;
 
-                controller.submissionHandler.handleSubmission(teamNumber, 0, 0, 0, imageId, undefined, searchTime, timestamp, res);
+                controller.submissionHandler.handleSubmission(teamNumber, 0, 0, 0, 0, imageId, searchTime, timestamp, res);
             });
         });
+    }
 
-        app.post('/vbs/actionLog', (req, res) => {
+    handleActionLog(actionLog, task, submission, teamNumber, memberNumber, searchTime, timestamp) {
 
-            if (!req.body || Object.keys(req.body) == 0) {
-                logger.verbose("submission with missing body in POST request");
-                res.send("Missing body in POST request!");
-                return;
+        if (actionLog && typeof actionLog === "object" && Object.keys(actionLog).length > 0) {
+
+            // enrich the log entry with some additional information
+            if (task) {
+                actionLog.taskId = task._id;
+            } else {
+                // currently no task is running, but we can assume that this log belongs to the latest task
+                actionLog.taskId = controller.getLatestTaskId();
             }
+            if (submission) {
+                // link this log entry to the according submission
+                actionLog.submissionId = submission._id;
+            }
+            if (!Number.isInteger(actionLog.teamId)) {
+                actionLog.teamId = teamNumber;
+            }
+            if (!Number.isInteger(actionLog.memberId)) {
+                actionLog.memberId = memberNumber;
+            }
+            if (searchTime) {	// if the task is already over, searchTime is undefined
+                actionLog.searchTime = searchTime;
+            }
+            actionLog.serverTimestamp = timestamp;	// receiving timestamp
 
-            controller.currentTask((task) => {
-              this.computeSearchTime((searchTime, timestamp) => {
-
-                  var jsonLog = req.body;
-                  if (task) {
-                    jsonLog.taskId = task._id;
-                  }
-                  if (searchTime) {
-                    jsonLog.searchTime = searchTime;
-                  }
-                  jsonLog.serverTimestamp = timestamp;
-
-                  // TODO log format could be validated inside this function
-                  controller.db.createActionLogEntry(jsonLog, () => {
-                    res.send("actionLog OK");
-                  }, () => {
-                    res.send("actionLog Error");
-                  });
-              });
+            controller.db.createActionLogEntry(actionLog, () => {
+                logger.verbose("Action log saved", {team: teamNumber, timestamp: timestamp}); // log entry is saved to database, no need to additionally log all the data...
+            }, () => {
+                logger.error("Saving action log failed", {actionLog: actionLog});
             });
-        });
+        }
     }
 
     computeSearchTime(callback) {
         var timestamp = Date.now();
         controller.currentTask((task) => {
             if (task) {
-                callback(Utils.roundSeconds((timestamp - task.startTimeStamp) / 1000), timestamp);
+                callback(Utils.roundSeconds((timestamp - task.startTimeStamp) / 1000), timestamp, task);
             } else {
                 callback(NaN, timestamp);
             }

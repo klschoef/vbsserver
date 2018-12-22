@@ -240,6 +240,15 @@ class Controller {
         }
     }
 
+    getLatestTaskId() {
+        var tasks = this.competitionState.tasks;
+        if (tasks.length > 0) {
+            return tasks[tasks.length-1]._id;
+        } else {
+            return null;
+        }
+    }
+
     setToleranceTask(task) {
         this.toleranceTask = task;
         logger.info("tolerance time: waiting for further submissions for " + config.task.KISTimeTolerance + " seconds");
