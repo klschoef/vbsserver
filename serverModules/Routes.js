@@ -131,7 +131,7 @@ class Routes {
 					controller.submissionHandler.handleSubmission(teamNumber, memberNumber, videoNumber, frameNumber, shotNumber, null, searchTime, timestamp, res).then((submission) => {
                         this.handleActionLog(actionLog, task, submission, teamNumber, memberNumber, searchTime, timestamp);
                     }, () => {
-                        this.handleActionLog(actionLog, task, null, teamNumber, memberNumber, searchTime, timestamp, res);   // action log with invalid submission (e.g., because time over)
+                        this.handleActionLog(actionLog, task, null, teamNumber, memberNumber, searchTime, timestamp);   // action log with invalid submission (e.g., because time over)
                     });
 				} else {
                     this.handleActionLog(actionLog, task, null, teamNumber, memberNumber, searchTime, timestamp, res);  // action log without submission
