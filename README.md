@@ -9,7 +9,7 @@ Official server of the annual [Video Browser Showdown ](http://www.videobrowsers
 
 ## Getting Started
 
-* copy helper/videos.db to database/ in order to use the VBS 2018 dataset.
+* copy helper/videos_v3c.db to database/videos.db in order to use the VBS 2019 dataset.
 * copy the according video files to public/videos (or specify a remote URL in config)
 * adapt config.json to suit your needs
 * start server: node app.js
@@ -53,6 +53,7 @@ Official server of the annual [Video Browser Showdown ](http://www.videobrowsers
 * judge: live judgement interface for AVS tasks
 * test: allows to simulate a competition by generating random competitions and submissions. only available if debugMode is set to true
 * inspect: post-hoc analysis of finished competitions (not implemented yet)
+* export: export database to csv (not implemented yet)
 
 ## Authors
 
