@@ -241,12 +241,13 @@ class Controller {
     }
 
     getLatestTaskId() {
-        var tasks = this.competitionState.tasks;
-        if (tasks.length > 0) {
-            return tasks[tasks.length-1]._id;
-        } else {
-            return null;
+        if (this.competitionState) {
+            var tasks = this.competitionState.tasks;
+            if (tasks && tasks.length > 0) {
+                return tasks[tasks.length-1]._id;
+            }
         }
+        return null;
     }
 
     setToleranceTask(task) {

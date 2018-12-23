@@ -6,4 +6,5 @@ public/images/logos/upload/
 public/images/lsc_images
 public/csv
 run.bat
+submissionLog.csv
 *.zip

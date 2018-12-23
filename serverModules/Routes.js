@@ -93,7 +93,7 @@ class Routes {
                 var query = url_parts.query;
                 var teamNumber = parseInt(query.team);
 				var memberNumber = parseInt(query.member);
-                var videoNumber = parseInt(query.video);
+                var videoNumber = parseInt((""+query.video).split(".")[0]);
                 var frameNumber = parseInt(query.frame);
                 var shotNumber = parseInt(query.shot);
 
@@ -119,7 +119,7 @@ class Routes {
 				var query = url_parts.query;
 				var teamNumber = parseInt(query.team);
 				var memberNumber = parseInt(query.member);
-				var videoNumber = parseInt(query.video);
+				var videoNumber = parseInt((""+query.video).split(".")[0]);
 				var frameNumber = parseInt(query.frame);
 				var shotNumber = parseInt(query.shot);
 
@@ -131,10 +131,10 @@ class Routes {
 					controller.submissionHandler.handleSubmission(teamNumber, memberNumber, videoNumber, frameNumber, shotNumber, null, searchTime, timestamp, res).then((submission) => {
                         this.handleActionLog(actionLog, task, submission, teamNumber, memberNumber, searchTime, timestamp);
                     }, () => {
-                        this.handleActionLog(actionLog, task, null, teamNumber, memberNumber, searchTime, timestamp);   // action log with invalid submission (e.g., because time over)
+                        this.handleActionLog(actionLog, task, null, teamNumber, memberNumber, searchTime, timestamp, res);   // action log with invalid submission (e.g., because time over)
                     });
 				} else {
-                    this.handleActionLog(actionLog, task, null, teamNumber, memberNumber, searchTime, timestamp);  // action log without submission
+                    this.handleActionLog(actionLog, task, null, teamNumber, memberNumber, searchTime, timestamp, res);  // action log without submission
                 }
             });
         });
@@ -153,7 +153,7 @@ class Routes {
         });
     }
 
-    handleActionLog(actionLog, task, submission, teamNumber, memberNumber, searchTime, timestamp) {
+    handleActionLog(actionLog, task, submission, teamNumber, memberNumber, searchTime, timestamp, res) {
 
         if (actionLog && typeof actionLog === "object" && Object.keys(actionLog).length > 0) {
 
@@ -181,9 +181,17 @@ class Routes {
 
             controller.db.createActionLogEntry(actionLog, () => {
                 logger.verbose("Action log saved", {team: teamNumber, timestamp: timestamp}); // log entry is saved to database, no need to additionally log all the data...
+                if (res) { // res is only available if the request doesn't contain a submission
+                    res.send("action log received");
+                }
             }, () => {
                 logger.error("Saving action log failed", {actionLog: actionLog});
+                if (res) {
+                    res.send("unexpected error with action log");
+                }
             });
+        } else if (res) { // res is only available if the request doesn't contain a submission
+            res.send("action log is empty or invalid");
         }
     }
 
