@@ -26,6 +26,14 @@ app.use(function (req, res, next) {
 app.use(express.urlencoded());
 app.use(express.json());
 
+app.use((error, req, res, next) => {
+    if (error instanceof SyntaxError) {
+        res.send("SyntaxError: " + error.type);
+    } else {
+        next();
+    }
+});
+
 // Template engine
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
