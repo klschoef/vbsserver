@@ -119,7 +119,7 @@ class Routes {
 				var query = url_parts.query;
 				var teamNumber = parseInt(query.team);
 				var memberNumber = parseInt(query.member);
-				var videoNumber = parseInt((""+query.video).split(".")[0]);
+				var videoNumber = parseInt((""+query.video).split(".")[0]);  // tolerant submission format: either accept video ids like 1234, 01234, or 01234.mp4
 				var frameNumber = parseInt(query.frame);
 				var shotNumber = parseInt(query.shot);
 

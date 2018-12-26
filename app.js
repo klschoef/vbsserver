@@ -3,7 +3,8 @@
 // **************************************************************************************************
 
 // Module dependencies //////////////////////////
-var express = require('express'),
+var dotenv = require('dotenv').config(), // set environment variables (e.g., production environment). must be done before creating express app!
+        express = require('express'),
         app = express(),
 //        bodyParser = require("body-parser"),
         server = require('http').createServer(app),
@@ -23,7 +24,7 @@ app.use(function (req, res, next) {
 
 // enable POST submissions (with JSON encoded body)
 //app.use(bodyParser.urlencoded());  // deprecated
-app.use(express.urlencoded());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use((error, req, res, next) => {
