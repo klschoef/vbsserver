@@ -1,4 +1,5 @@
-var Datastore = require('nedb'),
+var  Utils = require('./Utils.js'),
+        Datastore = require('nedb'),
         User = require('./entities/User'),
         Competition = require('./entities/Competition'),
         Team = require('./entities/Team'),
@@ -523,7 +524,23 @@ class Database {
                 yes(entry);
             } else {
                 // not found
-                no();
+                // here comes a not so elegant workaround:
+                // at VBS 2018, we had the problem that ground truth entries from TV ground truth were not found due to data type mismatch
+                // task.trecvidId is a string (because it can also be something like "avs_1234"), but the database entries were Integers (e.g., 503)
+                // to ensure that this doesn't happen again, we double check at this point if we find a GT entry if we pass the trecvidId as Integer (provided it is a number)
+                if (Utils.isNumber(task.trecvidId)) {
+                    query = {trecvidId: parseInt(task.trecvidId), videoNumber: submission.videoNumber, shotNumber: submission.shotNumber};
+                    this.findEntity(this.db.groundTruth, query, (entry) => {
+                        if (entry) {
+                            // found in groundtruth!
+                            yes(entry);
+                        } else {
+                            no();
+                        }
+                    });
+                } else {
+                    no();
+                }
             }
         }, error, false);
     }

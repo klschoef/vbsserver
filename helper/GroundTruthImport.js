@@ -6,7 +6,7 @@ var importGroundTruth = (db) => {
     db.deleteEntities(db.db.groundTruth, true, (numDeleted) => {
         console.log("ground truth database cleared (" + numDeleted + " deleted)");
         var groundTruthEntries = new Array();
-        // format: {trecvidId, videoNumber, shotNumber, correct, vbsJudged}    
+        // format: {trecvidId, videoNumber, shotNumber, correct, vbsJudged}
 
         var count = 0;
 
@@ -14,7 +14,7 @@ var importGroundTruth = (db) => {
             for (var videoNumber in trecvidGroundTruth[trecvidId]) {
                 for (var shotNumber in trecvidGroundTruth[trecvidId][videoNumber]) {
                     var entry = {
-                        trecvidId: parseInt(trecvidId),
+                        trecvidId: trecvidId + "",  // make sure that trecvidId is a string! (otherwise lookup might fail)
                         videoNumber: parseInt(videoNumber),
                         shotNumber: parseInt(shotNumber),
                         correct: trecvidGroundTruth[trecvidId][videoNumber][shotNumber],
@@ -43,6 +43,3 @@ var importGroundTruth = (db) => {
 
 
 module.exports = importGroundTruth;
-
-
- 
