@@ -142,6 +142,7 @@ function teamEditor() {
                     "images/logos/2019/viret.png",
                     "images/logos/2019/visione.png",
                     "images/logos/2019/itec.png"];
+                offset = 0.13333;
                 break;
             case "LSC 2018":
                 teams = ["AAU", "SIRET", "DCU", "UUDCU", "VNU", "UPCDCU"];
