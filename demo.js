@@ -32,6 +32,9 @@ app.use(function (error, req, res, next) {
     }
 });
 
+// keep record of clients that send submission requests and block if they send too much ("flooding")
+var clientMap = {};
+
 app.get('/', function (req, res) {
     res.send("<!DOCTYPE html><html><head><title>VBS 2019 TestServer</title></head>"
             + "<body style='line-height: 1.3; margin: 20px;'>"
@@ -127,7 +130,32 @@ app.get('/submit', function (req, res) {
     res.send("GET is not used anymore for submissions. Please send a POST request!")
 });
 
+// returns true if this client sent at least num requests in the last s seconds
+function checkClientMap(ip, num, s) {
+    if (clientMap[ip].length >= num) {
+        if (Date.now() - clientMap[ip][clientMap[ip].length-num] < s*1000) {
+            return true;
+        }
+    }
+    return false;
+}
+
 app.post('/submit', function (req, res) {
+
+    var submitTimeStamp = new Date(Date.now()).toLocaleString();
+
+    var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    // very rudimental protection against a hypothetical flooding attack:
+    // if a client sends more than 10000 total requests or a lot of request in short time, we simply ignore it (and don't write to log!)
+    if (!clientMap[ip]) {
+        clientMap[ip] = [];
+    }
+
+    if (clientMap[ip].length > 10000 || checkClientMap(ip, 5, 1) || checkClientMap(ip, 100, 10) || checkClientMap(ip, 1000, 60)) {
+        res.send("Error: too many requests!");
+        return;
+    }
+    clientMap[ip].push(Date.now());
 
     // submission data is sent as URL parameters
     var url_parts = url.parse(req.url, true);
@@ -140,8 +168,6 @@ app.post('/submit', function (req, res) {
 
     // action log can be sent as JSON encoded body (but is optional)
     var actionLog = req.body;
-
-    var submitTimeStamp = new Date(Date.now()).toLocaleString();
 
     var response = "";
 
@@ -187,7 +213,6 @@ app.post('/submit', function (req, res) {
     res.send(response);
 
     var header = "submitTimeStamp;IP;team;member;video;frame;shot;actionLog;response";
-    var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 
     var logEntry = submitTimeStamp
         + ";" + ip
