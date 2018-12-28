@@ -5,7 +5,7 @@ function competitionEditor() {
     }
 
     // loads a list of all competitions from the server and fills the according selector
-    // if previously a competition had been selected, it is re-selected 
+    // if previously a competition had been selected, it is re-selected
     // (unless it has been deleted in the meantime)
     // returns a Promise
     this.refreshCompetitions = () => {
@@ -28,8 +28,8 @@ function competitionEditor() {
                         $("#competitionSelect").append(option);
                     }
 
-                    // refresh can also be triggered after some changes, 
-                    // so we re-select the previous value (unless that one has been deleted)              
+                    // refresh can also be triggered after some changes,
+                    // so we re-select the previous value (unless that one has been deleted)
 
                     if (this.activeCompetition()) {
                         $("#competitionSelect").val(this.activeCompetitionId);
@@ -80,11 +80,11 @@ function competitionEditor() {
             $("#competitionStartTime").html(startDate);
             $("#competitionEndTime").html(endDate);
             $("#competitionBody").show();
-            
+
             // depending on the current state of the competition, some modifications are allowed or not
             // (e.g., changing the name, delete, add teams etc.)
             this.refreshAllowedActions();
-            
+
             this.refreshTasks();
             this.refreshTeams();
         } else {
@@ -135,7 +135,7 @@ function competitionEditor() {
                         });
                     },
                     cancel: () => {
-                        // nothing to do                        
+                        // nothing to do
                     }
                 }
             });
@@ -190,7 +190,7 @@ function competitionEditor() {
             // it is allowed to add a new task to a running competition
             $("#addTaskButton").show();
             if (task) {
-                // don't allow modification of a started task! (except task name)              
+                // don't allow modification of a started task! (except task name)
                 if (task.running || task.finished) {
                     $(".taskConditionallyEnabled").attr("disabled", true);
                     $("#deleteTaskButton").hide();

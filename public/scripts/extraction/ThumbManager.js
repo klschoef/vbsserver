@@ -3,7 +3,7 @@ class ThumbManager {
     constructor(viewer) {
         this.viewer = viewer;
         this.frameExtractor;
-        this.videoMap;   // maps videoId to additional information        
+        this.videoMap;   // maps videoId to additional information
     }
 
     init() {
@@ -18,7 +18,7 @@ class ThumbManager {
     loadVideoMap() {
         return new Promise((resolve, reject) => {
             // request videoMap (for computing playback times)
-            this.viewer.socket.emit("getVideoMap", {}, (response) => {
+            this.viewer.socket.emit("getVideoMap", {skipShots: true}, (response) => {
                 if (response.success) {
                     this.videoMap = response.data;
                     resolve();
@@ -108,7 +108,7 @@ class ThumbManager {
 
     static getImagePath(imageName) {
         // LSC image directory has a specific format which we simply assume for now
-        // TODO implement in a more generic fashion            
+        // TODO implement in a more generic fashion
         var subDir = imageName.substring(0, 4) + "-" + imageName.substring(4, 6) + "-" + imageName.substring(6, 8);
         var imgDir = config.server.lscImageDir + "/" + subDir + "/";
         return imgDir + imageName;

@@ -87,7 +87,7 @@ class Test {
     loadVideoMap() {
         return new Promise((resolve, reject) => {
             // request videoMap (for computing playback times)
-            this.socket.emit("getVideoMap", {}, (response) => {
+            this.socket.emit("getVideoMap", {skipShots: true}, (response) => {
                 if (response.success) {
                     this.videoMap = response.data;
                     resolve();

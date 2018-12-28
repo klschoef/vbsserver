@@ -222,7 +222,7 @@ class Inspect {
     loadVideoMap() {
         return new Promise((resolve, reject) => {
             // request videoMap (for computing playback times)
-            this.socket.emit("getVideoMap", {}, (response) => {
+            this.socket.emit("getVideoMap", {skipShots: false}, (response) => {   // we also have to load the shots!
                 if (response.success) {
                     this.videoMap = response.data;
                     resolve();
