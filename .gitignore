@@ -7,4 +7,5 @@ public/images/lsc_images
 public/csv
 run.bat
 submissionLog.csv
+session-store.db
 *.zip

@@ -521,9 +521,6 @@ class Database {
     }
 
     hasPermissions(username, password, clientType, yes, no, error) {
-
-console.log("checking", username, password, clientType);
-
         this.findUser({username: username, password: password}, (user) => {
             // admin is allowed to access all pages, other roles are only allowed to access the according page
             if (user && (user.role == "Admin" || user.role.toLowerCase() == clientType.toLowerCase())) {

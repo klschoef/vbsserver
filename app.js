@@ -6,11 +6,13 @@
 var dotenv = require('dotenv').config(), // set environment variables (e.g., production environment). must be done before creating express app!
         express = require('express'),
         app = express(),
-//        bodyParser = require("body-parser"),
+//        bodyParser = require("body-parser"),  // deprecated in current express version
         server = require('http').createServer(app),
         io = require('socket.io')(server),
         fs = require('fs-extra'),
         logger = require('winston'),
+        Session = require('express-session'),
+        LokiStore = require('connect-loki')(Session),   // session store
         // Custom server modules
         Controller = require('./serverModules/Controller'),
         config = require('./config.json');
@@ -27,6 +29,7 @@ app.use(function (req, res, next) {
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+// handle JSON parse errors
 app.use((error, req, res, next) => {
     if (error instanceof SyntaxError) {
         res.send("SyntaxError: " + error.type);
@@ -34,6 +37,22 @@ app.use((error, req, res, next) => {
         next();
     }
 });
+
+// use sessions (to remember that a user is already logged in)
+var session = Session({
+    store: new LokiStore({}),
+    secret: "8lacmxjk",
+    resave: true,
+    saveUninitialized: true,
+});
+
+// make request object (which contains the session) available for websocket handler (because authentication is done over websocket)
+io.use((socket, next) => {
+    session(socket.request, socket.request.res, next);
+});
+
+app.use(session);
+
 
 // Template engine
 app.set('views', __dirname + '/views');
