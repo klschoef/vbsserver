@@ -8,7 +8,7 @@ class LiveJudging {
         // queue of objects of the form {task, submission, callback}
         this.queue = new Array();
     }
-    
+
     clearQueue() {
         this.queue = new Array();
     }
@@ -20,15 +20,15 @@ class LiveJudging {
 
         this.checkQueue();
     }
-    
-    // is called when 
-    //  - a new judge gets available or 
+
+    // is called when
+    //  - a new judge gets available or
     //  - a shot was found in the ground truth
     checkQueue() {
-        if (this.queue.length > 0) {            
-            var ja = this.queue.shift();    // take the next item from the queue            
+        if (this.queue.length > 0) {
+            var ja = this.queue.shift();    // take the next item from the queue
             this.requestJudgement(ja.task, ja.submission, ja.callback);
-        }  
+        }
     }
 
     // this method is called by SubmissionHandlerAVS
@@ -43,7 +43,7 @@ class LiveJudging {
             submission.judged = gt.judge; // in case of trecvid ground truth, judge=="tv", otherwise name of the vbs judge
             submission.correct = gt.correct;
             setTimeout(() => {
-                callback();    
+                callback();
             }, Math.round(500 + Math.random() * 1500));  // always wait a short time to make it more interesting for the viewers
             this.checkQueue();
         }, () => {
@@ -68,7 +68,7 @@ class LiveJudging {
     assignJudge(judge, judgeAssignment) {   // judgeAssignment: {task, submission, callback}
 
         judge.isJudging = true;
-        judge.judgeAssignment = judgeAssignment;        
+        judge.judgeAssignment = judgeAssignment;
 
         var shotNumber = judgeAssignment.submission.shotNumber;
         var video = controller.videoMap[judgeAssignment.submission.videoNumber];
@@ -85,6 +85,7 @@ class LiveJudging {
 
         var submissionId = data.submissionId;
         var correct = data.correct;
+        var judgeName = data.judgeName;
 
         logger.info("Judgement received", {submissionId: submissionId, correct: correct});
 
@@ -96,7 +97,7 @@ class LiveJudging {
             logger.error("submission mismatch...", {submission: sub, judgeResponse: {submissionId: submissionId, correct: correct}});
         } else {
             // the entire judgeAssignment(including callback) is stored as attribute of the judge socket
-            sub.judged = "judge_" + judge.judgeName;
+            sub.judged = "judge_" + judgeName;
             sub.correct = correct;
             ass.callback();
 

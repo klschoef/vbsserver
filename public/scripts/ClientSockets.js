@@ -1,6 +1,6 @@
 class ClientSockets {
 
-    constructor(params, callback) {
+    constructor(params, callback, events) {
 
         console.log("initializing WebSocket connection");
 
@@ -36,7 +36,7 @@ class ClientSockets {
             });
         });
 
-        this.socket.on("authenticated", () => {
+        this.socket.on("authenticated", (data) => {
             console.log("authenticated");
             if (this.needsRefresh) {
                 // connection was lost before, so we have to refresh entire page
@@ -44,7 +44,7 @@ class ClientSockets {
                 this.socket.disconnect();
             } else {
                 console.log("socket connected!");
-                callback();
+                callback(data);
             }
         });
 
@@ -64,6 +64,17 @@ class ClientSockets {
             $("body").empty();
             $("body").append("Connection error<br><a href='#' onclick='window.location.reload();'>Reload</a>");
         });
+
+        // register custom events
+        if (events && Array.isArray(events)) {
+            for (var i=0; i<events.length; i++) {
+                var e = events[i];
+                if (typeof e.name == "string" && typeof e.callback == "function") {
+                    this.socket.on(e.name, e.callback);
+                }
+            }
+        }
+
 
     }
 

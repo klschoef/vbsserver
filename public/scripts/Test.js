@@ -36,7 +36,7 @@ class Test {
                 this.log("delaying judgement by " + judgeDelay + "ms");
                 setTimeout(() => {
                     var correct = (Math.random() > 0.4) ? true : false;
-                    this.socket.emit('submitJudgement', {submissionId: assignment.submissionId, correct: correct});
+                    this.socket.emit('submitJudgement', {submissionId: assignment.submissionId, correct: correct, judgeName: "auto"});
                     this.log("judgement submitted: " + correct);
                 }, judgeDelay);
             });

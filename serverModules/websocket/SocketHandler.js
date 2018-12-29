@@ -44,9 +44,11 @@ class SocketHandler {
                 var clientType = socket.handshake.query.clientType;
 
                 controller.db.hasPermissions(username, password, clientType, () => {
-                    socket.request.session.username = username;
-                    socket.request.session.clientType = clientType;
-                    socket.request.session.save();
+                    if (socket.request && socket.request.session) {
+                        socket.request.session.username = username;
+                        socket.request.session.clientType = clientType;
+                        socket.request.session.save();
+                    }
                     this.authenticated(socket);
                 }, () => {
                     logger.warn("login failed!!", JSON.stringify(socket.handshake));
@@ -57,10 +59,12 @@ class SocketHandler {
                 });
             });
 
-            socket.on('logout', (data) => {                
-                delete socket.request.session.username;
-                delete socket.request.session.clientType;
-                socket.request.session.save();
+            socket.on('logout', (data) => {
+                if (socket.request && socket.request.session) {
+                    delete socket.request.session.username;
+                    delete socket.request.session.clientType;
+                    socket.request.session.save();
+                }
                 socket.disconnect();
             });
 
@@ -96,7 +100,7 @@ class SocketHandler {
                 this.registerInspector(socket);
                 break;
             case "judge":       // has access to: judge
-                this.registerJudge(socket, socket.handshake.query.name);
+                this.registerJudge(socket);
                 break;
             case "test":       // only for testing, disabled in productive environment!
                 if (config.debugMode) {
@@ -112,7 +116,11 @@ class SocketHandler {
                 return;
         }
 
-        socket.emit("authenticated");
+        var username = "";
+        if (socket.request && socket.request.session) {
+            username = socket.request.session.username;
+        }
+        socket.emit("authenticated", {username: username});
     }
 
     // ###############
@@ -196,7 +204,7 @@ class SocketHandler {
     // #    JUDGES    #
     // ################
 
-    registerJudge(socket, name) {
+    registerJudge(socket) {
 
         // define websocket events
         socket.on('submitJudgement', (data) => {
@@ -207,9 +215,8 @@ class SocketHandler {
         socket.on('error', this.unregisterJudge.bind(this, socket));
 
         this.judges.push(socket);
-        socket.judgeName = name;
         controller.submissionHandler.handlerAVS.liveJudging.judgeAvailable(socket);
-        logger.info("new Judge registered", {judgeName: socket.judgeName, numJudges: this.judges.length});
+        logger.info("new Judge registered", {numJudges: this.judges.length});
     }
 
     unregisterJudge(socket) {
@@ -217,7 +224,7 @@ class SocketHandler {
         controller.submissionHandler.handlerAVS.liveJudging.judgeDisconnect(socket);
         // remove disconnected judges from the list
         this.judges = this.judges.filter((value) => value.connected);
-        logger.info("judge disconnected", {judgeName: socket.judgeName, numJudges: this.judges.length});
+        logger.info("judge disconnected", {numJudges: this.judges.length});
     }
 
     getAvailableJudge() {
@@ -242,7 +249,7 @@ class SocketHandler {
     // only for debugging!
     // test page also need admin privileges...
     registerTest(socket) {
-        this.registerJudge(socket, "auto");
+        this.registerJudge(socket);
         this.registerViewer(socket);
         AdminSocket.registerEvents(socket);
     }

@@ -19,15 +19,46 @@ class Judge {
         this.timelineCtx = this.timeline.getContext("2d");
         $("#judgeDiv").hide();
 
-        this.judgeName = "";    // identify each judge by a name to be able to differentiate
+        var events = [{
+                name: "error",
+                callback: () => {
+                    $("#statusDiv").html("error!!");
+                    $("#statusDiv").removeClass("statusConnected");
+                },
+            }, {
+                name: "disconnect",
+                callback: () => {
+                    $("#statusDiv").html("not connected!!");
+                    $("#statusDiv").removeClass("statusConnected");
+                },
+            }, {
+                name: "judge",
+                callback: (data) => {
+                    console.log("new submission received!");
+                    $("#taskText").html(data.avsText);
+                    this.showSubmission(data.submissionId,
+                            data.playbackInfo.src,
+                            data.playbackInfo.startTime,
+                            data.playbackInfo.endTime);
+                }
+            }
+        ];
 
-        this.promptJudgeName().then(() => {
-            $("#nicknameDiv").html(this.judgeName);
-            // TODO prompt credentials
-            this.socket = new ClientSockets({clientType: "judge", name: this.judgeName}, () => {
-                this.registerEvents();
-            });
-        });
+        // identify each judge by a name to be able to differentiate
+        // if login is enabled (debugMode == false), the username is considered as judge nickname
+        // otherwise, the user is prompted to enter a nickname
+        this.judgeName = "";
+
+        this.socket = new ClientSockets({clientType: "judge"}, (data) => {
+            if (data.username && typeof data.username == "string" && data.username.length > 0) {
+                this.judgeName = data.username;
+                $("#nicknameDiv").html(this.judgeName);
+            } else {
+                this.promptJudgeName();
+            }
+            $("#statusDiv").html("connected");
+            $("#statusDiv").addClass("statusConnected");
+        }, events);
     }
 
     promptJudgeName(force) {
@@ -35,11 +66,12 @@ class Judge {
             var cachedName = localStorage["vbs_judgeName"];
             if (!force && cachedName && cachedName.length >= 4) {
                 this.judgeName = cachedName;
+                $("#nicknameDiv").html(this.judgeName);
                 resolve();
             } else {
                 $.confirm({
                     title: 'Enter a judge nickname',
-                    content: '<input id="nicknameText" type="text" value="' + cachedName + '" placeholder="Your name" required />',
+                    content: '<input id="nicknameText" type="text" value="' + this.judgeName + '" placeholder="Your name" required />',
                     theme: "dark",
                     boxWidth: '400px',
                     useBootstrap: false,
@@ -57,6 +89,7 @@ class Judge {
                                 return false;
                             }
                             this.judgeName = name;
+                            $("#nicknameDiv").html(this.judgeName);
                             localStorage["vbs_judgeName"] = name;
                             resolve();
                         }
@@ -68,34 +101,7 @@ class Judge {
 
     changeNickname() {
         this.promptJudgeName(true).then(() => {
-            $("#nicknameDiv").html(this.judgeName);
-            location.reload(true);  // simply refresh the entire page (easiest way to register with new name)
-        });
-    }
-
-    registerEvents() {
-        this.socket.registerEvent('connect', () => {
-            $("#statusDiv").html("connected");
-            $("#statusDiv").addClass("statusConnected");
-        });
-
-        this.socket.registerEvent('error', () => {
-            $("#statusDiv").html("not connected!!");
-            $("#statusDiv").removeClass("statusConnected");
-        });
-
-        this.socket.registerEvent('disconnect', () => {
-            $("#statusDiv").html("not connected!!");
-            $("#statusDiv").removeClass("statusConnected");
-        });
-
-        this.socket.registerEvent('judge', (data) => {
-            console.log("new submission received!");
-            $("#taskText").html(data.avsText);
-            this.showSubmission(data.submissionId,
-                    data.playbackInfo.src,
-                    data.playbackInfo.startTime,
-                    data.playbackInfo.endTime);
+            // nothing to do
         });
     }
 
@@ -128,7 +134,11 @@ class Judge {
 
     submitJudgement(correct) {
 
-        this.socket.emit('submitJudgement', {submissionId: this.currentSubmissionId, correct: correct});
+        this.socket.emit('submitJudgement', {
+            submissionId: this.currentSubmissionId,
+            correct: correct,
+            judgeName: this.judgeName
+        });
 
         clearInterval(this.interval);
         this.video.pause();
