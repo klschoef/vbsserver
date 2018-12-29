@@ -190,17 +190,23 @@ class Controller {
             } else if (competition.finished) {
                 error("Cannot start competition: has already been finished");
             } else {
-                Competition.start(competition);
-                this.currentCompetition = competition;
-                this.db.updateCompetition(competition);
-                this.competitionState = new CompetitionState(competition);
-                this.competitionState.init(this.db, () => {
-                    this.competitionState.competitionStart();
-                    success(competition);
-                }, (err) => {
-                    logger.error("initializing CompetitionState failed", {competitionState: competitionState, errorMsg: err});
-                    error("Cannot start competition: initializing failed");
-                });
+                this.db.findTeams({competitionId: competitionId}, (teams) => {
+                    if (teams.length == 0) {
+                        error("Cannot start competition without any teams");
+                    } else {
+                        Competition.start(competition);
+                        this.currentCompetition = competition;
+                        this.db.updateCompetition(competition);
+                        this.competitionState = new CompetitionState(competition);
+                        this.competitionState.init(this.db, () => {
+                            this.competitionState.competitionStart();
+                            success(competition);
+                        }, (err) => {
+                            logger.error("initializing CompetitionState failed", {competitionState: competitionState, errorMsg: err});
+                            error("Cannot start competition: initializing failed");
+                        });
+                    }
+                }, error);
             }
         }, error);
     }
