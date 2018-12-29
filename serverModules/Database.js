@@ -45,14 +45,18 @@ class Database {
                 this.db.users.ensureIndex({fieldName: 'username', unique: true}, function (err) {});
                 this.db.videos.ensureIndex({fieldName: 'videoNumber', unique: true}, function (err) {});
 
-                // add custom validators
-                // db is also needed (e.g., for uniqueness constraints)
-                ValidationConstraints.addCustomValidators(validate);
+                // ensure that there is always an admin user
+                this.ensureAdminUser().then(() => {
+                    // add custom validators
+                    // db is also needed (e.g., for uniqueness constraints)
+                    ValidationConstraints.addCustomValidators(validate);
 
-                // datafiles are compacted every 30 seconds
-                this.enableAutocompaction();
+                    // datafiles are compacted every 30 seconds
+                    this.enableAutocompaction();
 
-                resolve();
+                    resolve();
+                }, reject);
+
             }, () => {
                 logger.error("loading database failed");
                 reject();
@@ -92,6 +96,15 @@ class Database {
 
     validation(data, constraints, success, error) {
         validate.async(data, constraints, {format: "flat", fullMessages: false}).then(success, error);
+    }
+
+    ensureAdminUser() {
+        return new Promise((resolve, reject) => {
+            this.exists(this.db.users, {role: "Admin"}, resolve, () => {
+                logger.info("No admin user found, creating default admin");
+                this.createUser({username: "admin", password: "admin", role: "Admin"}, resolve, reject);
+            }, reject);
+        });
     }
 
 //////////////////////////
@@ -242,21 +255,12 @@ class Database {
         });
     }
 
-    // TODO dedicated method for credentials check
     findUser(query, success, error) {
-        this.findEntity(this.db.users, query, (user) => {
-            // password should not be returned
-            user.password = "******";
-            success(user);
-        }, error, false);
+        this.findEntity(this.db.users, query, success, error, false);
     }
 
     findUsers(query, success, error) {
-        this.findEntity(this.db.users, query, (users) => {
-// password should not be returned
-            users.forEach((user) => user.password = "******");
-            success(users);
-        }, error, true);
+        this.findEntity(this.db.users, query, success, error, true);
     }
 
     findCompetition(query, success, error) {
@@ -346,7 +350,15 @@ class Database {
     }
 
     updateUser(user, success, error) {
-        this.replaceEntity(this.db.users, user, ValidationConstraints.USER, success, error);
+        if (user && user.role != "Admin") {     // the role of the modified user should be not admin, but we don't know at this point what it was before
+            this.isLastAdmin(user, () => {
+                error("There must always be at least one admin, or it will be hard to control the system...");
+            }, () => {
+                this.replaceEntity(this.db.users, user, ValidationConstraints.USER, success, error);
+            }, error);
+        } else {
+            this.replaceEntity(this.db.users, user, ValidationConstraints.USER, success, error);
+        }
     }
 
     updateCompetition(competition, success, error) {
@@ -412,7 +424,11 @@ class Database {
     }
 
     deleteUser(user, success, error) {
-        this.deleteEntity(this.db.users, user, success, error);
+        this.isLastAdmin(user, () => {
+            error("This user is the last remaining admin and must not be deleted");
+        }, () => {
+            this.deleteEntity(this.db.users, user, success, error);
+        }, error);
     }
 
     deleteCompetition(competition, success, error) {
@@ -502,6 +518,31 @@ class Database {
 
     existsUser(username, yes, no, error) {
         this.exists(this.db.users, {username: username}, yes, no, error);
+    }
+
+    hasPermissions(username, password, clientType, yes, no, error) {
+
+console.log("checking", username, password, clientType);
+
+        this.findUser({username: username, password: password}, (user) => {
+            // admin is allowed to access all pages, other roles are only allowed to access the according page
+            if (user && (user.role == "Admin" || user.role.toLowerCase() == clientType.toLowerCase())) {
+                yes();
+            } else {
+                no();
+            }
+        }, error);
+    }
+
+    isLastAdmin(user, yes, no, error) {
+        this.findUser({username: user.username}, (dbuser) => {  // user might be the modified user, so get the current state from db
+            if (dbuser && dbuser.role == "Admin") {
+                this.exists(this.db.users, {role: "Admin", $not: {username: user.username }}, no, yes, error);
+            } else {
+                // this user is currently not an admin, so cannot be the last
+                no();
+            }
+        }, error);
     }
 
     isDuplicateAVSSubmission(submission, yes, no, error) {

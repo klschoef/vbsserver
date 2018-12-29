@@ -28,15 +28,6 @@ html
         a(href='..' target="_blank" class="pageLink") Menu
         a(href='viewer' target="_blank" class="pageLink") Viewer
 
-        div(id="userDiv" class="containerDiv")
-            label User
-            select(id="userSelect" onchange="edit.userSelected()")
-            hr
-            div(id="userBody" class="bodyDiv")
-                label Name
-                input(type="text" id="userName")
-                label TODO...
-
         div(id="competitionDiv" class="containerDiv")
             label Competition
             select(id="competitionSelect" onchange="edit.competitionSelected()")
@@ -168,3 +159,21 @@ html
                         div(id="teamLogoUpload")
                             input(type="file" id="teamLogoFile" accept=".png" onchange="edit.teamLogoUpload()")
                             button(type="button" onclick="edit.hideTeamLogoUpload()") X
+
+        div(id="userDiv" class="containerDiv")
+            label User
+            select(id="userSelect" onchange="edit.userSelected()")
+            button(type="button" id="addUserButton" onclick="edit.addUserButtonClicked()") Add
+            button(type="button" id="deleteUserButton" onclick="edit.deleteUserButtonClicked()") Delete
+            hr
+            div(id="userBody" class="bodyDiv")
+                label Username
+                input(type="text" id="username" onchange="edit.usernameChanged()")
+                label Password
+                input(type="text" id="password" onchange="edit.passwordChanged()")
+                label Role
+                select(id="userRoleSelect" onchange="edit.userRoleChanged()")
+                    option(disabled)= "Select Role"
+                    option()= 'Admin'
+                    option()= 'Viewer'
+                    option()= 'Judge'

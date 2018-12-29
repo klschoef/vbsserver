@@ -11,7 +11,7 @@ class SocketHandler {
 
         this.io = io;
 
-        this.admin = null;          // web socket for Admin user (we only allow one admin connection at a time!)
+        this.admin = null;          // web socket for Admin user (we only allow one admin connection at a time to avoid inconsistencies!)
         this.viewers = new Array(); // web sockets for Viewer users (multiple connections allowed, but login required)
         this.judges = new Array();  // web sockets for registered judges
 
@@ -24,16 +24,24 @@ class SocketHandler {
         require('socketio-auth')(io, {
             authenticate: function (socket, data, callback) {
 
-                //get credentials sent by the client
-                var username = data.username;
-                var password = data.password;            
-                
-                // TODO do not hardcode password, but store in database!
-                var authenticated = config.debugMode || password === "topsecret";
-                if (!authenticated) {
-                    logger.warn("login failed!!", JSON.stringify(socket.handshake));                    
-                }                
-                callback(null, authenticated);   
+                if (config.debugMode) {
+                    callback(null, true);   // no authentication in debug mode
+                } else {
+                    //get credentials sent by the client
+                    var username = data.username;
+                    var password = data.password;
+                    var clientType = socket.handshake.query.clientType;
+
+                    controller.db.hasPermissions(username, password, clientType, () => {
+                        callback(null, true);
+                    }, () => {
+                        logger.warn("login failed!!", JSON.stringify(socket.handshake));
+                        callback(null, false);
+                    }, () => {
+                        logger.warn("login failed!!", JSON.stringify(socket.handshake));
+                        callback(null, false);
+                    });
+                }
             },
             postAuthenticate: (socket, data) => {
                 var clientType = socket.handshake.query.clientType;
@@ -183,7 +191,7 @@ class SocketHandler {
     unregisterJudge(socket) {
         socket.disconnect(true);
         controller.submissionHandler.handlerAVS.liveJudging.judgeDisconnect(socket);
-        // remove disconnected judges from the list        
+        // remove disconnected judges from the list
         this.judges = this.judges.filter((value) => value.connected);
         logger.info("judge disconnected", {judgeName: socket.judgeName, numJudges: this.judges.length});
     }

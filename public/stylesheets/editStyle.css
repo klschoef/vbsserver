@@ -27,6 +27,7 @@ hr {
 
 #competitionDiv {
     background-color: #222;
+    display: none;
 }
 
 #taskDiv {

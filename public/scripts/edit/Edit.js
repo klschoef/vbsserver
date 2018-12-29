@@ -57,6 +57,9 @@ class Edit {
             "hideMethod": "fadeOut"
         };
 
+        $("#competitionDiv").show();
+        $("#userDiv").show();
+
         var promises = [];
         promises.push(this.loadVideoMap());
         promises.push(this.refreshUsers());

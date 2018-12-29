@@ -6,13 +6,12 @@ class ClientSockets {
 
         if (config.debugMode) {
             // no authentication in debug mode
-            this.init("", params, callback);
+            this.init("", "", params, callback);
         } else {
-            // very rudimental authentication... TODO: improve!
-            // TODO replace this quick hack by a proper implementation...
             var div = document.createElement("div");
             div.id = "loginDiv";
-            $(div).append("<h4>Password</h4>");
+            $(div).append("<h4>Authentication</h4>");
+            $(div).append("<input type='text' id='userInput' /><br>");
             $(div).append("<input type='password' id='pwInput' />");
             $(div).append("<br><button id='loginBtn'>Login</button>");
             $(div).css("background-color", "black");
@@ -25,13 +24,14 @@ class ClientSockets {
 
             $("#loginBtn").on("click", () => {
                 $("#loginDiv").fadeOut();
+                var user = $("#userInput").val();
                 var password = $("#pwInput").val();
-                this.init(password, params, callback);
+                this.init(user, password, params, callback);
             });
         }
     }
 
-    init(password, params, callback) {
+    init(user, password, params, callback) {
         this.socket = io.connect(config.server.websocketURL + ":" + config.server.port, {
             'reconnect': true,
             'reconnection delay': 50,
@@ -41,7 +41,7 @@ class ClientSockets {
 
         // default behaviour that can optionally be extended by further event handlers
         this.socket.on('connect', () => {
-            this.socket.emit("authentication", {username: "User", password: password});
+            this.socket.emit("authentication", {username: user, password: password});
         });
 
         this.socket.on("authenticated", () => {
