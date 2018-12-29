@@ -21,6 +21,7 @@ html
             var config = JSON.parse(new String('#{config}').replace(/&quot;/g, "\""));
     body(onunload="control.unload()")
         a(href='edit' class="pageLink") Edit
+        a(href='..' target="_blank" class="pageLink") Menu
         a(href='viewer' target="_blank" class="pageLink") Viewer
         div(id="competitionsContainer")
 
