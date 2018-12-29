@@ -40,6 +40,8 @@ class Control {
             "showMethod": "fadeIn",
             "hideMethod": "fadeOut"
         };
+        
+        $("#taskPreview").draggable();
 
         this.socket.registerEvent("countdown", (time) => {
             toastr.info("Task starts in " + time + " seconds");
@@ -58,7 +60,28 @@ class Control {
             $(".taskRunning").children(".remainingTime").html(timeString);
         });
 
-        this.refreshCompetitions().then(callback());
+        var promises = [];
+        promises.push(this.loadVideoMap());
+        promises.push(this.refreshCompetitions());
+        Promise.all(promises).then(() => {
+            callback();
+        });
+
+    }
+
+    loadVideoMap() {
+        return new Promise((resolve, reject) => {
+            // request videoMap (for computing playback times)
+            this.socket.emit("getVideoMap", {skipShots: true}, (response) => {
+                if (response.success) {
+                    this.videoMap = response.data;
+                    resolve();
+                } else {
+                    console.err("couldn't load video map from server");
+                    reject();
+                }
+            });
+        });
     }
 
     unload() {
@@ -160,8 +183,29 @@ class Control {
     }
 
     taskPreview(taskId, event) {
-        $("#taskText").html(JSON.stringify(this.listToMap(this.tasks)[taskId], null, 2));
+        var task = this.listToMap(this.tasks)[taskId];
+        $("#taskText").html(JSON.stringify(task, null, 2));
         $("#taskPreview").fadeIn("slow");
+
+        var video = $("#previewVideo")[0];
+        if (task.type.startsWith("KIS")) {
+            var videoNumber = task.videoRanges[0].videoNumber;
+            var videoFile = this.videoMap[videoNumber].filename;
+            var fps = this.videoMap[videoNumber].fps;
+            var startTime = task.videoRanges[0].startFrame / fps;
+            var endTime = task.videoRanges[0].endFrame / fps;
+            video.src = "videos/" + videoFile;
+            video.ontimeupdate = () => {
+                if (video.currentTime < startTime || video.currentTime > endTime) {
+                    video.currentTime = startTime;
+                }
+            };
+            $(video).show();
+        } else {
+            video.src = "";
+            $(video).hide();
+        }
+
         $("#taskText").height($("#taskText")[0].scrollHeight);
         var left = Math.max(0, Math.min(event.pageX - $("#taskPreview").width() / 2, $(document).width() - $("#taskPreview").width()));
         var top = Math.max(0, Math.min(event.pageY - $("#taskPreview").height() / 2, $(document).height() - $("#taskPreview").height()));
@@ -169,11 +213,9 @@ class Control {
         $("#taskPreview").css("top", top + "px");
     }
 
-    playPreview() {
-        alert("TODO");
-    }
-
     closePreview() {
+        $("#previewVideo")[0].src = "";
+        $("#previewVideo")[0].pause();
         $("#taskPreview").fadeOut();
     }
 

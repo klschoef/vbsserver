@@ -29,8 +29,8 @@ html
 
         div(id="taskPreview" )
             button(onclick="control.closePreview()") Close
-            button(onclick="control.playPreview()") Play
             textarea(id="taskText" spellcheck="false" disabled)
+            video(id="previewVideo" autoplay controls)
 
         div(id="competitionTemplate" class="template")
             div(class="competitionDiv" id="competition_{{competition._id}}")
