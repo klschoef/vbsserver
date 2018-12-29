@@ -54,7 +54,7 @@ class ClientSockets {
             } else {
                 console.log("socket disconnected!");
                 $("body").empty();
-                $("body").append("Connection error");
+                $("body").append("Connection error<br><a href='#' onclick='window.location.reload();'>Reload</a>");
                 this.needsRefresh = true;
             }
         });
@@ -62,7 +62,7 @@ class ClientSockets {
         this.socket.on('error', (err) => {
             console.log("socket connection error!! " + err);
             $("body").empty();
-            $("body").append("Connection error");
+            $("body").append("Connection error<br><a href='#' onclick='window.location.reload();'>Reload</a>");
         });
 
     }
