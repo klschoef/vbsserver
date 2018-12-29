@@ -105,7 +105,7 @@ class Control {
                     });
                 },
                 cancel: () => {
-                    // nothing to do                        
+                    // nothing to do
                 }
             }
         });
@@ -153,7 +153,7 @@ class Control {
                     });
                 },
                 cancel: () => {
-                    // nothing to do                        
+                    // nothing to do
                 }
             }
         });
@@ -212,6 +212,14 @@ class Control {
                             // but the current object is outdated and has to be replaced by the new version
                             for (var i = 0; i < this.competitions.length; i++) {
                                 if (this.competitions[i]._id === tmp._id) {
+                                    this.competitionSelected(this.competitions[i]);
+                                    break;
+                                }
+                            }
+                        } else {
+                            // check if there is a running competition (there can only be one at each time) and select it
+                            for (var i = 0; i < this.competitions.length; i++) {
+                                if (this.competitions[i].running) {
                                     this.competitionSelected(this.competitions[i]);
                                     break;
                                 }
@@ -346,7 +354,7 @@ class Control {
             if (ax == 2) {  // finished
                 return a.startTimeStamp - b.startTimeStamp; // sort chronologically
             } else {
-                return a.name.localeCompare(b.name);  // sort by name                
+                return a.name.localeCompare(b.name);  // sort by name
             }
         }
         return ax - bx;
