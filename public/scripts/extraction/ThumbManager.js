@@ -89,7 +89,7 @@ class ThumbManager {
         } else if (thumbInfo.video) {
             return submission.videoNumber + "-" + submission.shotNumber + ": "
                     + this.viewer.formatTime(thumbInfo.video.timeCode) + "; "
-                    + submission.judged + "; " + submission.iseq;
+                    + submission.judged;
         } else {
             return "";
         }
