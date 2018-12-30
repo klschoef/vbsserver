@@ -40,7 +40,7 @@ class Control {
             "showMethod": "fadeIn",
             "hideMethod": "fadeOut"
         };
-        
+
         $("#taskPreview").draggable();
 
         this.socket.registerEvent("countdown", (time) => {
@@ -194,7 +194,7 @@ class Control {
             var fps = this.videoMap[videoNumber].fps;
             var startTime = task.videoRanges[0].startFrame / fps;
             var endTime = task.videoRanges[0].endFrame / fps;
-            video.src = "videos/" + videoFile;
+            video.src = config.server.videoDir + "/" + videoFile;
             video.ontimeupdate = () => {
                 if (video.currentTime < startTime || video.currentTime > endTime) {
                     video.currentTime = startTime;

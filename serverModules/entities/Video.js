@@ -66,7 +66,7 @@ class Video {
                 startTime: 0,
                 endTime: 0};
         }
-        var src = config.server.videoDir + video.filename;
+        var src = config.server.videoDir + "/" + video.filename;
         var boundaries = Video.getShotBoundaries(shotNumber, video);
         return {
             src: src,
@@ -84,7 +84,7 @@ class Video {
         while (frame > video.shots[shotIdx].to) {
             shotIdx++;
         }
-        return shotIdx + 1; // the Trecvid master shot reference is one-based!!!        
+        return shotIdx + 1; // the Trecvid master shot reference is one-based!!!
     }
 
     // returns the center frame of the given shotNumber  (or -1 if invalid)
@@ -107,4 +107,3 @@ class Video {
 }
 
 module.exports = Video;
-
