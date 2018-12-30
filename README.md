@@ -9,17 +9,19 @@ Official server of the annual [Video Browser Showdown ](http://www.videobrowsers
 
 ## Getting Started
 
-* copy helper/videos_v3c.db to database/videos.db in order to use the VBS 2019 dataset.
-* copy the according video files to public/videos (or specify a remote URL in config)
+* copy all files from "helper/testDatabase2019" to "database" to setup a sample database
+* copy all video files of the dataset (in mp4 format and without subdirectories) to public/videos (or specify a remote URL in config)
 * adapt config.json to suit your needs
+	* enter the IP address of your server to "server.websocketURL" (don't use "localhost" but the actual IP!)
 * start server: node app.js
+* open Chrome browser and go to <serverIP>:<serverPort>  (don't use "localhost" but the actual IP!)
 
 # Config
 
 ```
 "server": {
 	"port": 3100,	// used port
-	"websocketURL": "localhost",	// URL of the server
+	"websocketURL": "192.168.0.1",	// URL of the server
 	"videoDir": "videos/"	// directory or URL of the directory with all videos of the dataset
 },
 "client": {
@@ -52,8 +54,8 @@ Official server of the annual [Video Browser Showdown ](http://www.videobrowsers
 * viewer: shows the current state of the competition (query, submissions, results). the layout can be adapted by zooming the various GUI components with ALT + mousewheel
 * judge: live judgement interface for AVS tasks
 * test: allows to simulate a competition by generating random competitions and submissions. only available if debugMode is set to true
-* inspect: post-hoc analysis of finished competitions (not implemented yet)
-* export: export database to csv (not implemented yet)
+* inspect: post-hoc analysis of finished competitions (under construction)
+* export: export database to csv (under construction)
 
 ## Authors
 
