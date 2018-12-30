@@ -14,7 +14,7 @@ Official server of the annual [Video Browser Showdown ](http://www.videobrowsers
 * adapt config.json to suit your needs
 	* enter the IP address of your server to "server.websocketURL" (don't use "localhost" but the actual IP!)
 * start server: node app.js
-* open Chrome browser and go to <serverIP>:<serverPort>  (don't use "localhost" but the actual IP!)
+* open Chrome browser and go to [serverIP]:[serverPort]  (don't use "localhost" but the actual IP!)
 
 # Config
 
