@@ -109,7 +109,7 @@ class AdminSocket {
             });
         });
 
-        // creates a copy of 
+        // creates a copy of
         //      - the competition
         //      - all teams
         //      - all tasks
@@ -154,7 +154,8 @@ class AdminSocket {
                                 videoRanges: task.videoRanges,
                                 textList: task.textList,
                                 trecvidId: task.trecvidId,
-                                avsText: task.avsText
+                                avsText: task.avsText,
+                                imageList: task.imageList
                             }, (task) => {
                                 finished();
                             }, (err) => {
@@ -183,11 +184,11 @@ class AdminSocket {
 
 
         // a task that already has been started (and maybe finished) can be reset, meaning that
-        //  - the taskId is removed form the corresponding competitions taskSequence 
+        //  - the taskId is removed form the corresponding competitions taskSequence
         //      (and if this task is currently running, currentTaskId is reset)
         //  - all corresponding submissions are deleted
         //  - all corresponding taskResults are deleted
-        //  - the running/finished flags and timestamps are reset        
+        //  - the running/finished flags and timestamps are reset
         //  - competitionState has to be re-computed
         // TODO properly test if this really works in any situation...
         socket.on("resetTask", (data, callback) => {
