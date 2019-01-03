@@ -46,7 +46,7 @@ class QueryGUI {
                     this.hideSlideshow();
                     this.showQueryVideo().then(() => {
                         if (task.finished) {
-                            this.blurQueryVideo(0);
+                            this.degradeQueryVideo(0, 0);
                         }
                         resolve();
                     });
@@ -126,8 +126,8 @@ class QueryGUI {
         $("#queryVideo")[0].ontimeupdate = null;
     }
 
-    blurQueryVideo(size) {
-        $("#queryVideo").css("filter", "blur(" + size + "px)");
+    degradeQueryVideo(blurSize, grayPercentage) {
+        $("#queryVideo").css("filter", "blur(" + blurSize + "px) grayscale(" + grayPercentage + "%)");
     }
 
     showQueryVideo() {
@@ -143,6 +143,9 @@ class QueryGUI {
                     video.play().then(() => {
                         var blurDelayList = config.client.videoBlurProgress.delay;
                         var blurSizeList = config.client.videoBlurProgress.size;
+                        var grayDelayList = config.client.videoGrayscaleProgress.delay;
+                        var grayPercentList = config.client.videoGrayscaleProgress.percentage;
+
                         video.ontimeupdate = () => {
                             if (video.currentTime < playbackInfo.startTimeCode || video.currentTime > playbackInfo.endTimeCode) {
                                 video.currentTime = playbackInfo.startTimeCode;
@@ -154,9 +157,17 @@ class QueryGUI {
                                 } else {
                                     idx--;
                                 }
-                                this.blurQueryVideo(blurSizeList[idx]);
+                                idx = Math.min(idx, blurSizeList.length - 1); // avoid index out of bounds (in case of bad config)
+                                var idx2 = grayDelayList.findIndex((d) => d > this.elapsedTime);
+                                if (idx2 < 0) {
+                                    idx2 = grayDelayList.length - 1;
+                                } else {
+                                    idx2--;
+                                }
+                                idx2 = Math.min(idx2, grayPercentList.length - 1); // avoid index out of bounds (in case of bad config)
+                                this.degradeQueryVideo(blurSizeList[idx], grayPercentList[idx2]);
                             } else {
-                                this.blurQueryVideo(0);
+                                this.degradeQueryVideo(0, 0);
                             }
                         };
                         resolve();
@@ -220,7 +231,7 @@ class QueryGUI {
     showSlideshow(task) {
         this.slideshow.setTask(task).then(() => {
             this.slideshow.show();
-        });        
+        });
     }
 
     updateQueryText() {

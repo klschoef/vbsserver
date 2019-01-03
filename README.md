@@ -29,8 +29,12 @@ Official server of the annual [Video Browser Showdown ](http://www.videobrowsers
 	"playAudio": true,			// play sounds when submissions/judgements arrive (or not)
 	"initialFullscreenDuration": 20,	// when a task is started, the query is shown in fullscreen mode for <n> seconds
 	"videoBlurProgress": {		// query video in KIS Visual tasks is progressively blurred accordingly
-		"delay": [0,60,90,120,150,180,200,220,240,260,280],
-		"size": [0,1,2,3,4,5,6,7,8,9,10]
+		"delay": [0, 40, 80, 120, 160, 200, 240, 280],		// delay in seconds
+		"size": [0, 1, 2, 3, 4, 5, 6, 7]					// blur filter size (pixels)
+	},
+	"videoGrayscaleProgress": {		// moreover, colors are removed gradually
+		"delay": [0, 40, 80, 120, 160, 180, 200, 220, 240, 260, 280],	// delay in seconds
+		"percentage": [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]		// percentage for grayscale filter
 	},
 	"chartAspectRatio": 1.5		// aspect ratio of the results charts
 },
