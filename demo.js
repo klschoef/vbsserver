@@ -85,15 +85,17 @@ app.get('/', function (req, res) {
             + "</ul>"
 
             + "<br><b>Test scene:</b>"
-            + "<br>For testing purposes, please try to find the scene described below and submit your answer according to the instructions above.<br>"
+            + "<br>For testing purposes, please try to find one of the following scenes (one textual, one visual) and submit your answer according to the instructions above.<br>"
             + "The response will tell you if the submission is correct. If it is wrong, it provides additional information about what is wrong.<br>"
             + "Also don't forget to include an interaction log in the HTTP POST body.<br><br>"
 
+            + "<h3>Scene 1 (Textual)</h3>"
             + "<p style='color: red; font-size: larger; font-style: italic; margin-left: 60px;'>A man with two boys entering a comic book store, they are greeted by the owner. People inside and outside the store cheering.<br>"
             + "A group of boys wearing blue Dodgers and Royals shirts.<br>"
             + "The store owner wears black and has grey hair.</p>"
 
-            // + "<video autoplay loop ><source src='/vbs/demo.mp4'></source></video>"
+            + "<h3>Scene 2 (Visual)</h3>"
+            + "<video muted autoplay loop controls><source src='/vbs/demo_2019.mp4'></source></video>"
             + "<br><br> <i>Bernd Münzer, ITEC, Klagenfurt University, 2016-2018</i>"
 
             + "</body></html>"
@@ -103,7 +105,8 @@ app.get('/', function (req, res) {
 
 // submission format:  <serveraddress:port>/submit?team=<int>&video=<int>&frame=<int>&shot=<int>&iseq=<string>
 // 2019 test clip:
-// video 12, frame 1588 - 1918
+// visual: video 6555, frame 4150 - 4650
+// textual: video 12, frame 1588 - 1918
 // 2018 test clip:
 // video 38956 ClaudeBesson-festival2008LaroquebrouMonteeDuChateau257-2._-o-_.ClaudeBesson-festival2008LaroquebrouMonteeDuChateau257_512kb
 // frame 1675 - 2175(1:07 - 1:27)
@@ -184,16 +187,24 @@ app.post('/submit', function (req, res) {
 
     if (!videoNumber) {
         response += "Missing video id. ";
-    } else if (videoNumber != 12) {
+    } else if (videoNumber != 6555 && videoNumber != 12) {
 //    } else if (videoId != 38988) {
         response += "Wrong video id (" + query.video + "). ";
     }
 
     if (!isNumeric(frameNumber)) {
         response += "No frame specified. ";
-    } else if (frameNumber < 1588 || frameNumber > 1918) {
-//    } else if (framenumber < 11326 || framenumber > 11926){
-        response += "Wrong frame number (" + frameNumber + "). ";
+    } else {
+        if (videoNumber == 12) {
+            if (frameNumber < 1588 || frameNumber > 1918) {
+        //    } else if (framenumber < 11326 || framenumber > 11926){
+                response += "Wrong frame number (" + frameNumber + "). ";
+            }
+        } else if (videoNumber == 6555) {
+            if (frameNumber < 4150 || frameNumber > 4650) {
+                response += "Wrong frame number (" + frameNumber + "). ";
+            }
+        }
     }
 
     if (response === "") {  // no error
