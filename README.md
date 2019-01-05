@@ -27,6 +27,7 @@ Official server of the annual [Video Browser Showdown ](http://www.videobrowsers
 "client": {
 	"extractorPoolSize": 4,		// number of HTML video elements used to extract thumbnails
 	"playAudio": true,			// play sounds when submissions/judgements arrive (or not)
+	"hideTeamNames": true,	// if the logos are expressive enough, additional teamNames are not necessary
 	"initialFullscreenDuration": 20,	// when a task is started, the query is shown in fullscreen mode for <n> seconds
 	"videoBlurProgress": {		// query video in KIS Visual tasks is progressively blurred accordingly
 		"delay": [0, 40, 80, 120, 160, 200, 240, 280],		// delay in seconds

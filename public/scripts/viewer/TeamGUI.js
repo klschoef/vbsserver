@@ -32,6 +32,9 @@ class TeamGUI {
             $(div).find(".logoContainer").css("background", team.color);
             $(div).find(".teamScore").html("");
             $(div).find(".scoreDetails").html("");
+            if (config.client.hideTeamNames) {
+                $(div).find(".teamName").hide();
+            }
             for (var submissionId in this.viewer.competitionState.submissions[team._id]) {
                 var s = this.viewer.competitionState.submissions[team._id][submissionId];
                 this.addThumb(s);
@@ -76,12 +79,12 @@ class TeamGUI {
             window.open(this.viewer.thumbManager.getClickLink(submission), '_blank');
         });
 
-        // adapt thumb zoom        
+        // adapt thumb zoom
         $(thumb).css("zoom", this.thumbZoom);
         this.adaptThumbSize();
     }
 
-    // update appearance of the submission, 
+    // update appearance of the submission,
     // depending on task type and finished status
     updateSubmission(submission) {
         // we cannot rely on the submission object to be up-to-date
@@ -97,13 +100,13 @@ class TeamGUI {
         var task = this.viewer.getActiveTask();
 
         if (task.finished) {
-            // when the task is finished, everything can be shown            
+            // when the task is finished, everything can be shown
             $(overlay).css("background-image", "url(../images/thumb_show.png)");
             $(overlay).css("background-color", "transparent");
         } else {
             // for KIS, updateSubmission is called 2 times
             //  - newSubmission
-            //  - thumb extracted            
+            //  - thumb extracted
             if (task.type.startsWith("KIS_Visual")) {
                 $(overlay).css("background-image", "url(../images/thumb_show.png)");
                 $(overlay).css("background-color", "transparent");
@@ -175,12 +178,12 @@ class TeamGUI {
                 } else {
                     $(div).find(".scoreDetails").html("");
                 }
-                // sort teams descending by task score. if taskScore is identical, use numAttempts as second criterion                
+                // sort teams descending by task score. if taskScore is identical, use numAttempts as second criterion
                 teamOrder.push({teamId: team._id, value: teamResult.taskScore, value2: teamResult.numAttempts});
             } else {
                 $(div).find(".teamScore").html("");
                 $(div).find(".scoreDetails").html("");
-                // if no task is running, order by team number                
+                // if no task is running, order by team number
                 teamOrder.push({teamId: team._id, value: 100000 - team.teamNumber, value2: 0});  // to get a descending order
             }
         }

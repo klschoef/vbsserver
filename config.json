@@ -8,6 +8,7 @@
     "client": {
         "extractorPoolSize": 4,
         "playAudio": true,
+        "hideTeamNames": true,
         "initialFullscreenDuration": 20,
         "videoBlurProgress": {
             "delay": [0, 40, 80, 120, 160, 200, 240, 280],
