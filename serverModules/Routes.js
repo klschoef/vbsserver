@@ -183,6 +183,7 @@ class Routes {
                 logger.verbose("Action log saved", {team: teamNumber, timestamp: timestamp}); // log entry is saved to database, no need to additionally log all the data...
                 if (res) { // res is only available if the request doesn't contain a submission
                     res.send("action log received");
+                    logger.info("log flush received", {team: actionLog.teamId});
                 }
             }, () => {
                 logger.error("Saving action log failed", {actionLog: actionLog});
@@ -192,6 +193,7 @@ class Routes {
             });
         } else if (res) { // res is only available if the request doesn't contain a submission
             res.send("action log is empty or invalid");
+            logger.error("received action log is empty or invalid");
         }
     }
 
