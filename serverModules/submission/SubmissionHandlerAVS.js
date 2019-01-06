@@ -14,7 +14,7 @@ class SubmissionHandlerAVS {
         this.liveJudging = new LiveJudging(this); // pool of live judges
 
         // pool of all correctly found shots of the current AVS task
-        // format: correctPool[videoNumber][shotNumber] = rangeId        
+        // format: correctPool[videoNumber][shotNumber] = rangeId
         this.correctPool = {};
         this.numRanges = 0; // number of correctly found ranges
     }
@@ -23,6 +23,8 @@ class SubmissionHandlerAVS {
         // reset pool of correct shots
         this.correctPool = {};
         this.numRanges = 0;
+        // also clear list of potentially open judgements which could interfere!
+        this.liveJudging.clearQueue();
     }
 
     // refreshes the correctPool (needed to reconstruct the server state after crash)
@@ -59,12 +61,12 @@ class SubmissionHandlerAVS {
         // for AVS, we don't want to wait until we got a judgement...
         controller.competitionState.addSubmission(submission);
 
-        // judgement of AVS tasks has to be asynchronous, 
+        // judgement of AVS tasks has to be asynchronous,
         // because we might need a live judgement (if not found in ground truth)
         // means that the callback might possibly be executed seconds or even minutes later (!)
         this.liveJudging.requestJudgement(task, submission, this.judgementReceived.bind(this, task, submission));
 
-        // we do not known how long the judgement process will take 
+        // we do not known how long the judgement process will take
         // (potentially several minutes in case of many submissions and few judges)
         // so we cannot keep all the connections open -> send response immediately
         res.send("Submission is being assessed...");
@@ -121,9 +123,9 @@ class SubmissionHandlerAVS {
                                 finished();
                             });
                         } else {
-                            // if the correct submission contains a shot that has already been found by another team, 
-                            //      only the score of the corresponding team has to be updated (because recall for other teams can't change)                                
-                            // the score of the corresponding team also has to be updated with a negative judgement (because precision decreases)                            
+                            // if the correct submission contains a shot that has already been found by another team,
+                            //      only the score of the corresponding team has to be updated (because recall for other teams can't change)
+                            // the score of the corresponding team also has to be updated with a negative judgement (because precision decreases)
                             this.updateTeamScore(task, submission.teamId, submission.correct, () => {
                                 controller.competitionState.updateScores();
                                 finished();
@@ -172,7 +174,7 @@ class SubmissionHandlerAVS {
         var query = {competitionId: task.competitionId, taskId: task._id, teamId: teamId};
         this.db.findTaskResult(query, (taskResult) => {
             new Promise((resolve, reject) => {
-                if (submissionCorrect) {    // only need to refresh numRanges if submission was correct            
+                if (submissionCorrect) {    // only need to refresh numRanges if submission was correct
                     var query = {competitionId: task.competitionId, taskId: task._id, teamId: teamId, judged: {$ne: null}, correct: true};
                     this.db.findSubmissions(query, (submissions) => {
 

@@ -4,6 +4,8 @@ $(document).ready(function () {
     test = new Test();
 });
 
+
+
 class Test {
     constructor() {
         this.config = config;   // globally defined in viewer.jade
@@ -243,8 +245,8 @@ class Test {
             logObj = {
                 teamId: Math.round(Math.random() * 10),
                 memberId: Math.round(Math.random() * 5),
-                events:this.randomIseq()
-            };
+                events:this.randomIseq(Math.round(Math.random()*1000000))
+            };            
         }
 
         $.ajax({
@@ -262,8 +264,7 @@ class Test {
 
     }
 
-    randomIseq() {
-        var length = Math.round(Math.random() * 30);
+    randomIseq(length) {
         var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         var iseq = ""
         for (var i = 0; i < length; i++) {

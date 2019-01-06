@@ -123,7 +123,7 @@ class Database {
                     logger.error("creating entity failed", {entity: data, error: err, collection: collection.name});
                     error(err);
                 } else {
-                    logger.verbose("created new entity", {entity: newDoc, collection: collection.name});
+                    //logger.verbose("created new entity", {entity: newDoc, collection: collection.name});
                     success(newDoc);
                 }
             });
@@ -335,7 +335,7 @@ class Database {
                     logger.warn("entity could not be updated", {entity: data, collection: collection.name});
                     error("entity could not be updated");
                 } else {
-                    logger.verbose("entity updated", {entity: data, collection: collection.name});
+                    // logger.verbose("entity updated", {entity: data, collection: collection.name});
                     success();
                 }
             });

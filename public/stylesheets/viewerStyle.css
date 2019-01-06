@@ -107,6 +107,10 @@ button {
     zoom: 1;
 }
 
+#queryVideoInfo {
+    display: none;
+}
+
 .videoCtrlButton {
     display: none;
     width: 32px;

@@ -36,9 +36,11 @@ class QueryGUI {
     updateQueryState() {
         return new Promise((resolve, reject) => {
             var task = this.viewer.getActiveTask();
+            this.hideQueryInfo();
             if (task) {
                 if (!task.running) {
                     this.updateTimer("TIME OVER");
+                    this.showQueryInfo(task);
                 }
                 this.hideSlideshow();
                 if (task.type.startsWith("KIS_Visual")) {
@@ -124,6 +126,20 @@ class QueryGUI {
         $(".videoCtrlButton").hide();
         $("#queryVideo")[0].pause();
         $("#queryVideo")[0].ontimeupdate = null;
+    }
+
+    showQueryInfo(task) {
+        if (task && task.type && task.type.startsWith("KIS") && Array.isArray(task.videoRanges) && task.videoRanges.length > 0) {
+            $("#queryVideoInfo").html("Video: " + task.videoRanges[0].videoNumber);
+            $("#queryVideoInfo").show();
+        } else {
+            this.hideQueryInfo();
+        }
+    }
+
+    hideQueryInfo() {
+        $("#queryVideoInfo").html("");
+        $("#queryVideoInfo").hide();
     }
 
     degradeQueryVideo(blurSize, grayPercentage) {
