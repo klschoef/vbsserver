@@ -28,7 +28,7 @@ class SubmissionHandler {
     }
 
     // when a new task is started, some things have to be reset
-    //  (e.g., pool of correct shots)
+    //  (e.g., pool of correct shots and open live judgement requests (although there should not be any left...))
     resetTask() {
         this.handlerAVS.resetTask();
     }

@@ -10,6 +10,7 @@ class LiveJudging {
     }
 
     clearQueue() {
+        logger.info("clearing " + this.queue.length + " submissions from judgement queue");
         this.queue = new Array();
     }
 
@@ -92,14 +93,21 @@ class LiveJudging {
         var ass = judge.judgeAssignment;
         var sub = ass.submission;
 
+        var latestTaskId = controller.getLatestTaskId();
+
         if (submissionId !== sub._id) {
             // if this happens, something went seriously wrong...
             logger.error("submission mismatch...", {submission: sub, judgeResponse: {submissionId: submissionId, correct: correct}});
+            this.judgeAvailable(judge); // nevertheless, judge can take a new job
+        } else if (sub.taskId !== latestTaskId) {
+            // in this case, a new task has already been started before the judgement arrived -> we cannot consider it anymore! (scores would get mixed up)
+            logger.error("Outdated judgement...", {submission: sub, currentTask: latestTaskId, judgeResponse: {submissionId: submissionId, correct: correct}});
+            this.judgeAvailable(judge); // nevertheless, judge can take a new job
         } else {
             // the entire judgeAssignment(including callback) is stored as attribute of the judge socket
             sub.judged = "judge_" + judgeName;
             sub.correct = correct;
-            ass.callback();
+            ass.callback(); // update scores etc.
 
             // extend the ground truth with this new judgement
             this.db.extendGroundTruth(ass.task, sub, () => {
