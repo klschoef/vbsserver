@@ -27,7 +27,7 @@ app.use(function (req, res, next) {
 // enable POST submissions (with JSON encoded body)
 //app.use(bodyParser.urlencoded());  // deprecated
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(express.json({limit: "2mb"}));  // default limit is 100kb, but action logs might be larger
 
 // handle JSON parse errors
 app.use((error, req, res, next) => {
