@@ -21,16 +21,16 @@ html
         script(src=prefix+'scripts/viewer/ImageSlideshow.js')
         script(src=prefix+'scripts/extraction/ThumbManager.js')
         script(src=prefix+'scripts/extraction/ExtractionJob.js')
-        script(src=prefix+'scripts/extraction/FrameExtractor.js')       
-        script(src=prefix+'scripts/extraction/ExtractorPool.js')        
+        script(src=prefix+'scripts/extraction/FrameExtractor.js')
+        script(src=prefix+'scripts/extraction/ExtractorPool.js')
         link(rel='stylesheet', href=prefix + 'stylesheets/viewerStyle.css')
         link(rel='stylesheet', href=prefix + 'stylesheets/jquery-ui.css')
         link(rel='stylesheet', href=prefix + 'scripts/3rdParty/toastr/build/toastr.min.css')
         link(rel='stylesheet', href=prefix + 'scripts/3rdParty/chartist/dist/chartist.min.css')
         script(type="text/javascript").
             var config = JSON.parse(new String('#{config}').replace(/&quot;/g, "\""));
-    body    
-        h1(id="title")        
+    body
+        h1(id="title")
         img(id="zoomReset" src="images/zoom_reset.png" onclick="viewer.gui.resetZoom()")
         div(id="loadingDiv")
             img(src="images/page_loading.gif")
@@ -38,8 +38,8 @@ html
             div(class="countdownText") Next Task will start in
             div(id="countdownTime") 5
             div(class="countdownText") seconds
-            
-        
+
+
         div(id="content")
 
             div(id="topArea")
@@ -51,11 +51,12 @@ html
                 div(id="queryDiv" class="topItem")
                     div(id="queryVideoWrapper")
                         video(id="queryVideo" onclick="viewer.gui.queryGUI.openVideo()")
-                    div(id="queryVideoControlDiv")    
+                        div(id="queryVideoInfo")
+                    div(id="queryVideoControlDiv")
                         button(id="playBtn" class="videoCtrlButton" onclick="viewer.gui.queryGUI.togglePlay()")
-                        button(id="muteBtn" class="videoCtrlButton" onclick="viewer.gui.queryGUI.toggleMute()")                         
+                        button(id="muteBtn" class="videoCtrlButton" onclick="viewer.gui.queryGUI.toggleMute()")
                     div(id="queryTextWrapper")
-                        div(id="queryText")       
+                        div(id="queryText")
                     div(id="querySlideshow")
                     div(id="avsExtraInfo")
                         table(id="avsInfoTable")
@@ -64,11 +65,11 @@ html
                                 td(id="avsNumSubmissions" class="avsInfoItem")
                                 td Videos:
                                 td(id="avsNumVideos" class="avsInfoItem")
-                            tr            
+                            tr
                                 td Unjudged:
                                 td(id="avsNumOpenJudgements" class="avsInfoItem")
                                 td Ranges:
-                                td(id="avsNumRanges" class="avsInfoItem")                    
+                                td(id="avsNumRanges" class="avsInfoItem")
                     span(id="timer")
 
                 div(id="subScore" class="scoreDiv topItem")
@@ -84,14 +85,12 @@ html
                     div(class="teamBody")
                         div(class="logoContainer")
                             img(class="logo" src="{{logoSrc}}")
-                        div(class="scoreInfo teamScore") 
-                        div(class="scoreInfo scoreDetails") 
+                        div(class="scoreInfo teamScore")
+                        div(class="scoreInfo scoreDetails")
                     div(class="thumbContainer")
 
-        
+
         div(id="thumbTemplate" class="template")
             div(class="thumbDiv" id="thumb_{{_id}}")
                 canvas(class="thumbCanvas")
                 div(class="thumbOverlay")
-                        
-                
