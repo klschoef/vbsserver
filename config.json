@@ -1,7 +1,7 @@
 {
     "server": {
-        "port": 1234,
-        "websocketURL": "192.168.0.1",
+        "port": 80,
+        "websocketURL": "192.168.0.101",
         "videoDir": "videos/",
         "lscImageDir": "images/lsc_images/"
     },
@@ -30,5 +30,5 @@
         "AVSRangeDuration": 180,
         "countdownTime": 5
     },
-    "debugMode": true
+    "debugMode": false
 }

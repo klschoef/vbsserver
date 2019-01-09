@@ -207,6 +207,7 @@ button {
     margin: 2px;
     font-family: sans-serif;
     font-weight: normal;
+    display: none; /* all teams have text logos, so we don't really need the team name again... */
 }
 
 .teamBody {
