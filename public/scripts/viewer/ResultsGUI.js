@@ -111,8 +111,8 @@ class ResultsGUI {
             this.currentSubChartType = taskType;
             var teams = this.viewer.getTeams();
             var results = this.viewer.competitionState.results;
-            // taskIdx relative to task type!        
-            var taskIdx = this.viewer.getActiveTaskSubIdx();
+            // taskIdx relative to task type!
+            var taskIdx = this.viewer.getTaskTypeSubIdx(taskType);
             var sortedTeams = teams.sort((a, b) =>
                 results[a._id].subScores[taskType][taskIdx] - results[b._id].subScores[taskType][taskIdx]
             );

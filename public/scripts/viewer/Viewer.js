@@ -30,7 +30,7 @@ class Viewer {
         });
     }
 
-    init() {        
+    init() {
         var promises = [];
         promises.push(this.thumbManager.init());
         promises.push(this.updateCompetitionState());
@@ -44,12 +44,12 @@ class Viewer {
 
         this.socket.registerEvent('fullRefresh', () => {
             console.log("FULL REFRESH");
-            location.reload(true);  // simply refresh the entire page 
+            location.reload(true);  // simply refresh the entire page
         });
 
         this.socket.registerEvent('startCompetition', (task) => {
             console.log("COMPETITON START");
-            location.reload(true);  // simply refresh the entire page 
+            location.reload(true);  // simply refresh the entire page
         });
 
         this.socket.registerEvent('stopCompetition', (task) => {
@@ -225,12 +225,16 @@ class Viewer {
     }
 
     getActiveTaskSubIdx() {
+        var activeTask = this.getActiveTask();
+        return this.getTaskTypeSubIdx(activeTask.type);
+    }
+
+    getTaskTypeSubIdx(taskType) {
         var tasks = this.competitionState.tasks;
         var activeTaskIdx = this.competitionState.activeTaskIdx;
-        var activeTask = this.getActiveTask();
         var subIdx = -1;
         for (var i = 0; i <= activeTaskIdx; i++) {
-            if (tasks[i].type == activeTask.type) {
+            if (tasks[i].type == taskType) {
                 subIdx++;
             }
         }
