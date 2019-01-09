@@ -154,6 +154,11 @@ function competitionEditor() {
         });
     }
 
+    this.exportCompetitionButtonClicked = () => {
+        var csvExporter = new CSVExporter(this);
+        csvExporter.exportAll();        
+    }
+
     this.updateCompetition = (competition) => {
         this.socket.emit("updateCompetition", competition, (response) => {
             if (response.success) {

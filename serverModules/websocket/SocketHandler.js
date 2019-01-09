@@ -92,6 +92,7 @@ class SocketHandler {
             case "admin":       // has access to: edit,control,viewer,inspect
                 this.registerAdmin(socket);
                 this.registerViewer(socket);
+                this.registerExport(socket);
                 break;
             case "viewer":      // has access to: viewer
                 this.registerViewer(socket);
@@ -106,9 +107,6 @@ class SocketHandler {
                 if (config.debugMode) {
                     this.registerTest(socket);
                 }
-                break;
-            case "export":
-                this.registerExport(socket);
                 break;
             default:
                 logger.warn("invalid clientType tries to register: " + clientType);
@@ -260,11 +258,6 @@ class SocketHandler {
 
     registerExport(socket) {
         ExportSocket.registerEvents(socket);
-        InspectSocket.registerEvents(socket);
-
-        socket.on('disconnect', this.unregisterInspector.bind(this, socket));
-        socket.on('error', this.unregisterInspector.bind(this, socket));
-
         logger.info("new Exporter registered");
     }
 

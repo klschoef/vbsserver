@@ -16,6 +16,7 @@ html
         script(src=prefix + 'scripts/edit/EditTasks.js')
         script(src=prefix + 'scripts/edit/EditTeams.js')
         script(src=prefix + 'scripts/edit/Edit.js')
+        script(src=prefix + 'scripts/edit/CSVExporter.js')
         link(rel='stylesheet', href=prefix + 'stylesheets/editStyle.css')
         link(rel='stylesheet', href=prefix + 'stylesheets/jquery-ui.css')
         link(rel='stylesheet', href=prefix + 'scripts/3rdParty/jquery-confirm/dist/jquery-confirm.min.css')
@@ -35,6 +36,8 @@ html
             button(type="button" id="addCompetitionButton" onclick="edit.addCompetitionButtonClicked()") Add
             button(type="button" id="deleteCompetitionButton" onclick="edit.deleteCompetitionButtonClicked()") Delete
             button(type="button" id="cloneCompetitionButton" onclick="edit.cloneCompetitionButtonClicked()") Clone
+            button(type="button" id="exportCompetitionButton" onclick="edit.exportCompetitionButtonClicked()") Export CSV
+            span(id="csvExportContainer")
             hr
             div(id="competitionBody" class="bodyDiv")
                 label Name

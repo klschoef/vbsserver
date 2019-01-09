@@ -142,3 +142,8 @@ button {
     margin: 1px;
     text-decoration: none;
 }
+
+.downloadLink {
+    color: green;
+    margin-right: 5px;
+}

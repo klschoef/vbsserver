@@ -25,34 +25,38 @@ class ExportSocket {
         socket.on("exportTasks", (data, callback) => {
             var csv = "taskId;name;startTime;maxSearchTime;type;videoNumber;startFrame;endFrame;text1;text2;text3;trecvidId;avsText\n";
             db.findCompetition({_id: data.competitionId}, (competition) => {
-                db.findTasks({competitionId: data.competitionId}, (tasks) => {  // load all tasks of this competition
-                    for (var i = 0; i < competition.taskSequence.length; i++) {     // proceed in the order of task execution
-                        var taskId = competition.taskSequence[i];
-                        var taskIdx = i + 1;
-                        var task = tasks.find((t) => t._id == taskId);
-                        if (task.finished) {
-                            csv += taskIdx + ";" + task.name + ";" + (new Date(task.startTimeStamp)).toLocaleString() + ";"
-                                    + task.maxSearchTime + ";" + task.type + ";";
-                            if (task.type.startsWith("KIS")) {
-                                var r = task.videoRanges[0];
-                                csv += r.videoNumber + ";" + r.startFrame + ";" + r.endFrame + ";";
-                                if (task.type.startsWith("KIS_Textual")) {
-                                    csv += task.textList[0].text.replace(/\r?\n|\r/g, " ") + ";"
-                                            + task.textList[1].text.replace(/\r?\n|\r/g, " ") + ";"
-                                            + task.textList[2].text.replace(/\r?\n|\r/g, " ") + ";";
-                                } else {
-                                    csv += ";;;";
+                if (competition) {
+                    db.findTasks({competitionId: data.competitionId}, (tasks) => {  // load all tasks of this competition
+                        for (var i = 0; i < competition.taskSequence.length; i++) {     // proceed in the order of task execution
+                            var taskId = competition.taskSequence[i];
+                            var taskIdx = i + 1;
+                            var task = tasks.find((t) => t._id == taskId);
+                            if (task.finished) {
+                                csv += taskIdx + ";" + task.name + ";" + (new Date(task.startTimeStamp)).toLocaleString() + ";"
+                                        + task.maxSearchTime + ";" + task.type + ";";
+                                if (task.type.startsWith("KIS")) {
+                                    var r = task.videoRanges[0];
+                                    csv += r.videoNumber + ";" + r.startFrame + ";" + r.endFrame + ";";
+                                    if (task.type.startsWith("KIS_Textual")) {
+                                        csv += task.textList[0].text.replace(/\r?\n|\r/g, " ") + ";"
+                                                + task.textList[1].text.replace(/\r?\n|\r/g, " ") + ";"
+                                                + task.textList[2].text.replace(/\r?\n|\r/g, " ") + ";";
+                                    } else {
+                                        csv += ";;;";
+                                    }
+                                } else if (task.type.startsWith("AVS")) {
+                                    csv += ";;;;;;" + task.trecvidId + ";" + task.avsText;
+                                } else if (task.type.startsWith("LSC")) {
+                                    csv += "TODO: implement export for LSC tasks";
                                 }
-                            } else if (task.type.startsWith("AVS")) {
-                                csv += ";;;;;;" + task.trecvidId + ";" + task.avsText;
-                            } else if (task.type.startsWith("LSC")) {
-                                csv += "TODO: implement export for LSC tasks";
-                            }                            
+                            }
+                            csv += "\n";
                         }
-                        csv += "\n";
-                    }
-                    ExportSocket.saveAndRespond(csv, "tasks", socket, callback);
-                });
+                        ExportSocket.saveAndRespond(csv, "tasks", socket, callback);
+                    });
+                } else {
+
+                }
             });
         });
 
@@ -94,7 +98,7 @@ class ExportSocket {
         });
 
         socket.on("exportSubmissions", (data, callback) => {
-            var csv = "taskId;taskType;expert/novice;teamNumber;teamName;videoNumber;shotNumber;frameNumber;searchTime;judged;correct;iseq\n";
+            var csv = "taskId;taskType;expert/novice;teamNumber;teamName;teamMember;videoNumber;shotNumber;frameNumber;searchTime;judged;correct\n";
             db.findCompetition({_id: data.competitionId}, (competition) => {
                 db.findSubmissions({competitionId: data.competitionId}, (submissions) => {
                     db.findTeams({competitionId: data.competitionId}, (teams) => {
@@ -113,9 +117,9 @@ class ExportSocket {
                                     for (var j = 0; j < sub.length; j++) {
                                         var s = sub[j];
                                         csv += taskIdx + ";" + task.type + ";" + (task.type.includes("novice") ? "novice" : "expert") + ";"
-                                                + s.teamNumber + ";" + teamMap[s.teamId].name + ";"
+                                                + s.teamNumber + ";" + teamMap[s.teamId].name + ";" + s.memberNumber + ";"
                                                 + s.videoNumber + ";" + s.shotNumber + ";" + s.frameNumber + ";"
-                                                + s.searchTime + ";" + s.judged + ";" + s.correct + ";" + s.iseq + "\n";
+                                                + s.searchTime + ";" + s.judged + ";" + s.correct + "\n";
                                     }
                                 }
                             }
@@ -135,7 +139,7 @@ class ExportSocket {
                     for (var i = 0; i < teams.length; i++) {
                         teamMap[teams[i]._id] = teams[i];
                     }
-                    db.findTasks({competitionId: data.competitionId, type: /AVS/, finished: true}, (tasks) => {      // load all finished AVS tasks                    
+                    db.findTasks({competitionId: data.competitionId, type: /AVS/, finished: true}, (tasks) => {      // load all finished AVS tasks
                         var taskIds = tasks.map((t) => t._id);
                         db.findTaskResults({taskId: {$in: taskIds}}, (taskResults) => {
 
@@ -177,19 +181,19 @@ class ExportSocket {
                                     var numSubmissions = taskSubmissions.length;
                                     var numCorrect = correctSubmissions.length
                                     var numVideos = (new Set(correctSubmissions.map((s) => s.videoNumber))).size;
-                                    var numShots = (new Set(correctSubmissions.map((s) => s.videoNumber + "_" + s.shotNumber))).size;                                    
+                                    var numShots = (new Set(correctSubmissions.map((s) => s.videoNumber + "_" + s.shotNumber))).size;
                                     var avsHandler = new SubmissionHandlerAVS({db: db});
                                     for (var j=0; j<taskSubmissions.length; j++) {
                                         avsHandler.extendCorrectPool(taskSubmissions[j]);
                                     }
                                     var numRanges = avsHandler.numRanges;
 
-                                    csv += taskIdx + ";" + numSubmissions + ";" + numCorrect + ";" 
+                                    csv += taskIdx + ";" + numSubmissions + ";" + numCorrect + ";"
                                             + numShots + ";" + numRanges + ";" + numVideos + "\n";
                                 }
 
-                                socket.respond(callback, true, csv);
-//                            ExportSocket.saveAndRespond(csv, "avsStatistics", socket, callback);
+                                // socket.respond(callback, true, csv);
+                                ExportSocket.saveAndRespond(csv, "avsStatistics", socket, callback);
 
                             });
                         });

@@ -73,15 +73,6 @@ class Routes {
             });
         });
 
-        app.get('/export', (req, res) => {
-            logger.info("Request for export page");
-            logger.verbose("Request for export page", {requestHeaders: req.headers});
-            res.render('export', {
-                config: JSON.stringify(config)
-            });
-        });
-
-
         // attention: GET requests should not be used anymore, but are still included for backward compatibility
         // same URL format as POST request
         app.get('/vbs/submit', (req, res) => {
