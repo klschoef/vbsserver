@@ -192,7 +192,7 @@ function taskEditor() {
                         textList: [{delay: 0, text: "Enter query text..."}],
                         trecvidId: "avs_" + this.randomId(10),
                         avsText: "Enter query text",
-                        imageList: []
+                        imageList: ["Enter image names...", "image2", "image3", "..."]
                     };
                 } else {
                     // if no randomVideo can be found, we create a new LSC_Textual task by default
