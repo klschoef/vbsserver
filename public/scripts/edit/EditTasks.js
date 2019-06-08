@@ -455,7 +455,7 @@ function taskEditor() {
         var task = this.activeTask();
         task.textList.push({
             delay: parseInt(task.textList[task.textList.length - 1].delay) + 1,
-            text: "Enter query text"
+            text: "Please enter query"
         });
         this.updateTask(task);
     }

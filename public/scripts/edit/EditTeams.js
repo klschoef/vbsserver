@@ -154,6 +154,19 @@ function teamEditor() {
                     "images/logos/2018/upcdcu.png"];
                 offset += 2/teams.length;
                 break;
+            case "LSC 2019":
+                teams = ["HCMUS", "EXQUI", "ITEC", "THUIR", "VIRET", "VITRIVR", "LENS", "SEEKER", "NTU"];
+                logos = ["images/logos/2019/hcmus.png",
+                    "images/logos/2019/exquisitor.png",
+                    "images/logos/2019/itec2.png",
+                    "images/logos/2019/thuir.jpg",
+                    "images/logos/2019/viret.png",
+                    "images/logos/2019/vitrivr.png", 
+                    "images/logos/default.png",
+                    "images/logos/2019/dcu.jpg",
+                    "images/logos/2019/ntu.png"];
+                offset += 2/teams.length;
+                break;
             default :
                 toastr.warning("Team Preset '" + preset + "' is not defined");
         }
