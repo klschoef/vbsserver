@@ -301,18 +301,27 @@ function taskEditor() {
         var task = this.activeTask();
         if (task) {  // show the according fields
             if (task.type.startsWith("KIS_Visual")) {
-                $("#kisQueryDiv").show();
-                $("#kisTextualQueryDiv").hide();
-                $("#avsQueryDiv").hide();
-                $("#lscQueryDiv").hide();
-                $("#queryVideo")[0].play();
+                if (task.type.startsWith("KIS_VisualTextual")) {
+                    this.buildTaskListDiv();
+                    $("#kisQueryDiv").show();
+                    $("#kisTextualQueryDiv").show();
+                    $("#avsQueryDiv").hide();
+                    $("#lscQueryDiv").hide();
+                    $("#queryVideo")[0].play();
+                } else {
+                    $("#kisQueryDiv").show();
+                    $("#kisTextualQueryDiv").hide();
+                    $("#avsQueryDiv").hide();
+                    $("#lscQueryDiv").hide();
+                    $("#queryVideo")[0].play();
+                }
             } else if (task.type.startsWith("KIS_Textual")) {
                 this.buildTaskListDiv();
                 $("#kisQueryDiv").show();
                 $("#kisTextualQueryDiv").show();
                 $("#avsQueryDiv").hide();
                 $("#lscQueryDiv").hide();
-                $("#queryVideo")[0].play();
+                $("#queryVideo")[0].play();  
             } else if (task.type.startsWith("AVS")) {
                 $("#kisQueryDiv").hide();
                 $("#kisTextualQueryDiv").hide();
