@@ -91,11 +91,22 @@ button {
     flex-grow: 1;
     text-align: center;
     margin: 5px;
+    width: 25%;
+}
+
+#subScore > * {
+    display: none !important;
+}
+
+
+#queryDiv {
+    width: 50%;
 }
 
 .ct-label-custom {
     font-size: 1rem;
     fill: white;
+    padding-bottom: 8px;
     stroke: #ccc;
 }
 
@@ -103,8 +114,10 @@ button {
     display: none;
     cursor: pointer;
     margin: 0px;
+    width: 100%;
     padding: 0px;
     zoom: 1;
+    max-height: 94vh;
 }
 
 /* Set high default blur to avoid showing uncensored video before script kicks in */
@@ -191,7 +204,7 @@ button {
 
 #teamContainer {
     display: flex;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     margin: 8px;
     justify-content: center;
 }
@@ -336,4 +349,112 @@ button {
 #activeTaskSelector {
 	width: 30px;
 	margin-right: 10px;
+}
+
+
+/* Video hunter specific */
+.ct-label.ct-vertical.ct-start
+{
+    font-size: 8px;
+}
+
+.ct-bar {
+    stroke-width: 10px !important;
+}
+text.ct-label-custom.ct-label-above {
+    font-size: 13px;
+    position: relative;
+    text-anchor: unset;
+    stroke: #ffffff;
+    top: 3px;
+    position: relative;
+}
+.logoContainer {
+    display: none;
+}
+
+
+.teamDiv {
+    /* max-width: 3.7%; */
+    width: 7.4%;
+    padding:  3px;
+    margin:  0;
+    border: none;
+    border-radius: 0;
+    position: relative;
+    margin-bottom: 20px;
+}
+
+
+#teamContainer .teamDiv:nth-child(1) {
+    
+}
+#teamContainer {
+    position: relative;
+}
+
+.teamScore {
+    font-size: 28px;
+}
+
+.thumbDiv {
+    cursor: pointer;
+    width: 320px;
+    zoom: 1 !important;
+    height: 40px;
+    margin: 1px;
+    border: 0px solid gold;
+    outline: 2px solid black;
+    position: relative;
+}
+
+.thumbDiv canvas {
+    display: none;
+}
+
+.thumbWrong {
+    background-image: url("../images/thumb_wrong.png");
+    background-size: 58%;
+    background-repeat:no-repeat;
+    background-position: center center;
+    background-color: #ffffff;
+}
+
+.thumbCorrect {
+    background-image: url("../images/thumb_correct.png");
+    background-size: 54%;
+    background-repeat:no-repeat;
+    background-position: center center;
+    background-color: #ffffff;
+}
+
+.teamName {
+    font-size: 22px;
+    display: block;
+}
+
+.thumbContainer > * {
+    display: none;
+}
+
+.thumbContainer > *:nth-child(1) {
+    display: flex;   
+}
+
+#subScore {
+    display: none !important;
+    order: 1;
+}
+
+#overallScore {
+    order: 2;
+}
+
+#queryVideo {
+    
+max-height: 54vh;
+}
+
+#overallScoreChart > svg {
+    zoom: 2;
 }
