@@ -103,6 +103,11 @@ class QueryGUI {
         this.elapsedTime = -1;
         var task = this.viewer.getActiveTask();
         if (task) {
+
+            // Send class on content element based on type of the task
+            const contentEl = document.getElementById("content");
+            contentEl.className = task.type;
+
             this.updateQueryState().then(() => {
                 if (task.type.startsWith("KIS_Visual")) {
                     // If this task contains also textual part
@@ -194,21 +199,33 @@ class QueryGUI {
                                 video.currentTime = playbackInfo.startTimeCode;
                             }
                             if (task.type.startsWith("KIS_Visual") && this.viewer.isTaskRunning()) {
-                                var idx = blurDelayList.findIndex((d) => d > this.elapsedTime);
-                                if (idx < 0) {
-                                    idx = blurDelayList.length - 1;
-                                } else {
-                                    idx--;
+
+                                // If this VisualTextual task
+                                if (task.type.startsWith("KIS_VisualTextual")) {
+
+                                    // \todo Implement dynamically/based od config
+                                    this.degradeQueryVideo(20, 100);
+
+                                } 
+                                // Else it's pure Visual task
+                                else {
+                                    var idx = blurDelayList.findIndex((d) => d > this.elapsedTime);
+                                    if (idx < 0) {
+                                        idx = blurDelayList.length - 1;
+                                    } else {
+                                        idx--;
+                                    }
+                                    idx = Math.min(idx, blurSizeList.length - 1); // avoid index out of bounds (in case of bad config)
+                                    var idx2 = grayDelayList.findIndex((d) => d > this.elapsedTime);
+                                    if (idx2 < 0) {
+                                        idx2 = grayDelayList.length - 1;
+                                    } else {
+                                        idx2--;
+                                    }
+                                    idx2 = Math.min(idx2, grayPercentList.length - 1); // avoid index out of bounds (in case of bad config)
+                                    this.degradeQueryVideo(blurSizeList[idx], grayPercentList[idx2]);
                                 }
-                                idx = Math.min(idx, blurSizeList.length - 1); // avoid index out of bounds (in case of bad config)
-                                var idx2 = grayDelayList.findIndex((d) => d > this.elapsedTime);
-                                if (idx2 < 0) {
-                                    idx2 = grayDelayList.length - 1;
-                                } else {
-                                    idx2--;
-                                }
-                                idx2 = Math.min(idx2, grayPercentList.length - 1); // avoid index out of bounds (in case of bad config)
-                                this.degradeQueryVideo(blurSizeList[idx], grayPercentList[idx2]);
+                                
                             } else {
                                 this.degradeQueryVideo(0, 0);
                             }
