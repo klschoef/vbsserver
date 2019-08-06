@@ -148,6 +148,12 @@ button {
     text-align: center;
 }
 
+/* Full screen style for query text during VisualTextual tasks */
+.KIS_VisualTextual #queryText.full-screen-zoom {
+    padding: 9px;
+    font-size: 2.0em;
+}
+
 
 #timer {
     color: white;
