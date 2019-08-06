@@ -112,7 +112,7 @@ text.ct-label-custom.ct-label-above {
 }
 
 #overallScoreChart > svg {
-    zoom: 2;
+    zoom: 1.6;
 }
 
 #teamContainer {
@@ -120,7 +120,7 @@ text.ct-label-custom.ct-label-above {
 }
 
 #queryVideo {
-    max-height: 94vh;
+    max-height: 44vh;
     width: 100%;
 }
 
