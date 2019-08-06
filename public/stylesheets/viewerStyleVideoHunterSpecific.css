@@ -62,7 +62,7 @@ text.ct-label-custom.ct-label-above {
 
 .thumbWrong {
     background-image: url("../images/thumb_wrong.png");
-    background-size: 58%;
+    background-size: 152%;
     background-repeat:no-repeat;
     background-position: center center;
     background-color: #ffffff;
@@ -70,7 +70,7 @@ text.ct-label-custom.ct-label-above {
 
 .thumbCorrect {
     background-image: url("../images/thumb_correct.png");
-    background-size: 54%;
+    background-size: 154%;
     background-repeat:no-repeat;
     background-position: center center;
     background-color: #ffffff;
@@ -86,7 +86,16 @@ text.ct-label-custom.ct-label-above {
 }
 
 .thumbContainer > *:nth-child(1) {
-    display: flex;   
+    display: flex;
+    width: 40%;
+}
+.thumbContainer > *:nth-child(2) {
+    display: flex;
+    width: 30%;
+}
+.thumbContainer > *:nth-child(3) {
+    display: flex;
+    width: 20%;
 }
 
 #subScore {
@@ -98,9 +107,8 @@ text.ct-label-custom.ct-label-above {
     order: 2;
 }
 
-#queryVideo {
-    
-max-height: 54vh;
+.KIS_VisualTextual #queryVideo {
+    max-height: 17vh;
 }
 
 #overallScoreChart > svg {
