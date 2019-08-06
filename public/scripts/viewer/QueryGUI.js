@@ -113,14 +113,39 @@ class QueryGUI {
                     // If this task contains also textual part
                     if (task.type.startsWith("KIS_VisualTextual")) 
                     {
-                        // Show video
-                        this.unmuteVideo();
-                        this.showFullscreen("#queryVideo", config.client.initialFullscreenDuration, () => {
-                            this.muteVideo();
-                        });
+                        // 
+                        // Video container
+                        //
+                        {
+                            this.unmuteVideo();
 
-                        // Show text
-                        this.showFullscreen("#queryText", config.client.initialFullscreenDuration);
+                            // Add special class indicating that this text is in full screen mode
+                            document.getElementById("queryVideo").classList.add("full-screen-zoom");
+
+                            // Show video to upper half of screen
+                            this.showFullscreenPercentHeight("#queryVideo", 25, config.client.initialFullscreenDuration, () => 
+                            {
+                                this.muteVideo();
+
+                                // Remove full screen indicator class
+                                document.getElementById("queryVideo").classList.remove("full-screen-zoom");
+                            });
+                        }
+
+                        // 
+                        // Text container
+                        //
+                        {
+                            // Add special class indicating that this text is in full screen mode
+                            document.getElementById("queryText").classList.add("full-screen-zoom");
+
+                            // Show text to lower half of screen
+                            this.showFullscreenPercentHeight("#queryText", 67, config.client.initialFullscreenDuration, () => 
+                            {
+                                // Remove full screen indicator class
+                                document.getElementById("queryText").classList.remove("full-screen-zoom");
+                            });
+                        }
                     }
                     // Else it is pure Visual task 
                     else {
@@ -242,15 +267,7 @@ class QueryGUI {
         });
     }
 
-    showFullscreen(element, duration, additionalActions) {
-
-        $(".scoreDiv").hide();
-
-        var targetHeight = $(window).height()
-                - $("#title").outerHeight(true)
-                - parseInt($("#title").css("margin-bottom")) * 2
-                - parseInt($("body").css("margin-top"));
-
+    zoomToHeight(element, targetHeight, duration, additionalActions) {
         var origZoom = parseFloat($(element).css("zoom"));
         var wrapper = $(element).parent();
 
@@ -274,6 +291,22 @@ class QueryGUI {
             }, 10);
         }, duration * 1000);
     }
+
+    showFullscreenPercentHeight(element, percentageHeight, duration, additionalActions) {
+
+        $(".scoreDiv").hide();
+
+        var targetHeight = window.innerHeight
+                - $("#title").outerHeight(true)
+                - parseInt($("#title").css("margin-bottom")) * 2
+                - parseInt($("body").css("margin-top"));
+
+        this.zoomToHeight(element, targetHeight * (percentageHeight  / 100.0), duration, additionalActions);
+    }
+
+    showFullscreen(element, duration, additionalActions) {
+        this.showFullscreenPercentHeight(element, 100, duration, additionalActions);
+      }
 
     hideQueryText() {
         $("#queryText").hide();
