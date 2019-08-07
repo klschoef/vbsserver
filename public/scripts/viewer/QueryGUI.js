@@ -123,7 +123,7 @@ class QueryGUI {
                             document.getElementById("queryVideo").classList.add("full-screen-zoom");
 
                             // Show video to upper half of screen
-                            this.showFullscreenPercentHeight("#queryVideo", 25, config.client.initialFullscreenDuration, () => 
+                            this.showFullscreenPercentHeight("#queryVideo", 50, config.client.initialFullscreenDuration, () => 
                             {
                                 this.muteVideo();
 
@@ -140,7 +140,7 @@ class QueryGUI {
                             document.getElementById("queryText").classList.add("full-screen-zoom");
 
                             // Show text to lower half of screen
-                            this.showFullscreenPercentHeight("#queryText", 67, config.client.initialFullscreenDuration, () => 
+                            this.showFullscreenPercentHeight("#queryText", 50, config.client.initialFullscreenDuration, () => 
                             {
                                 // Remove full screen indicator class
                                 document.getElementById("queryText").classList.remove("full-screen-zoom");
@@ -207,6 +207,12 @@ class QueryGUI {
         return new Promise((resolve, reject) => {
             var task = this.viewer.getActiveTask();
             if (task) {
+
+                // Send class on content element based on type of the task
+                const contentEl = document.getElementById("content");
+                contentEl.className = task.type;
+
+
                 var playbackInfo = this.viewer.getTaskPlaybackInfo(task);
                 if (playbackInfo) {
                     $("#queryVideo").show();
