@@ -92,6 +92,48 @@ class Routes {
             });
         });
 
+        // Returns response with one task per line of currently active competition
+        // FORMAT:
+        //      <task ID>;<task name>;<video ID>;<from frame>;<to frame>;<started UNIX timestamp>;<finished UNIX timestamp>
+        app.get('/competition-state/get-active-competition-tasks', (req, res) => {
+
+            const tasksArr = controller.competitionState.tasks;
+            let responseArr = new Array();
+
+            // Iterate over all finished and running tasks
+            for (let i = 0; i < tasksArr.length; ++i)
+            {
+                let responseString = "";
+
+                // <task ID>;
+                responseString += tasksArr[i]._id + ";";
+
+                // <task name>;
+                responseString += tasksArr[i].name + ";";
+
+                // <video ID>;
+                responseString += tasksArr[i].videoRanges[0].videoNumber + ";";
+
+                // <from frame>;
+                responseString += tasksArr[i].videoRanges[0].startFrame + ";";
+
+                // <to frame>;
+                responseString += tasksArr[i].videoRanges[0].endFrame + ";";
+
+                // <started UNIX timestamp>;
+                responseString += tasksArr[i].startTimeStamp + ";";
+
+                // <finished UNIX timestamp>\n
+                responseString += tasksArr[i].endTimeStamp;
+
+                responseArr.push(responseString);
+            }
+
+
+            // Send final response
+            res.json(responseArr);
+        });
+
         /*
           The preferred way to submit an answer to the server
           submission format:  <serveraddress:port>/vbs/submit?team=<int>&member=<int>&video=<int>&frame=<int>&shot=<int>
