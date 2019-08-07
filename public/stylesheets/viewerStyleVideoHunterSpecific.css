@@ -109,6 +109,7 @@ text.ct-label-custom.ct-label-above {
 
 .KIS_VisualTextual #queryVideo {
     max-height: 17vh;
+    filter: blur(100px) grayscale(100%);
 }
 
 #overallScoreChart > svg {

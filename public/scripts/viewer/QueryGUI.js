@@ -82,9 +82,9 @@ class QueryGUI {
                                 resolve();
                             } else {
                                 this.unmuteVideo();
-                                this.showFullscreen("#queryVideo", config.client.initialFullscreenDuration, () => {
-                                    this.muteVideo();
-                                });
+                                // this.showFullscreen("#queryVideo", config.client.initialFullscreenDuration, () => {
+                                //     this.muteVideo();
+                                // });
                                 resolve();
                             }
                         });
@@ -109,6 +109,9 @@ class QueryGUI {
             contentEl.className = task.type;
 
             this.updateQueryState().then(() => {
+
+                return;
+
                 if (task.type.startsWith("KIS_Visual")) {
                     // If this task contains also textual part
                     if (task.type.startsWith("KIS_VisualTextual")) 
