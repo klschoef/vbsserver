@@ -108,7 +108,7 @@ text.ct-label-custom.ct-label-above {
 }
 
 .KIS_VisualTextual #queryVideo {
-    max-height: 17vh;
+    /* max-height: 17vh; */
     filter: blur(100px) grayscale(100%);
 }
 
@@ -141,4 +141,8 @@ text.ct-label-custom.ct-label-above {
 .topItem {
     width: 25%;
 
+}
+
+.thumbContainer {
+    flex-direction: row-reverse;
 }
