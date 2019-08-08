@@ -215,57 +215,69 @@ class QueryGUI {
                 const contentEl = document.getElementById("content");
                 contentEl.className = task.type;
 
-
+                // Edited this Promise handling due to occasional Promise exception in Chrome
+                // Reference: https://stackoverflow.com/a/53167783/5481153
                 var playbackInfo = this.viewer.getTaskPlaybackInfo(task);
                 if (playbackInfo) {
                     $("#queryVideo").show();
                     $(".videoCtrlButton").show();
                     var video = $("#queryVideo")[0];
                     video.src = playbackInfo.src;
-                    video.play().then(() => {
-                        var blurDelayList = config.client.videoBlurProgress.delay;
-                        var blurSizeList = config.client.videoBlurProgress.size;
-                        var grayDelayList = config.client.videoGrayscaleProgress.delay;
-                        var grayPercentList = config.client.videoGrayscaleProgress.percentage;
 
-                        video.ontimeupdate = () => {
-                            if (video.currentTime < playbackInfo.startTimeCode || video.currentTime > playbackInfo.endTimeCode) {
-                                video.currentTime = playbackInfo.startTimeCode;
-                            }
-                            if (task.type.startsWith("KIS_Visual") && this.viewer.isTaskRunning()) {
-
-                                // If this VisualTextual task
-                                if (task.type.startsWith("KIS_VisualTextual")) {
-
-                                    // \todo Implement dynamically/based od config
-                                    this.degradeQueryVideo(20, 100);
-
-                                } 
-                                // Else it's pure Visual task
-                                else {
-                                    var idx = blurDelayList.findIndex((d) => d > this.elapsedTime);
-                                    if (idx < 0) {
-                                        idx = blurDelayList.length - 1;
-                                    } else {
-                                        idx--;
-                                    }
-                                    idx = Math.min(idx, blurSizeList.length - 1); // avoid index out of bounds (in case of bad config)
-                                    var idx2 = grayDelayList.findIndex((d) => d > this.elapsedTime);
-                                    if (idx2 < 0) {
-                                        idx2 = grayDelayList.length - 1;
-                                    } else {
-                                        idx2--;
-                                    }
-                                    idx2 = Math.min(idx2, grayPercentList.length - 1); // avoid index out of bounds (in case of bad config)
-                                    this.degradeQueryVideo(blurSizeList[idx], grayPercentList[idx2]);
+                    const promise = video.play();
+                    
+                    if (promise !== undefined) {
+                        promise.then(() => {
+                            var blurDelayList = config.client.videoBlurProgress.delay;
+                            var blurSizeList = config.client.videoBlurProgress.size;
+                            var grayDelayList = config.client.videoGrayscaleProgress.delay;
+                            var grayPercentList = config.client.videoGrayscaleProgress.percentage;
+    
+                            video.ontimeupdate = () => {
+                                if (video.currentTime < playbackInfo.startTimeCode || video.currentTime > playbackInfo.endTimeCode) {
+                                    video.currentTime = playbackInfo.startTimeCode;
                                 }
-                                
-                            } else {
-                                this.degradeQueryVideo(0, 0);
-                            }
-                        };
-                        resolve();
-                    });
+                                if (task.type.startsWith("KIS_Visual") && this.viewer.isTaskRunning()) {
+    
+                                    // If this VisualTextual task
+                                    if (task.type.startsWith("KIS_VisualTextual")) {
+    
+                                        // \todo Implement dynamically/based od config
+                                        this.degradeQueryVideo(15, 100);
+    
+                                    } 
+                                    // Else it's pure Visual task
+                                    else {
+                                        var idx = blurDelayList.findIndex((d) => d > this.elapsedTime);
+                                        if (idx < 0) {
+                                            idx = blurDelayList.length - 1;
+                                        } else {
+                                            idx--;
+                                        }
+                                        idx = Math.min(idx, blurSizeList.length - 1); // avoid index out of bounds (in case of bad config)
+                                        var idx2 = grayDelayList.findIndex((d) => d > this.elapsedTime);
+                                        if (idx2 < 0) {
+                                            idx2 = grayDelayList.length - 1;
+                                        } else {
+                                            idx2--;
+                                        }
+                                        idx2 = Math.min(idx2, grayPercentList.length - 1); // avoid index out of bounds (in case of bad config)
+                                        this.degradeQueryVideo(blurSizeList[idx], grayPercentList[idx2]);
+                                    }
+                                    
+                                } else {
+                                    this.degradeQueryVideo(0, 0);
+                                }
+                            };
+                            resolve();
+                        }).catch(error => {
+                            // .play() on video element failed
+                            console.log(".play() on video element failed");
+
+                            // Try to start it again
+                            video.play();
+                        });
+                    }
                 } else {
                     reject("Active task has no query video");
                 }
