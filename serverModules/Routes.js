@@ -94,7 +94,7 @@ class Routes {
 
         // Returns response with one task per line of currently active competition
         // FORMAT:
-        //      <task ID>;<task name>;<video ID>;<from frame>;<to frame>;<started UNIX timestamp>;<finished UNIX timestamp>
+        //      <current UNIX timestamp>;<task ID>;<task name>;<video ID>;<from frame>;<to frame>;<started UNIX timestamp>;<finished UNIX timestamp>
         app.get('/competition-state/get-active-competition-tasks', (req, res) => {
 
             const tasksArr = controller.competitionState.tasks;
@@ -105,6 +105,9 @@ class Routes {
             {
                 let responseString = "";
 
+                // <current UNIX timestamp>;
+                responseString += Math.floor(new Date() / 1000) + ";";
+                
                 // <task ID>;
                 responseString += tasksArr[i]._id + ";";
 
@@ -121,10 +124,17 @@ class Routes {
                 responseString += tasksArr[i].videoRanges[0].endFrame + ";";
 
                 // <started UNIX timestamp>;
-                responseString += tasksArr[i].startTimeStamp + ";";
+                responseString += Math.floor(tasksArr[i].startTimeStamp / 1000) + ";";
 
-                // <finished UNIX timestamp>\n
-                responseString += tasksArr[i].endTimeStamp;
+                // <finished UNIX timestamp>
+                if (tasksArr[i].endTimeStamp) 
+                {
+                    responseString += Math.floor(tasksArr[i].endTimeStamp / 1000);
+                } 
+                else 
+                {
+                    responseString += "undefined";
+                }
 
                 responseArr.push(responseString);
             }
