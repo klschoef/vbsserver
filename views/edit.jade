@@ -17,6 +17,7 @@ html
         script(src=prefix + 'scripts/edit/EditTeams.js')
         script(src=prefix + 'scripts/edit/Edit.js')
         script(src=prefix + 'scripts/edit/CSVExporter.js')
+        script(src=prefix + 'scripts/edit/SVGExporter.js')
         link(rel='stylesheet', href=prefix + 'stylesheets/editStyle.css')
         link(rel='stylesheet', href=prefix + 'stylesheets/jquery-ui.css')
         link(rel='stylesheet', href=prefix + 'scripts/3rdParty/jquery-confirm/dist/jquery-confirm.min.css')
@@ -37,7 +38,9 @@ html
             button(type="button" id="deleteCompetitionButton" onclick="edit.deleteCompetitionButtonClicked()") Delete
             button(type="button" id="cloneCompetitionButton" onclick="edit.cloneCompetitionButtonClicked()") Clone
             button(type="button" id="exportCompetitionButton" onclick="edit.exportCompetitionButtonClicked()") Export CSV
+            button(type="button" id="exportSvgCompetitionButton" onclick="edit.exportSvgCompetitionButtonClicked()") Export SVG
             span(id="csvExportContainer")
+            span(id="svgExportContainer")
             hr
             div(id="competitionBody" class="bodyDiv")
                 label Name
