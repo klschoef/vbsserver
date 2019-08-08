@@ -3,7 +3,7 @@
 ============================== */
 .ct-label.ct-vertical.ct-start
 {
-    font-size: 8px;
+    font-size: 10px;
 }
 
 .ct-bar {
@@ -62,7 +62,7 @@ text.ct-label-custom.ct-label-above {
 
 .thumbWrong {
     background-image: url("../images/thumb_wrong.png");
-    background-size: 152%;
+    background-size: 130%;
     background-repeat:no-repeat;
     background-position: center center;
     background-color: #ffffff;
@@ -70,7 +70,7 @@ text.ct-label-custom.ct-label-above {
 
 .thumbCorrect {
     background-image: url("../images/thumb_correct.png");
-    background-size: 154%;
+    background-size: 134%;
     background-repeat:no-repeat;
     background-position: center center;
     background-color: #ffffff;
@@ -145,4 +145,9 @@ text.ct-label-custom.ct-label-above {
 
 .thumbContainer {
     flex-direction: row-reverse;
+}
+
+#queryText {
+
+    font-size: 28px;
 }
