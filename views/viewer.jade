@@ -51,7 +51,7 @@ html
 
                 div(id="queryDiv" class="topItem")
                     div(id="queryVideoWrapper")
-                        video(id="queryVideo" onclick="viewer.gui.queryGUI.openVideo()")
+                        video(id="queryVideo" muted autoplay onclick="viewer.gui.queryGUI.openVideo()")
                         div(id="queryVideoInfo")
                     div(id="queryVideoControlDiv")
                         button(id="playBtn" class="videoCtrlButton" onclick="viewer.gui.queryGUI.togglePlay()")

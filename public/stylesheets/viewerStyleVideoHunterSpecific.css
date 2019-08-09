@@ -107,8 +107,20 @@ text.ct-label-custom.ct-label-above {
     order: 2;
 }
 
+.KIS_VisualTextual #queryVideo,
+.KIS_Visual #queryVideo,
+.KIS_Textual #queryVideo,
+.AVS #queryVideo,
+.KIS_VisualTextual_novice #queryVideo,
+.KIS_Visual_novice #queryVideo,
+.KIS_Textual_novice #queryVideo,
+.AVS_novice #queryVideo,
+.LSC_textual #queryVideo,
+.LSC_textual_novice #queryVideo {
+    opacity: 1;
+}
+
 .KIS_VisualTextual #queryVideo {
-    /* max-height: 17vh; */
     filter: blur(100px) grayscale(100%);
     width: 100%;
     max-width: 33.3vw;
@@ -126,6 +138,8 @@ text.ct-label-custom.ct-label-above {
 #queryVideo {
     max-height: 44vh;
     width: 100%;
+    opacity: 0;
+    filter: blur(100px) grayscale(100%);
 }
 
 .ct-label-custom {

@@ -224,6 +224,7 @@ class QueryGUI {
                     var video = $("#queryVideo")[0];
                     video.src = playbackInfo.src;
 
+                    video.muted = true;
                     const promise = video.play();
                     
                     if (promise !== undefined) {
@@ -275,7 +276,7 @@ class QueryGUI {
                             console.log(".play() on video element failed");
 
                             // Try to start it again
-                            video.play();
+                            //video.play();
                         });
                     }
                 } else {
