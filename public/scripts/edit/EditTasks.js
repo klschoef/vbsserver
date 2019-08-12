@@ -10,7 +10,17 @@ function taskEditor() {
                     var range = task.videoRanges[0];
                     var startTime = range.startFrame / this.videoMap[range.videoNumber].fps;
                     var endTime = range.endFrame / this.videoMap[range.videoNumber].fps;
-                    if (queryVideo.currentTime < startTime || queryVideo.currentTime > endTime) {
+
+                    // WARNING:
+                    //  video.currentTime and startTime are not of the same type
+                    //  (one seems like float and other like double) and therefore
+                    //  sometimes after asignment is current time again lower than start time
+                    //  and video is restarted multiple times
+                    //
+                    //  Let's add small Epsilon to the currentTime
+                    const epsilon = 0.001;
+
+                    if ((queryVideo.currentTime + epsilon) < startTime || queryVideo.currentTime > endTime) {
                         queryVideo.currentTime = startTime;
                     }
                 }
