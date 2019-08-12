@@ -151,7 +151,7 @@ body {
     transition: 500ms ease-in-out;
     width: 100%;
     opacity: 0;
-    height: 25vh;
+    height: 35vh;
     width: auto;
     /* filter: blur(100px) grayscale(100%); */
 }
