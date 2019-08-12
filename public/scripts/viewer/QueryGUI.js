@@ -103,16 +103,11 @@ class QueryGUI {
     startTask() {
         this.elapsedTime = -1;
         var task = this.viewer.getActiveTask();
-
-
-
         if (task) {
 
             // Send class on content element based on type of the task
             const contentEl = document.getElementById("content");
             contentEl.className = task.type;
-
-
             this.updateQueryState().then(() => {
 
                 return;
@@ -254,6 +249,18 @@ class QueryGUI {
                                     videoEl.classList.add("ready");
                                 }
 
+                                // \todo Implement onto master branch
+
+                                // Get current selected video sequence progress from [0, 1]
+                                let currProgressPerc = 0.0; 
+                                if (video.currentTime  >= playbackInfo.startTimeCode)
+                                {
+                                    currProgressPerc = Math.max(0.0, ((video.currentTime - playbackInfo.startTimeCode) * 1.0) / (playbackInfo.endTimeCode - playbackInfo.startTimeCode)) * 100;
+                                }
+                                
+
+                                // Update video progress bar
+                                document.getElementById("queryVideoProgressBarInner").style.width = currProgressPerc + "%";
 
                                 // WARNING:
                                 //  video.currentTime and startTime are not of the same type

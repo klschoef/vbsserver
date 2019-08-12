@@ -52,7 +52,10 @@ html
 
                 div(id="queryDiv" class="topItem")
                     div(id="queryVideoWrapper")
-                        video(id="queryVideo" onclick="viewer.gui.queryGUI.openVideo()")
+                        div(class="queryVideoWrapperInner")
+                            video(id="queryVideo" onclick="viewer.gui.queryGUI.openVideo()")
+                            div(id="queryVideoProgressBar")
+                                div(id="queryVideoProgressBarInner")
                         div(id="queryVideoInfo")
                     div(id="queryVideoControlDiv")
                         button(id="playBtn" class="videoCtrlButton" onclick="viewer.gui.queryGUI.togglePlay()")

@@ -26,6 +26,11 @@ body {
     color: white;
 }
 
+.queryVideoWrapperInner {
+    width: auto;
+    display: inline-block;
+    font-size: 0;
+}
 
 .teamDiv {
     /* max-width: 3.7%; */
@@ -146,6 +151,8 @@ body {
     transition: 500ms ease-in-out;
     width: 100%;
     opacity: 0;
+    height: 25vh;
+    width: auto;
     /* filter: blur(100px) grayscale(100%); */
 }
 
@@ -190,13 +197,26 @@ body {
     transform: translate(-50%, 0);
     z-index: 1;
     padding: 10px 30px;
-    background: rgb(87, 87, 87);
-    top: 41px;
+    background: rgb(152, 32, 163);
+    top: 43px;
     font-size: 26px;
-    border: 1px solid #aaa;
+    border: 1px solid #333;
+    border-top: 0px;
+    border-radius: 0px 0px 30px 30px;
 }
 
 
 thumbOverlay {
     background-size: 130%;
+}
+
+#queryVideoProgressBar
+{
+
+}
+
+#queryVideoProgressBarInner
+{
+    height: 10px;
+    background: rgb(152, 32, 163);
 }
