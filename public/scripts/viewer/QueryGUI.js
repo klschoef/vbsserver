@@ -235,7 +235,16 @@ class QueryGUI {
                             var grayPercentList = config.client.videoGrayscaleProgress.percentage;
     
                             video.ontimeupdate = () => {
-                                if (video.currentTime < playbackInfo.startTimeCode || video.currentTime > playbackInfo.endTimeCode) {
+                                // WARNING:
+                                //  video.currentTime and startTime are not of the same type
+                                //  (one seems like float and other like double) and therefore
+                                //  sometimes after asignment is current time again lower than start time
+                                //  and video is restarted multiple times
+                                //
+                                //  Let's add small Epsilon to the currentTime
+                                const epsilon = 0.001;
+
+                                if ((video.currentTime + epsilon) < playbackInfo.startTimeCode || video.currentTime > playbackInfo.endTimeCode) {
                                     video.currentTime = playbackInfo.startTimeCode;
                                 }
                                 if (task.type.startsWith("KIS_Visual") && this.viewer.isTaskRunning()) {
