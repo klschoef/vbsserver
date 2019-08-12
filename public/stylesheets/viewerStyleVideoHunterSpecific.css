@@ -21,6 +21,11 @@ text.ct-label-custom.ct-label-above {
     display: none;
 }
 
+body {
+    background: #131d26;
+    color: white;
+}
+
 
 .teamDiv {
     /* max-width: 3.7%; */
