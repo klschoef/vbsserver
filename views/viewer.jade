@@ -32,6 +32,7 @@ html
             var config = JSON.parse(new String('#{config}').replace(/&quot;/g, "\""));
     body
         h1(id="title")
+        div(id="taskName")
         img(id="zoomReset" src="images/zoom_reset.png" onclick="viewer.gui.resetZoom()")
         div(id="loadingDiv")
             img(src="images/page_loading.gif")
@@ -51,7 +52,7 @@ html
 
                 div(id="queryDiv" class="topItem")
                     div(id="queryVideoWrapper")
-                        video(id="queryVideo" muted autoplay onclick="viewer.gui.queryGUI.openVideo()")
+                        video(id="queryVideo" onclick="viewer.gui.queryGUI.openVideo()")
                         div(id="queryVideoInfo")
                     div(id="queryVideoControlDiv")
                         button(id="playBtn" class="videoCtrlButton" onclick="viewer.gui.queryGUI.togglePlay()")

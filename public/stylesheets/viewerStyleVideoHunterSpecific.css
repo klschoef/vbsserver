@@ -75,7 +75,7 @@ body {
 
 .thumbCorrect {
     background-image: url("../images/thumb_correct.png");
-    background-size: 134%;
+    background-size: 131%;
     background-repeat:no-repeat;
     background-position: center center;
     background-color: #ffffff;
@@ -122,9 +122,10 @@ body {
 .AVS_novice #queryVideo,
 .LSC_textual #queryVideo,
 .LSC_textual_novice #queryVideo {
-    opacity: 1;
+    /* opacity: 1; */
 }
 
+.KIS_Textual #queryVideo,
 .KIS_VisualTextual #queryVideo {
     filter: blur(100px) grayscale(100%);
     width: 100%;
@@ -142,9 +143,14 @@ body {
 
 #queryVideo {
     max-height: 44vh;
+    transition: 500ms ease-in-out;
     width: 100%;
     opacity: 0;
-    filter: blur(100px) grayscale(100%);
+    /* filter: blur(100px) grayscale(100%); */
+}
+
+#queryVideo.ready {
+    opacity: 1;
 }
 
 .ct-label-custom {
@@ -172,4 +178,25 @@ body {
 #queryText {
 
     font-size: 28px;
+}
+
+#overallScoreChart > svg > g.ct-labels > foreignObject:nth-child(24) {
+    Y: 3.75;
+}
+
+#taskName {
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, 0);
+    z-index: 1;
+    padding: 10px 30px;
+    background: rgb(87, 87, 87);
+    top: 41px;
+    font-size: 26px;
+    border: 1px solid #aaa;
+}
+
+
+thumbOverlay {
+    background-size: 130%;
 }

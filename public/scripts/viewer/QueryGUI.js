@@ -36,6 +36,10 @@ class QueryGUI {
     updateQueryState() {
         return new Promise((resolve, reject) => {
             var task = this.viewer.getActiveTask();
+
+            // Print out name of the current task
+            document.getElementById("taskName").innerHTML = task.name;
+
             this.hideQueryInfo();
             if (task) {
                 if (!task.running) {
@@ -82,9 +86,6 @@ class QueryGUI {
                                 resolve();
                             } else {
                                 this.unmuteVideo();
-                                // this.showFullscreen("#queryVideo", config.client.initialFullscreenDuration, () => {
-                                //     this.muteVideo();
-                                // });
                                 resolve();
                             }
                         });
@@ -102,11 +103,15 @@ class QueryGUI {
     startTask() {
         this.elapsedTime = -1;
         var task = this.viewer.getActiveTask();
+
+
+
         if (task) {
 
             // Send class on content element based on type of the task
             const contentEl = document.getElementById("content");
             contentEl.className = task.type;
+
 
             this.updateQueryState().then(() => {
 
@@ -224,17 +229,32 @@ class QueryGUI {
                     var video = $("#queryVideo")[0];
                     video.src = playbackInfo.src;
 
-                    video.muted = true;
+                    // Try to start video asynchronously
                     const promise = video.play();
                     
-                    if (promise !== undefined) {
-                        promise.then(() => {
+                    // If correct promise returned
+                    if (promise !== undefined) 
+                    {
+                        // Handle promise
+                        promise.then(() => 
+                        {
                             var blurDelayList = config.client.videoBlurProgress.delay;
                             var blurSizeList = config.client.videoBlurProgress.size;
                             var grayDelayList = config.client.videoGrayscaleProgress.delay;
                             var grayPercentList = config.client.videoGrayscaleProgress.percentage;
     
-                            video.ontimeupdate = () => {
+                            // Get query video HTML element
+                            const videoEl = document.getElementById("queryVideo");
+
+                            video.ontimeupdate = () => 
+                            {
+                                // Make sure video element is in ready state
+                                if (!videoEl.classList.contains("ready"))
+                                {
+                                    videoEl.classList.add("ready");
+                                }
+
+
                                 // WARNING:
                                 //  video.currentTime and startTime are not of the same type
                                 //  (one seems like float and other like double) and therefore
@@ -244,8 +264,21 @@ class QueryGUI {
                                 //  Let's add small Epsilon to the currentTime
                                 const epsilon = 0.001;
 
-                                if ((video.currentTime + epsilon) < playbackInfo.startTimeCode || video.currentTime > playbackInfo.endTimeCode) {
-                                    video.currentTime = playbackInfo.startTimeCode;
+                                if ((video.currentTime + epsilon) < playbackInfo.startTimeCode || video.currentTime > playbackInfo.endTimeCode) 
+                                {
+                                    // \todo Push to fixes branch on top of the master
+                                    //
+                                    // Check if video is in playable state
+                                    // (also if .play() return promise has been already filled with either 
+                                    // data or Exception, if not this will throw DOMException:
+                                    // https://developers.google.com/web/updates/2017/06/play-request-was-interrupted)
+                                    // 
+                                    // More about .readyState member attribute: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/readyState
+                                    if (video.readyState === 4) 
+                                    {
+                                        // Rewind video
+                                        video.currentTime = playbackInfo.startTimeCode;
+                                    }
                                 }
                                 if (task.type.startsWith("KIS_Visual") && this.viewer.isTaskRunning()) {
     
@@ -282,10 +315,14 @@ class QueryGUI {
                             resolve();
                         }).catch(error => {
                             // .play() on video element failed
+                            // NOTE:
+                            //  Maybe because windows had no interaction yet and browser forbids
+                            //  unmuted videos to autplay on such tabs
                             console.log(".play() on video element failed");
 
-                            // Try to start it again
-                            //video.play();
+                            // Mute video and try to play it again
+                            this.muteVideo();
+                            video.play();
                         });
                     }
                 } else {
