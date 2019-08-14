@@ -96,10 +96,23 @@ class SubmissionHandlerKIS {
 
     judge(submission, task) {
         for (var i = 0; i < task.videoRanges.length; i++) {
-            if (Utils.matches(submission, task.videoRanges[i])) {
-                submission.judged = "kis";
-                submission.correct = true;
-                return;
+
+            // If is textual task
+            if (task.type.startsWith("KIS_Textual"))
+            {
+                if (Utils.matchesOnlyVideoNumber(submission, task.videoRanges[i])) {
+                    submission.judged = "kis";
+                    submission.correct = true;
+                    return;
+                }
+            }
+            else 
+            {
+                if (Utils.matches(submission, task.videoRanges[i])) {
+                    submission.judged = "kis";
+                    submission.correct = true;
+                    return;
+                } 
             }
         }
         submission.judged = "kis";

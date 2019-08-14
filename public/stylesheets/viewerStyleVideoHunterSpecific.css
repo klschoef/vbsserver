@@ -6,6 +6,25 @@
     font-size: 10px;
 }
 
+.videoCtrlButton {
+    margin-top: 13px;
+}
+
+.videoCtrlButton {
+    position:absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, 0);
+}
+
+#playBtn {
+    margin-left: -19px;
+}
+
+#muteBtn {
+    margin-left: 15px;
+}
+
 .ct-bar {
     stroke-width: 10px !important;
 }
@@ -21,26 +40,43 @@ text.ct-label-custom.ct-label-above {
     display: none;
 }
 
+#title {
+    display: none;
+}
+
+#queryVideoInfo {
+    margin-top: 11px;
+    position: relative;
+}
+
 body {
-    background: #131d26;
+    background: #181b28;
     color: white;
+    overflow-x: hidden;
 }
 
 .queryVideoWrapperInner {
-    width: auto;
+    /* width: 100%; */
+    object-fit: scale-down;
+    position: relative;
+    /* padding: 15px; */
     display: inline-block;
     font-size: 0;
+    /* background: #0a2b47; */
+    /* border: 2px solid #ffffff; */
+    /* border-bottom: 0px solid #aaa; */
 }
 
 .teamDiv {
     /* max-width: 3.7%; */
-    width: 7.4%;
+    width: 15.6%;
     padding:  3px;
     margin:  0;
     border: none;
     border-radius: 0;
     position: relative;
     margin-bottom: 20px;
+    font-size: 0;
 }
 
 
@@ -87,7 +123,7 @@ body {
 }
 
 .teamName {
-    font-size: 22px;
+    font-size: 20px;
     display: block;
 }
 
@@ -132,27 +168,30 @@ body {
 
 .KIS_Textual #queryVideo,
 .KIS_VisualTextual #queryVideo {
-    filter: blur(100px) grayscale(100%);
-    width: 100%;
-    max-width: 33.3vw;
-    max-height: 29vh;
+    filter: blur(15px) grayscale(100%);
+    width: auto;
+    padding: 15px;
+    /* max-width: 33.3vw; */
+    /* max-height: 29vh; */
 }
 
 #overallScoreChart > svg {
-    zoom: 1.6;
+    zoom: 1.5;
 }
 
 #teamContainer {
     flex-wrap: wrap;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 39vw;
 }
 
 #queryVideo {
-    max-height: 44vh;
+    /* max-height: 44vh; */
     transition: 500ms ease-in-out;
-    width: 100%;
     opacity: 0;
-    height: 35vh;
-    width: auto;
+    height: 53vh;
     /* filter: blur(100px) grayscale(100%); */
 }
 
@@ -165,7 +204,29 @@ body {
 }
 
 #queryDiv {
-    width: 50%;
+    width: 44%;
+}
+
+#queryDiv > *{
+    display: inline-block;
+    width: 100%;
+    position: relative;
+}
+
+#queryVideoWrapper
+{
+    
+}
+#queryVideoWrapper:after
+{
+    content: '';
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+    top: -16px;
+    z-index: -1;
+    left: calc(100% + 10px);
 }
 
 #subScore > * {
@@ -175,44 +236,50 @@ body {
 
 .topItem {
     width: 25%;
-
+    /* display: flex; */
 }
 
 .thumbContainer {
     flex-direction: row-reverse;
+    height: 40px;
 }
 
 #queryText {
 
-    font-size: 28px;
+font-size: 28px;
+
+font-family: sans-serif;
 }
 
 #overallScoreChart > svg > g.ct-labels > foreignObject:nth-child(24) {
     Y: 3.75;
 }
 
-#taskName {
-    position: absolute;
-    left: 50%;
-    transform: translate(-50%, 0);
-    z-index: 1;
-    padding: 10px 30px;
-    background: rgb(152, 32, 163);
-    top: 43px;
-    font-size: 26px;
-    border: 1px solid #333;
-    border-top: 0px;
-    border-radius: 0px 0px 30px 30px;
+#topArea {
+    align-items: flex-start;
 }
 
+#taskName {
+    padding: 10px 0px;
+    font-size: 34px;
+    display: inline-block;
+    float: left;
+}
+
+#timer {
+    font-size: 48px;
+    float: right;
+}
 
 thumbOverlay {
     background-size: 130%;
 }
 
+
 #queryVideoProgressBar
 {
-
+    background: #76ddff;
+    /* position: absolute; */
 }
 
 #queryVideoProgressBarInner

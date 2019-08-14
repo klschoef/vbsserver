@@ -77,6 +77,8 @@ class Routes {
         // same URL format as POST request
         app.get('/vbs/submit', (req, res) => {
 
+            
+
             this.computeSearchTime((searchTime, timestamp) => {
 
                 // parse parameters
@@ -87,6 +89,8 @@ class Routes {
                 var videoNumber = parseInt((""+query.video).split(".")[0]);
                 var frameNumber = parseInt(query.frame);
                 var shotNumber = parseInt(query.shot);
+
+                logger.info("Request from IP" + req.ip + " => " + teamNumber + ", " + videoNumber + ", " + frameNumber);
 
                 controller.submissionHandler.handleSubmission(teamNumber, memberNumber, videoNumber, frameNumber, shotNumber, null, searchTime, timestamp, res).then(()=>{}, ()=>{});
             });
@@ -156,6 +160,8 @@ class Routes {
         app.post('/vbs/submit', (req, res) => {
 
             this.computeSearchTime((searchTime, timestamp, task) => {
+                
+                
 
                 // submission data is sent as URL parameters
                 var url_parts = url.parse(req.url, true);
@@ -164,7 +170,9 @@ class Routes {
 				var memberNumber = parseInt(query.member);
 				var videoNumber = parseInt((""+query.video).split(".")[0]);  // tolerant submission format: either accept video ids like 1234, 01234, or 01234.mp4
 				var frameNumber = parseInt(query.frame);
-				var shotNumber = parseInt(query.shot);
+                var shotNumber = parseInt(query.shot);
+                
+                logger.info("Request from IP" + req.ip + " => " + teamNumber + ", " + videoNumber + ", " + frameNumber);
 
                 // action log can be sent as JSON encoded body (but is optional)
                 var actionLog = req.body;

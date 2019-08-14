@@ -32,7 +32,6 @@ html
             var config = JSON.parse(new String('#{config}').replace(/&quot;/g, "\""));
     body
         h1(id="title")
-        div(id="taskName")
         img(id="zoomReset" src="images/zoom_reset.png" onclick="viewer.gui.resetZoom()")
         div(id="loadingDiv")
             img(src="images/page_loading.gif")
@@ -58,8 +57,10 @@ html
                                 div(id="queryVideoProgressBarInner")
                         div(id="queryVideoInfo")
                     div(id="queryVideoControlDiv")
+                        div(id="taskName")
                         button(id="playBtn" class="videoCtrlButton" onclick="viewer.gui.queryGUI.togglePlay()")
                         button(id="muteBtn" class="videoCtrlButton" onclick="viewer.gui.queryGUI.toggleMute()")
+                        span(id="timer")
                     div(id="queryTextWrapper")
                         div(id="queryText")
                     div(id="querySlideshow")
@@ -75,7 +76,7 @@ html
                                 td(id="avsNumOpenJudgements" class="avsInfoItem")
                                 td Ranges:
                                 td(id="avsNumRanges" class="avsInfoItem")
-                    span(id="timer")
+                    
 
                 div(id="subScore" class="scoreDiv topItem")
                     h3(id="subScoreTitle" onclick="viewer.gui.resultsGUI.nextTaskTypeChart()") Sub Score

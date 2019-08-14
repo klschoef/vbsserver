@@ -45,6 +45,10 @@ class Utils {
                 && submission.frameNumber <= range.endFrame + config.task.KISFrameTolerance;
     }
 
+    static matchesOnlyVideoNumber(submission, range) {
+        return submission.videoNumber == range.videoNumber;
+    }
+
 }
 
 module.exports = Utils;
