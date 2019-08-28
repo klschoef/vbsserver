@@ -262,8 +262,10 @@ class QueryGUI {
                                      // If this VisualTextual task
                                     if (task.type.startsWith("KIS_VisualTextual")) {
 
-                                        // \todo Implement dynamically/based od config
-                                        this.degradeQueryVideo(20, 100);
+                                        var blurSizeValue = config.client.visualTextualTasks.blur;
+                                        var grayscaleValue = config.client.visualTextualTasks.greyscale;
+
+                                        this.degradeQueryVideo(blurSizeValue, grayscaleValue);
 
                                     } 
                                     // Else it's pure Visual task
