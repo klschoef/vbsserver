@@ -92,6 +92,58 @@ class Routes {
             });
         });
 
+        // Returns response with one task per line of currently active competition
+        // FORMAT:
+        //      <current UNIX timestamp>;<task ID>;<task name>;<video ID>;<from frame>;<to frame>;<started UNIX timestamp>;<finished UNIX timestamp>
+        app.get('/competition-state/get-active-competition-tasks', (req, res) => {
+
+            const tasksArr = controller.competitionState.tasks;
+            let responseArr = new Array();
+
+            // Iterate over all finished and running tasks
+            for (let i = 0; i < tasksArr.length; ++i)
+            {
+                let responseString = "";
+
+                // <current UNIX timestamp>;
+                responseString += Math.floor(new Date() / 1000) + ";";
+                
+                // <task ID>;
+                responseString += tasksArr[i]._id + ";";
+
+                // <task name>;
+                responseString += tasksArr[i].name + ";";
+
+                // <video ID>;
+                responseString += tasksArr[i].videoRanges[0].videoNumber + ";";
+
+                // <from frame>;
+                responseString += tasksArr[i].videoRanges[0].startFrame + ";";
+
+                // <to frame>;
+                responseString += tasksArr[i].videoRanges[0].endFrame + ";";
+
+                // <started UNIX timestamp>;
+                responseString += Math.floor(tasksArr[i].startTimeStamp / 1000) + ";";
+
+                // <finished UNIX timestamp>
+                if (tasksArr[i].endTimeStamp) 
+                {
+                    responseString += Math.floor(tasksArr[i].endTimeStamp / 1000);
+                } 
+                else 
+                {
+                    responseString += "undefined";
+                }
+
+                responseArr.push(responseString);
+            }
+
+
+            // Send final response
+            res.json(responseArr);
+        });
+
         /*
           The preferred way to submit an answer to the server
           submission format:  <serveraddress:port>/vbs/submit?team=<int>&member=<int>&video=<int>&frame=<int>&shot=<int>
