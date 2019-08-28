@@ -147,7 +147,7 @@ class ValidationConstraints {
                             }
                         }
                         // check text list for KIS_Textual                                    
-                        if (attributes.type.startsWith("KIS_Textual")) {
+                        if (attributes.type.startsWith("KIS_Textual") || attributes.type.startsWith("KIS_VisualTextual")) {
                             var msg = validateTextList(attributes);
                             if (msg === "OK") {
                                 resolve();
@@ -255,7 +255,7 @@ ValidationConstraints.TASK = {
     },
     type: {
         inclusion: {
-            within: ["KIS_Visual", "KIS_Textual", "AVS", "KIS_Visual_novice", "KIS_Textual_novice", "AVS_novice", "LSC_Textual", "LSC_Textual_novice"],
+            within: ["KIS_Visual", "KIS_VisualTextual", "KIS_Textual", "AVS", "KIS_Visual_novice", "KIS_VisualTextual_novice", "KIS_Textual_novice", "AVS_novice", "LSC_Textual", "LSC_Textual_novice"],
             message: "Invalid task type: %{value}"
         },
         taskCheck: true

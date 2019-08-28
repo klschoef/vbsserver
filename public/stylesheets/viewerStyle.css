@@ -107,6 +107,13 @@ button {
     zoom: 1;
 }
 
+/* Set high default blur to avoid showing uncensored video before script kicks in */
+.KIS_VisualTextual #queryVideo {
+    filter: blur(20px) grayscale(100%);
+    width: 100%;
+    max-width: 33.3vw;
+}
+
 #queryVideoInfo {
     display: none;
 }
@@ -146,6 +153,12 @@ button {
     padding: 24px;
     margin: 0px;
     text-align: center;
+}
+
+/* Full screen style for query text during VisualTextual tasks */
+.KIS_VisualTextual #queryText.full-screen-zoom {
+    padding: 9px;
+    font-size: 2.0em;
 }
 
 

@@ -44,14 +44,26 @@ class QueryGUI {
                 }
                 this.hideSlideshow();
                 if (task.type.startsWith("KIS_Visual")) {
-                    this.hideQueryText();
-                    this.hideSlideshow();
-                    this.showQueryVideo().then(() => {
-                        if (task.finished) {
-                            this.degradeQueryVideo(0, 0);
-                        }
-                        resolve();
-                    });
+                    if (task.type.startsWith("KIS_VisualTextual")) {
+                        
+                        this.updateQueryText();
+                        this.hideSlideshow();
+                        this.showQueryVideo().then(() => {
+                            if (task.finished) {
+                                this.degradeQueryVideo(0, 0);
+                            }
+                            resolve();
+                        });
+                    } else {
+                        this.hideQueryText();
+                        this.hideSlideshow();
+                        this.showQueryVideo().then(() => {
+                            if (task.finished) {
+                                this.degradeQueryVideo(0, 0);
+                            }
+                            resolve();
+                        });
+                    }
                 } else if (task.type.startsWith("LSC_Textual")) {
                     this.updateQueryText();
                     this.hideQueryVideo();
@@ -91,12 +103,57 @@ class QueryGUI {
         this.elapsedTime = -1;
         var task = this.viewer.getActiveTask();
         if (task) {
+
+            // Send class on content element based on type of the task
+            const contentEl = document.getElementById("content");
+            contentEl.className = task.type;
+
             this.updateQueryState().then(() => {
                 if (task.type.startsWith("KIS_Visual")) {
-                    this.unmuteVideo();
-                    this.showFullscreen("#queryVideo", config.client.initialFullscreenDuration, () => {
-                        this.muteVideo();
-                    });
+                    // If this task contains also textual part
+                    if (task.type.startsWith("KIS_VisualTextual")) 
+                    {
+                        // 
+                        // Video container
+                        //
+                        {
+                            this.unmuteVideo();
+
+                            // Add special class indicating that this text is in full screen mode
+                            document.getElementById("queryVideo").classList.add("full-screen-zoom");
+
+                            // Show video to upper half of screen
+                            this.showFullscreenPercentHeight("#queryVideo", 50, config.client.initialFullscreenDuration, () => 
+                            {
+                                this.muteVideo();
+
+                                // Remove full screen indicator class
+                                document.getElementById("queryVideo").classList.remove("full-screen-zoom");
+                            });
+                        }
+
+                        // 
+                        // Text container
+                        //
+                        {
+                            // Add special class indicating that this text is in full screen mode
+                            document.getElementById("queryText").classList.add("full-screen-zoom");
+
+                            // Show text to lower half of screen
+                            this.showFullscreenPercentHeight("#queryText", 50, config.client.initialFullscreenDuration, () => 
+                            {
+                                // Remove full screen indicator class
+                                document.getElementById("queryText").classList.remove("full-screen-zoom");
+                            });
+                        }
+                    }
+                    // Else it is pure Visual task 
+                    else {
+                        this.unmuteVideo();
+                        this.showFullscreen("#queryVideo", config.client.initialFullscreenDuration, () => {
+                            this.muteVideo();
+                        });
+                    }
                 } else {
                     this.showFullscreen("#queryText", config.client.initialFullscreenDuration);
                 }
@@ -150,6 +207,12 @@ class QueryGUI {
         return new Promise((resolve, reject) => {
             var task = this.viewer.getActiveTask();
             if (task) {
+
+                // Send class on content element based on type of the task
+                const contentEl = document.getElementById("content");
+                contentEl.className = task.type;
+
+
                 var playbackInfo = this.viewer.getTaskPlaybackInfo(task);
                 if (playbackInfo) {
                     $("#queryVideo").show();
@@ -184,21 +247,31 @@ class QueryGUI {
                                     video.currentTime = playbackInfo.startTimeCode;
                                 }
                                 if (task.type.startsWith("KIS_Visual") && this.viewer.isTaskRunning()) {
-                                    var idx = blurDelayList.findIndex((d) => d > this.elapsedTime);
-                                    if (idx < 0) {
-                                        idx = blurDelayList.length - 1;
-                                    } else {
-                                        idx--;
+                                     // If this VisualTextual task
+                                    if (task.type.startsWith("KIS_VisualTextual")) {
+
+                                        // \todo Implement dynamically/based od config
+                                        this.degradeQueryVideo(20, 100);
+
+                                    } 
+                                    // Else it's pure Visual task
+                                    else {
+                                        var idx = blurDelayList.findIndex((d) => d > this.elapsedTime);
+                                        if (idx < 0) {
+                                            idx = blurDelayList.length - 1;
+                                        } else {
+                                            idx--;
+                                        }
+                                        idx = Math.min(idx, blurSizeList.length - 1); // avoid index out of bounds (in case of bad config)
+                                        var idx2 = grayDelayList.findIndex((d) => d > this.elapsedTime);
+                                        if (idx2 < 0) {
+                                            idx2 = grayDelayList.length - 1;
+                                        } else {
+                                            idx2--;
+                                        }
+                                        idx2 = Math.min(idx2, grayPercentList.length - 1); // avoid index out of bounds (in case of bad config)
+                                        this.degradeQueryVideo(blurSizeList[idx], grayPercentList[idx2]);
                                     }
-                                    idx = Math.min(idx, blurSizeList.length - 1); // avoid index out of bounds (in case of bad config)
-                                    var idx2 = grayDelayList.findIndex((d) => d > this.elapsedTime);
-                                    if (idx2 < 0) {
-                                        idx2 = grayDelayList.length - 1;
-                                    } else {
-                                        idx2--;
-                                    }
-                                    idx2 = Math.min(idx2, grayPercentList.length - 1); // avoid index out of bounds (in case of bad config)
-                                    this.degradeQueryVideo(blurSizeList[idx], grayPercentList[idx2]);
                                 } else {
                                     this.degradeQueryVideo(0, 0);
                                 }
@@ -226,15 +299,7 @@ class QueryGUI {
         });
     }
 
-    showFullscreen(element, duration, additionalActions) {
-
-        $(".scoreDiv").hide();
-
-        var targetHeight = $(window).height()
-                - $("#title").outerHeight(true)
-                - parseInt($("#title").css("margin-bottom")) * 2
-                - parseInt($("body").css("margin-top"));
-
+    zoomToHeight(element, targetHeight, duration, additionalActions) {
         var origZoom = parseFloat($(element).css("zoom"));
         var wrapper = $(element).parent();
 
@@ -259,6 +324,22 @@ class QueryGUI {
         }, duration * 1000);
     }
 
+    showFullscreenPercentHeight(element, percentageHeight, duration, additionalActions) {
+
+        $(".scoreDiv").hide();
+
+        var targetHeight = window.innerHeight
+                - $("#title").outerHeight(true)
+                - parseInt($("#title").css("margin-bottom")) * 2
+                - parseInt($("body").css("margin-top"));
+
+        this.zoomToHeight(element, targetHeight * (percentageHeight  / 100.0), duration, additionalActions);
+    }
+
+    showFullscreen(element, duration, additionalActions) {
+        this.showFullscreenPercentHeight(element, 100, duration, additionalActions);
+      }
+
     hideQueryText() {
         $("#queryText").hide();
     }
@@ -281,7 +362,7 @@ class QueryGUI {
     updateQueryText() {
         var task = this.viewer.getActiveTask();
         if (task) {
-            if (task.type.startsWith("KIS_Textual") || task.type.startsWith("LSC_Textual")) {
+            if (task.type.startsWith("KIS_Textual") || task.type.startsWith("KIS_VisualTextual") || task.type.startsWith("LSC_Textual")) {
                 var textIndex = 0;
                 if (task.running) {
                     while (textIndex < task.textList.length - 1 && task.textList[textIndex + 1].delay <= this.elapsedTime) {
