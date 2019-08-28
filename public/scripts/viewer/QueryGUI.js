@@ -244,7 +244,19 @@ class QueryGUI {
                                 const epsilon = 0.001;
 
                                 if ((video.currentTime + epsilon) < playbackInfo.startTimeCode || video.currentTime > playbackInfo.endTimeCode) {
-                                    video.currentTime = playbackInfo.startTimeCode;
+                                    // \todo Push to fixes branch on top of the master
+                                    //
+                                    // Check if video is in playable state
+                                    // (also if .play() return promise has been already filled with either 
+                                    // data or Exception, if not this will throw DOMException:
+                                    // https://developers.google.com/web/updates/2017/06/play-request-was-interrupted)
+                                    // 
+                                    // More about .readyState member attribute: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/readyState
+                                    if (video.readyState === 4) 
+                                    {
+                                        // Rewind video
+                                        video.currentTime = playbackInfo.startTimeCode;
+                                    }
                                 }
                                 if (task.type.startsWith("KIS_Visual") && this.viewer.isTaskRunning()) {
                                      // If this VisualTextual task
