@@ -156,38 +156,57 @@ class QueryGUI {
                     $(".videoCtrlButton").show();
                     var video = $("#queryVideo")[0];
                     video.src = playbackInfo.src;
-                    video.play().then(() => {
-                        var blurDelayList = config.client.videoBlurProgress.delay;
-                        var blurSizeList = config.client.videoBlurProgress.size;
-                        var grayDelayList = config.client.videoGrayscaleProgress.delay;
-                        var grayPercentList = config.client.videoGrayscaleProgress.percentage;
 
-                        video.ontimeupdate = () => {
-                            if (video.currentTime < playbackInfo.startTimeCode || video.currentTime > playbackInfo.endTimeCode) {
-                                video.currentTime = playbackInfo.startTimeCode;
-                            }
-                            if (task.type.startsWith("KIS_Visual") && this.viewer.isTaskRunning()) {
-                                var idx = blurDelayList.findIndex((d) => d > this.elapsedTime);
-                                if (idx < 0) {
-                                    idx = blurDelayList.length - 1;
-                                } else {
-                                    idx--;
+                    // Try to start video asynchronously
+                    const promise = video.play();
+
+                    // If correct promise returned
+                    if (promise !== undefined) 
+                    {
+                        // Handle promise
+                        promise.then(() => {
+                            var blurDelayList = config.client.videoBlurProgress.delay;
+                            var blurSizeList = config.client.videoBlurProgress.size;
+                            var grayDelayList = config.client.videoGrayscaleProgress.delay;
+                            var grayPercentList = config.client.videoGrayscaleProgress.percentage;
+
+                            video.ontimeupdate = () => {
+                                if (video.currentTime < playbackInfo.startTimeCode || video.currentTime > playbackInfo.endTimeCode) {
+                                    video.currentTime = playbackInfo.startTimeCode;
                                 }
-                                idx = Math.min(idx, blurSizeList.length - 1); // avoid index out of bounds (in case of bad config)
-                                var idx2 = grayDelayList.findIndex((d) => d > this.elapsedTime);
-                                if (idx2 < 0) {
-                                    idx2 = grayDelayList.length - 1;
+                                if (task.type.startsWith("KIS_Visual") && this.viewer.isTaskRunning()) {
+                                    var idx = blurDelayList.findIndex((d) => d > this.elapsedTime);
+                                    if (idx < 0) {
+                                        idx = blurDelayList.length - 1;
+                                    } else {
+                                        idx--;
+                                    }
+                                    idx = Math.min(idx, blurSizeList.length - 1); // avoid index out of bounds (in case of bad config)
+                                    var idx2 = grayDelayList.findIndex((d) => d > this.elapsedTime);
+                                    if (idx2 < 0) {
+                                        idx2 = grayDelayList.length - 1;
+                                    } else {
+                                        idx2--;
+                                    }
+                                    idx2 = Math.min(idx2, grayPercentList.length - 1); // avoid index out of bounds (in case of bad config)
+                                    this.degradeQueryVideo(blurSizeList[idx], grayPercentList[idx2]);
                                 } else {
-                                    idx2--;
+                                    this.degradeQueryVideo(0, 0);
                                 }
-                                idx2 = Math.min(idx2, grayPercentList.length - 1); // avoid index out of bounds (in case of bad config)
-                                this.degradeQueryVideo(blurSizeList[idx], grayPercentList[idx2]);
-                            } else {
-                                this.degradeQueryVideo(0, 0);
-                            }
-                        };
-                        resolve();
-                    });
+                            };
+                            resolve();
+                        }).catch(error => {
+                            // .play() on video element failed
+                            // NOTE:
+                            //  Maybe because windows had no interaction yet and browser forbids
+                            //  unmuted videos to autplay on such tabs
+                            console.log(".play() on video element failed");
+
+                            // Mute video and try to play it again
+                            this.muteVideo();
+                            video.play();
+                        });
+                    }
                 } else {
                     reject("Active task has no query video");
                 }
