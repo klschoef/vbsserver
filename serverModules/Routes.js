@@ -94,7 +94,7 @@ class Routes {
 
         // Returns response with one task per line of currently active competition
         // FORMAT:
-        //      <current UNIX timestamp>;<task ID>;<task name>;<video ID>;<from frame>;<to frame>;<started UNIX timestamp>;<finished UNIX timestamp>
+        //      <current UNIX timestamp>;<task ID>;<task name>;<started UNIX timestamp>;<finished UNIX timestamp>
         app.get('/competition-state/get-active-competition-tasks', (req, res) => {
 
             const tasksArr = controller.competitionState.tasks;
@@ -113,15 +113,6 @@ class Routes {
 
                 // <task name>;
                 responseString += tasksArr[i].name + ";";
-
-                // <video ID>;
-                responseString += tasksArr[i].videoRanges[0].videoNumber + ";";
-
-                // <from frame>;
-                responseString += tasksArr[i].videoRanges[0].startFrame + ";";
-
-                // <to frame>;
-                responseString += tasksArr[i].videoRanges[0].endFrame + ";";
 
                 // <started UNIX timestamp>;
                 responseString += Math.floor(tasksArr[i].startTimeStamp / 1000) + ";";
