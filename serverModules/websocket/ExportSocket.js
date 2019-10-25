@@ -429,14 +429,16 @@ class ExportSocket {
                 'stroke-width': taskTimelineWidth
             });
 
+            const aaa = 'translate(' + String(currLeftOffset - 10) + ', ' + String(svgSettings.topPadding - 80) + ') rotate(45) ';
             // Number
             svg.text({
-                x: currLeftOffset - 10,
-                y: svgSettings.topPadding - 80,
+                x: 0,
+                y: 0,
                 'font-family': 'arial',
                 'font-size': 20,
                 stroke : '#000',
-                fill: '#000'
+                fill: '#000',
+                transform: aaa
             }, String(i + 1));
 
             // Name
