@@ -154,6 +154,8 @@ function taskEditor() {
                 $("#kisVideoFps").val(video.fps);
 //                $("#kisDuplicates").val(video.duplicates.join()); // TODO
 
+                $("#presentPrerenderedVideo").prop("checked", (task.presentPrerenderedVideo) ? true : false);
+
                 let videoDirectory = config.server.videoDir + "/" + video.filename;
                 if (task.presentPrerenderedVideo && checkIfLinkAccessible(config.server.videoPrerenderedDir + "/" + video.filename))
                 {
