@@ -14,6 +14,9 @@ class Task {
         this.name = data.name;
         this.maxSearchTime = data.maxSearchTime; // in seconds
 
+        // If video presented during the task will be from prerendered directory or not
+        this.presentPrerenderedVideo = false;
+
         this.running = false;
         this.finished = false;
         this.startTimeStamp = null;

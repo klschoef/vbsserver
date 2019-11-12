@@ -129,6 +129,9 @@ function taskEditor() {
             $("#taskFinished").prop('checked', task.finished);
             $("#taskTypeSelect").val(task.type ? task.type : "Select Task Type");
 
+            // Fill in "Present prerendered video" checkbox
+            $("#presentPrerenderedVideo").prop("checked", task.presentPrerenderedVideo)
+
             this.taskTypeSelected();    // show according fields
 
             var video = null;
@@ -385,6 +388,13 @@ function taskEditor() {
     this.taskTypeChanged = () => {
         var task = this.activeTask();
         task.type = $("#taskTypeSelect :selected").val();
+        this.updateTask(task);
+        this.taskTypeSelected();
+    }
+
+    this.presentPrerenderedChanged = () => {
+        var task = this.activeTask();
+        task.presentPrerenderedVideo = $("#presentPrerenderedVideo").prop("checked");
         this.updateTask(task);
         this.taskTypeSelected();
     }

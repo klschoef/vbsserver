@@ -3,6 +3,7 @@
         "port": 80,
         "websocketURL": "127.0.0.1",
         "videoDir": "videos/",
+        "videoPrerenderedDir": "videos_prerendered/",
         "lscImageDir": "images/lsc_images/"
     },
     "client": {

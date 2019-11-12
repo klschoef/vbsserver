@@ -260,6 +260,13 @@ ValidationConstraints.TASK = {
         },
         taskCheck: true
     },
+    presentPrerenderedVideo: {
+        presence: true,
+        inclusion: {
+            within: [true, false],
+            message: "Invalid task presentPrerenderedVideo value: %{value}"
+        },
+    },
     videoRanges: {
         presence: true
     },
