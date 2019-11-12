@@ -290,8 +290,18 @@ class QueryGUI {
                                         video.currentTime = playbackInfo.startTimeCode;
                                     }
                                 }
-                                if (task.type.startsWith("KIS_Visual") && this.viewer.isTaskRunning() && !task.presentPrerenderedVideo) {
-                                     // If this VisualTextual task
+                                if (task.type.startsWith("KIS_Visual") && this.viewer.isTaskRunning()) {
+                                     
+                                    // If degrading should not be applied on prerendered videos
+                                    //      and this task has prerendered video.
+                                    if (!config.client.applyDegradingOnPrerenderedVideos 
+                                        && task.presentPrerenderedVideo)
+                                    {
+                                        this.degradeQueryVideo(0, 0);
+                                        resolve();
+                                    }
+                                    
+                                    // If this VisualTextual task
                                     if (task.type.startsWith("KIS_VisualTextual")) {
 
                                         var blurSizeValue = config.client.visualTextualTasks.blur;

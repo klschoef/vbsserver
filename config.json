@@ -11,6 +11,7 @@
         "playAudio": true,
         "hideTeamNames": true,
         "initialFullscreenDuration": 15,
+        "applyDegradingOnPrerenderedVideos": false,
         "videoBlurProgress": {
             "delay": [0, 40, 80, 120, 160, 200, 240, 280],
             "size": [0, 1, 2, 3, 4, 5, 6, 7]
