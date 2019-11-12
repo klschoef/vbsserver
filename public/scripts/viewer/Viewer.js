@@ -200,7 +200,19 @@ class Viewer {
         if (task.type.startsWith("KIS")) {
             var range = task.videoRanges[0];
             var video = this.thumbManager.videoMap[range.videoNumber];
+
+            let prerenderedVideoFilepath = null;
+
+            // Get potential prerendered video filepath
+            const potPrerenderedVidFilepath = config.server.videoPrerenderedDir + "/" + video.filename;
+            // Check if this video is available to front-end
+            if (task.presentPrerenderedVideo && checkIfLinkAccessible(potPrerenderedVidFilepath))
+            {
+                prerenderedVideoFilepath = potPrerenderedVidFilepath;
+            }
+
             return {
+                srcPrerendered: prerenderedVideoFilepath,
                 src: config.server.videoDir + "/" + video.filename,
                 startTimeCode: range.startFrame / video.fps,
                 endTimeCode: range.endFrame / video.fps

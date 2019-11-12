@@ -154,9 +154,15 @@ function taskEditor() {
                 $("#kisVideoFps").val(video.fps);
 //                $("#kisDuplicates").val(video.duplicates.join()); // TODO
 
+                let videoDirectory = config.server.videoDir + "/" + video.filename;
+                if (task.presentPrerenderedVideo && checkIfLinkAccessible(config.server.videoPrerenderedDir + "/" + video.filename))
+                {
+                    videoDirectory = config.server.videoPrerenderedDir + "/" + video.filename;
+                }
+
                 // load video
-                if ($("#queryVideo")[0].src != config.server.videoDir + "/" + video.filename) {
-                    $("#queryVideo")[0].src = config.server.videoDir + "/" + video.filename;
+                if ($("#queryVideo")[0].src != videoDirectory) {
+                    $("#queryVideo")[0].src = videoDirectory;
                 }
             }
 
