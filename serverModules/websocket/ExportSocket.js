@@ -3,6 +3,10 @@ var controller = require('../Controller'),
         uniqueFilename = require('unique-filename'),
         path = require('path'),
         SubmissionHandlerAVS = require('../submission/SubmissionHandlerAVS');
+        
+
+// Custom library for generating SVG vizualizations
+const svgBuilder = require("../SvgBuilder");
 
 var exportDir = "csv";
 var exportPath = process.cwd() + "/public/" + exportDir + "/";
@@ -210,6 +214,157 @@ class ExportSocket {
                     });
                 });
             });
+        });
+
+        socket.on("exportSvgSubmissions", (data, callback) => 
+        {
+            // Find correct competition
+            db.findCompetition({_id: data.competitionId}, (competition) => 
+            {
+                // Find submissions for this competition
+                db.findSubmissions({competitionId: data.competitionId}, (submissions) => 
+                {
+                    // Find teams in this competition
+                    db.findTeams({competitionId: data.competitionId}, (teams) => 
+                    {
+                        // Create team map variable
+                        var teamMap = {};
+                        for (var i = 0; i < teams.length; i++) {
+                            teamMap[teams[i]._id] = teams[i];
+                        }
+
+                        // Find tasks for this
+                        db.findTasks({competitionId: data.competitionId}, (tasks) => // load all tasks of this competition
+                        {   
+                            // Data for drawing
+                            let minTaskSearchTime = 10000000;
+                            let maxTaskSearchTime = 0;
+
+                            let minTaskSearchTimeAvs = 10000000;
+                            let maxTaskSearchTimeAvs = 0;
+
+                            let filteredKisTasks = new Array();
+                            let filteredAvsTasks = new Array();
+                            
+                            {
+                                let ii = 0;
+                                for (var i = 0; i < competition.taskSequence.length; i++) // proceed in the order of task execution
+                                {     
+                                    var taskId = competition.taskSequence[i];
+                                    var task = tasks.find((t) => t._id == taskId);
+
+                                    // If task has already finished
+                                    if (task.finished) 
+                                    {
+                                        // Get submissions with this task ID only
+                                        var sub = submissions.filter((s) => s.taskId == taskId);
+
+                                        // Sort them chronologically
+                                        sub.sort((a, b) => a.searchTime - b.searchTime);
+                                        
+                                        let taskDetail = JSON.parse(JSON.stringify(task));
+                                        taskDetail.submissions = new Array();
+                                                                                    
+                                        // KIS SVG
+                                        if (task.type.startsWith("KIS"))
+                                        {
+                                            // Update min & max search times
+                                            minTaskSearchTime = Math.min(minTaskSearchTime, task.maxSearchTime);
+                                            maxTaskSearchTime = Math.max(maxTaskSearchTime, task.maxSearchTime);
+
+                                            // Iterate through all submissions
+                                            for (var j = 0; j < sub.length; j++) 
+                                            {
+                                                if (sub[j].searchTime > task.maxSearchTime || sub[j].correct == null)
+                                                {
+                                                    continue;
+                                                }
+                                                sub[j].teamColor = teamMap[sub[j].teamId].color;
+                                                taskDetail.submissions.push(sub[j]);
+                                                
+                                            }
+                                            filteredKisTasks.push(taskDetail);
+                                            ++ii;
+                                        } 
+                                        // AVS SVG
+                                        else if (task.type.startsWith("AVS"))
+                                        {
+                                            // Update min & max search times
+                                            minTaskSearchTimeAvs = Math.min(minTaskSearchTimeAvs, task.maxSearchTime);
+                                            maxTaskSearchTimeAvs = Math.max(maxTaskSearchTimeAvs, task.maxSearchTime);
+
+                                            // Iterate through all submissions
+                                            for (var j = 0; j < sub.length; j++) 
+                                            {
+                                                if (sub[j].searchTime > task.maxSearchTime || sub[j].correct == null)
+                                                {
+                                                    continue;
+                                                }
+                                                sub[j].teamColor = teamMap[sub[j].teamId].color;
+                                                taskDetail.submissions.push(sub[j]);
+                                                
+                                            }
+                                            filteredAvsTasks.push(taskDetail);
+                                            ++ii;
+                                        }
+                                    }
+                                }
+                            }
+
+                            // KIS
+                            const svgSettings = {
+                                svgHeight: 800,
+                                topPadding: 130,
+                                bottomPadding: 30,
+                                rightPadding: 80,   
+                                leftPadding: 80,
+                                columnWitdth: 60,
+                                leftLabelNegOffset: 70,
+                                minTaskSearchTime: minTaskSearchTime,
+                                maxTaskSearchTime: maxTaskSearchTime
+                            };
+
+                            // AVS
+                            const svgSettingsAvs = {
+                                svgHeight: 800,
+                                topPadding: 100,
+                                bottomPadding: 30,
+                                rightPadding: 80,   
+                                leftPadding: 60,
+                                columnWitdth: 40,
+                                leftLabelNegOffset: 70,
+                                minTaskSearchTime: minTaskSearchTimeAvs,
+                                maxTaskSearchTime: maxTaskSearchTimeAvs
+                            };
+
+                             // Create new SVG Builder
+                            const svgXmlKis = svgBuilder.generateKisSubmissionsChart(svgSettings, filteredKisTasks, teams);
+                            const svgXmlAvs = svgBuilder.generateAvsSubmissionsChart(svgSettingsAvs, filteredAvsTasks, teams);
+                            
+                            // Wrap SVGs into an array
+                            let svgs = [svgXmlKis, svgXmlAvs];
+
+                            // Save this file and resolve request
+                            ExportSocket.saveAndRespondSvgs(svgs, "submissions", socket, callback);
+                        });
+                    });
+                });
+            });
+        });
+    }
+
+
+    static saveAndRespondSvgs(svg, label, socket, callback) 
+    {
+        const fileNameKis = uniqueFilename(exportPath, label) + ".kis.svg";
+        fs.writeFileSync(fileNameKis, svg[0]);
+        const fileNameAvs = uniqueFilename(exportPath, label) + ".avs.svg";
+        fs.writeFileSync(fileNameAvs, svg[1]);
+
+        // Send response
+        socket.respond(callback, true, {
+            svgKis: exportDir + "/" + path.parse(fileNameKis).base,
+            svgAvs: exportDir + "/" + path.parse(fileNameAvs).base
         });
     }
 
