@@ -14,14 +14,23 @@ class SVGExporter {
 
     export(type) {
         var event = "exportSvg" + this.capitalizeFirstLetter(type);
-        this.socket.emit(event, {competitionId: this.competitionId}, (response) => {
-            console.log(response.data);
-            var link = document.createElement("a");
-            $(link).addClass("downloadLink");
-            link.innerHTML = type;
-            link.download = type + ".svg";
-            link.href = response.data;
-            this.linkContainer.append(link);
+        this.socket.emit(event, {competitionId: this.competitionId}, (response) => 
+        {
+            let linkKis = document.createElement("a");
+            let linkAvs = document.createElement("a");
+            $(linkKis).addClass("downloadLink");
+            $(linkAvs).addClass("downloadLink");
+
+            linkKis.innerHTML = type + " KIS";
+            linkKis.download = type + ".kis.svg";
+            linkKis.href = response.data.svgKis;
+
+            linkAvs.innerHTML = type + " AVS";
+            linkAvs.download = type + ".avs.svg";
+            linkAvs.href = response.data.svgAvs;
+
+            this.linkContainer.append(linkKis);
+            this.linkContainer.append(linkAvs);
         });
     }
 

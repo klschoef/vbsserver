@@ -218,8 +218,6 @@ class ExportSocket {
 
         socket.on("exportSvgSubmissions", (data, callback) => 
         {
-           
-
             // Find correct competition
             db.findCompetition({_id: data.competitionId}, (competition) => 
             {
@@ -241,8 +239,12 @@ class ExportSocket {
                             // Data for drawing
                             let minTaskSearchTime = 10000000;
                             let maxTaskSearchTime = 0;
-                            let filteredTasks = new Array();
-                            
+
+                            let minTaskSearchTimeAvs = 10000000;
+                            let maxTaskSearchTimeAvs = 0;
+
+                            let filteredKisTasks = new Array();
+                            let filteredAvsTasks = new Array();
                             
                             {
                                 let ii = 0;
@@ -254,10 +256,6 @@ class ExportSocket {
                                     // If task has already finished
                                     if (task.finished) 
                                     {
-                                        // Update min & max search times
-                                        minTaskSearchTime = Math.min(minTaskSearchTime, task.maxSearchTime);
-                                        maxTaskSearchTime = Math.max(maxTaskSearchTime, task.maxSearchTime);
-
                                         // Get submissions with this task ID only
                                         var sub = submissions.filter((s) => s.taskId == taskId);
 
@@ -266,38 +264,88 @@ class ExportSocket {
                                         
                                         let taskDetail = JSON.parse(JSON.stringify(task));
                                         taskDetail.submissions = new Array();
-
-                                        // Iterate through all submissions
-                                        for (var j = 0; j < sub.length; j++) 
+                                                                                    
+                                        // KIS SVG
+                                        if (task.type.startsWith("KIS"))
                                         {
-                                            sub[j].teamColor = teamMap[sub[j].teamId].color;
-                                            taskDetail.submissions.push(sub[j]);
-                                            
+                                            // Update min & max search times
+                                            minTaskSearchTime = Math.min(minTaskSearchTime, task.maxSearchTime);
+                                            maxTaskSearchTime = Math.max(maxTaskSearchTime, task.maxSearchTime);
+
+                                            // Iterate through all submissions
+                                            for (var j = 0; j < sub.length; j++) 
+                                            {
+                                                if (sub[j].searchTime > task.maxSearchTime || sub[j].correct == null)
+                                                {
+                                                    continue;
+                                                }
+                                                sub[j].teamColor = teamMap[sub[j].teamId].color;
+                                                taskDetail.submissions.push(sub[j]);
+                                                
+                                            }
+                                            filteredKisTasks.push(taskDetail);
+                                            ++ii;
+                                        } 
+                                        // AVS SVG
+                                        else if (task.type.startsWith("AVS"))
+                                        {
+                                            // Update min & max search times
+                                            minTaskSearchTimeAvs = Math.min(minTaskSearchTimeAvs, task.maxSearchTime);
+                                            maxTaskSearchTimeAvs = Math.max(maxTaskSearchTimeAvs, task.maxSearchTime);
+
+                                            // Iterate through all submissions
+                                            for (var j = 0; j < sub.length; j++) 
+                                            {
+                                                if (sub[j].searchTime > task.maxSearchTime || sub[j].correct == null)
+                                                {
+                                                    continue;
+                                                }
+                                                sub[j].teamColor = teamMap[sub[j].teamId].color;
+                                                taskDetail.submissions.push(sub[j]);
+                                                
+                                            }
+                                            filteredAvsTasks.push(taskDetail);
+                                            ++ii;
                                         }
-                                        filteredTasks.push(taskDetail);
-                                        ++ii;
                                     }
                                 }
                             }
 
+                            // KIS
                             const svgSettings = {
                                 svgHeight: 800,
-                                topPadding: 100,
+                                topPadding: 130,
                                 bottomPadding: 30,
                                 rightPadding: 80,   
-                                leftPadding: 120,
-                                columnWitdth: 100,
+                                leftPadding: 80,
+                                columnWitdth: 60,
                                 leftLabelNegOffset: 70,
                                 minTaskSearchTime: minTaskSearchTime,
                                 maxTaskSearchTime: maxTaskSearchTime
                             };
 
+                            // AVS
+                            const svgSettingsAvs = {
+                                svgHeight: 800,
+                                topPadding: 100,
+                                bottomPadding: 30,
+                                rightPadding: 80,   
+                                leftPadding: 60,
+                                columnWitdth: 40,
+                                leftLabelNegOffset: 70,
+                                minTaskSearchTime: minTaskSearchTimeAvs,
+                                maxTaskSearchTime: maxTaskSearchTimeAvs
+                            };
+
                              // Create new SVG Builder
-                            let svgXml = svgBuilder.generateKisSubmissionsChart(svgSettings, filteredTasks, teams);
+                            const svgXmlKis = svgBuilder.generateKisSubmissionsChart(svgSettings, filteredKisTasks, teams);
+                            const svgXmlAvs = svgBuilder.generateAvsSubmissionsChart(svgSettingsAvs, filteredAvsTasks, teams);
                             
+                            // Wrap SVGs into an array
+                            let svgs = [svgXmlKis, svgXmlAvs];
 
                             // Save this file and resolve request
-                            ExportSocket.saveAndRespondSvg(svgXml, "submissions", socket, callback);
+                            ExportSocket.saveAndRespondSvgs(svgs, "submissions", socket, callback);
                         });
                     });
                 });
@@ -306,10 +354,18 @@ class ExportSocket {
     }
 
 
-    static saveAndRespondSvg(svg, label, socket, callback) {
-        var fileName = uniqueFilename(exportPath, label) + ".svg";
-        fs.writeFileSync(fileName, svg);
-        socket.respond(callback, true, exportDir + "/" + path.parse(fileName).base);
+    static saveAndRespondSvgs(svg, label, socket, callback) 
+    {
+        const fileNameKis = uniqueFilename(exportPath, label) + ".kis.svg";
+        fs.writeFileSync(fileNameKis, svg[0]);
+        const fileNameAvs = uniqueFilename(exportPath, label) + ".avs.svg";
+        fs.writeFileSync(fileNameAvs, svg[1]);
+
+        // Send response
+        socket.respond(callback, true, {
+            svgKis: exportDir + "/" + path.parse(fileNameKis).base,
+            svgAvs: exportDir + "/" + path.parse(fileNameAvs).base
+        });
     }
 
     static saveAndRespond(csv, label, socket, callback) {
