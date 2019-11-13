@@ -390,6 +390,15 @@ class SvgBuilder
                     
                 }
 
+                svg.line({
+                    x1: currX,
+                    y1: (svgSettings.topPadding + contentHeight) - (heightOneSecond * task.maxSearchTime),
+                    x2: currX,
+                    y2: svgSettings.topPadding + contentHeight,
+                    stroke: taskTimelineStrokeColor,
+                    'stroke-width': taskTimelineStrokeWidth
+                });
+
                 // Draw team name
                 svg.text({
                     x: 0,
@@ -404,10 +413,10 @@ class SvgBuilder
             }
             svg.line({
                 x1: currX,
-                y1: (svgSettings.topPadding + contentHeight) - (heightOneSecond * task.maxSearchTime) - 20,
+                y1: (svgSettings.topPadding + contentHeight) - (heightOneSecond * task.maxSearchTime) - 40,
                 x2: currX,
-                y2: svgSettings.topPadding + contentHeight  + 20,
-                stroke: taskTimelineStrokeColor,
+                y2: svgSettings.topPadding + contentHeight  + 40,
+                stroke: "red",
                 'stroke-width': taskTimelineStrokeWidth
             });
             currX += 50;
