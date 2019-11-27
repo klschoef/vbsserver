@@ -37,11 +37,21 @@ class ViewerGUI {
     }
 
     initZoom() {
+        const zoomMax = 4;
+
         var zoomKeys = Object.keys(localStorage).filter((k) => k.startsWith("vbs_zoom_"));
         for (var i = 0; i < zoomKeys.length; i++) {
             var key = zoomKeys[i];
             var id = key.substr("vbs_zoom_".length);
-            this.zoomElement("#" + id, parseFloat(localStorage[key]));
+
+            // Just safe check for occasional garbage bytes parse resulting infinite loop while finding correct zoom
+            let zoom = parseFloat(localStorage[key]);
+            if (zoom > zoomMax)
+            {
+                zoom = 1;
+            }
+
+            this.zoomElement("#" + id, zoom);
             console.log("init zoom: " + id + " -> " + localStorage[key]);
         }
     }

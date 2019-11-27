@@ -8,7 +8,9 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
-            "program": "${workspaceFolder}\\public\\scripts\\edit\\EditTasks.js"
+
+            "program": "${workspaceFolder}\\app.js",
+            "outputCapture": "std"
         }
     ]
 }

@@ -159,6 +159,11 @@ function competitionEditor() {
         csvExporter.exportAll();        
     }
 
+    this.exportSvgCompetitionButtonClicked = () => {
+        const svgDrawer = new SVGExporter(this);
+        svgDrawer.exportAll();        
+    }
+
     this.updateCompetition = (competition) => {
         this.socket.emit("updateCompetition", competition, (response) => {
             if (response.success) {
