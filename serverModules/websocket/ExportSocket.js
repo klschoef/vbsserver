@@ -38,11 +38,21 @@ class ExportSocket {
                                     var r = task.videoRanges[0];
                                     csv += r.videoNumber + ";" + r.startFrame + ";" + r.endFrame + ";";
                                     if (task.type.startsWith("KIS_Textual")) {
-                                        csv += task.textList[0].text.replace(/\r?\n|\r/g, " ") + ";"
-                                                + task.textList[1].text.replace(/\r?\n|\r/g, " ") + ";"
-                                                + task.textList[2].text.replace(/\r?\n|\r/g, " ") + ";";
+
+                                        // Iterate over all texts
+                                        let ii = 0
+                                        for (; ii < Math.min(3, task.textList.length); ++ii)
+                                        {
+                                            csv += task.textList[ii].text.replace(/\r?\n|\r/g, " ") + ";";
+                                        }
+                                        for (; ii < 3; ++ii)
+                                        {
+                                            csv += ";";
+                                        }
+
                                     } else {
                                         csv += ";;;";
+
                                     }
                                 } else if (task.type.startsWith("AVS")) {
                                     csv += ";;;;;;" + task.trecvidId + ";" + task.avsText;

@@ -196,7 +196,17 @@ class Control {
             var endTime = task.videoRanges[0].endFrame / fps;
             video.src = config.server.videoDir + "/" + videoFile;
             video.ontimeupdate = () => {
-                if (video.currentTime < startTime || video.currentTime > endTime) {
+                
+                // WARNING:
+                //  video.currentTime and startTime are not of the same type
+                //  (one seems like float and other like double) and therefore
+                //  sometimes after asignment is current time again lower than start time
+                //  and video is restarted multiple times
+                //
+                //  Let's add small Epsilon to the currentTime
+                const epsilon = 0.001;
+
+                if ((video.currentTime + epsilon) < startTime || video.currentTime > endTime) {
                     video.currentTime = startTime;
                 }
             };

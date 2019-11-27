@@ -157,6 +157,7 @@ class QueryGUI {
                     var video = $("#queryVideo")[0];
                     video.src = playbackInfo.src;
 
+
                     // Try to start video asynchronously
                     const promise = video.play();
 
@@ -171,7 +172,17 @@ class QueryGUI {
                             var grayPercentList = config.client.videoGrayscaleProgress.percentage;
 
                             video.ontimeupdate = () => {
-                                if (video.currentTime < playbackInfo.startTimeCode || video.currentTime > playbackInfo.endTimeCode) {
+                              
+                                // WARNING:
+                                //  video.currentTime and startTime are not of the same type
+                                //  (one seems like float and other like double) and therefore
+                                //  sometimes after asignment is current time again lower than start time
+                                //  and video is restarted multiple times
+                                //
+                                //  Let's add small Epsilon to the currentTime
+                                const epsilon = 0.001;
+                              
+                                if ((video.currentTime + epsilon) < playbackInfo.startTimeCode || video.currentTime > playbackInfo.endTimeCode) {
 
                                     // \todo Push to fixes branch on top of the master
                                     //
@@ -186,8 +197,8 @@ class QueryGUI {
                                         // Rewind video
                                         video.currentTime = playbackInfo.startTimeCode;
                                     }
-
                                 }
+                              
                                 if (task.type.startsWith("KIS_Visual") && this.viewer.isTaskRunning()) {
                                     var idx = blurDelayList.findIndex((d) => d > this.elapsedTime);
                                     if (idx < 0) {
