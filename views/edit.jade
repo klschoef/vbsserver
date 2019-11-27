@@ -5,6 +5,7 @@ doctype html
 html
     head
         title VBSServer - Edit
+        script(src=prefix + 'scripts/utils.js')
         script(src=prefix + 'scripts/3rdParty/jquery.js')
         script(src=prefix + 'scripts/3rdParty/jquery-ui.js')
         script(src=prefix + 'scripts/3rdParty/jquery-confirm/dist/jquery-confirm.min.js')
@@ -88,12 +89,17 @@ html
                             option()= 'AVS_novice'
                             option()= 'LSC_Textual'
                             option()= 'LSC_Textual_novice'
+
+                        
+
                         div(id="taskQueryDiv" class="containerDiv")
                             div(id="kisQueryDiv" class="taskQueryOption")
                                 span
                                 div(id="queryVideoWrapper")
                                     video(id="queryVideo" controls)
                                     div(id="queryVideoRangeDiv")
+                                        label Present prerendered video
+                                            input(type="checkbox" id="presentPrerenderedVideo" onchange="edit.presentPrerenderedChanged()")
                                         table(id="queryVideoTable")
                                             tr
                                                 td
@@ -124,6 +130,7 @@ html
                                                     label Loop
                                                 td(id="loopField")
                                                     input(type="checkbox" id="videoLoop" checked)
+                                            
                                 div(id="queryVideoInfo")
                                     div(id="kisVideoName" disabled) video name
                                     label Framerate

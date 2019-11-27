@@ -150,6 +150,7 @@ class AdminSocket {
                                 competitionId: newCompetition._id,
                                 name: task.name,
                                 maxSearchTime: task.maxSearchTime,
+                                presentPrerenderedVideo: task.presentPrerenderedVideo,
                                 type: task.type,
                                 videoRanges: task.videoRanges,
                                 textList: task.textList,

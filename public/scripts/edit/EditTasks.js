@@ -129,6 +129,9 @@ function taskEditor() {
             $("#taskFinished").prop('checked', task.finished);
             $("#taskTypeSelect").val(task.type ? task.type : "Select Task Type");
 
+            // Fill in "Present prerendered video" checkbox
+            $("#presentPrerenderedVideo").prop("checked", task.presentPrerenderedVideo)
+
             this.taskTypeSelected();    // show according fields
 
             var video = null;
@@ -151,9 +154,17 @@ function taskEditor() {
                 $("#kisVideoFps").val(video.fps);
 //                $("#kisDuplicates").val(video.duplicates.join()); // TODO
 
+                $("#presentPrerenderedVideo").prop("checked", (task.presentPrerenderedVideo) ? true : false);
+
+                let videoDirectory = config.server.videoDir + "/" + video.filename;
+                if (task.presentPrerenderedVideo && checkIfLinkAccessible(config.server.videoPrerenderedDir + "/" + video.filename))
+                {
+                    videoDirectory = config.server.videoPrerenderedDir + "/" + video.filename;
+                }
+
                 // load video
-                if ($("#queryVideo")[0].src != config.server.videoDir + "/" + video.filename) {
-                    $("#queryVideo")[0].src = config.server.videoDir + "/" + video.filename;
+                if ($("#queryVideo")[0].src != videoDirectory) {
+                    $("#queryVideo")[0].src = videoDirectory;
                 }
             }
 
@@ -385,6 +396,13 @@ function taskEditor() {
     this.taskTypeChanged = () => {
         var task = this.activeTask();
         task.type = $("#taskTypeSelect :selected").val();
+        this.updateTask(task);
+        this.taskTypeSelected();
+    }
+
+    this.presentPrerenderedChanged = () => {
+        var task = this.activeTask();
+        task.presentPrerenderedVideo = $("#presentPrerenderedVideo").prop("checked");
         this.updateTask(task);
         this.taskTypeSelected();
     }

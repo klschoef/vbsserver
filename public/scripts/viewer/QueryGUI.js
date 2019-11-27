@@ -38,9 +38,22 @@ class QueryGUI {
             var task = this.viewer.getActiveTask();
             this.hideQueryInfo();
             if (task) {
+
+                var playbackInfo = this.viewer.getTaskPlaybackInfo(task);
+                if (!playbackInfo) {
+                    console.log("Error fetching task playback info.");
+                }
+
                 if (!task.running) {
                     this.updateTimer("TIME OVER");
                     this.showQueryInfo(task);
+
+                    // If this is task with prerendered video
+                    if (playbackInfo.srcPrerendered != null)
+                    {
+                        // Swap video for original one
+                        this.setQueryVideoSrc(playbackInfo.src);
+                    }
                 }
                 this.hideSlideshow();
                 if (task.type.startsWith("KIS_Visual")) {
@@ -203,6 +216,16 @@ class QueryGUI {
         $("#queryVideo").css("filter", "blur(" + blurSize + "px) grayscale(" + grayPercentage + "%)");
     }
 
+    /**
+     * Sets video 'src' attribute to provided address.
+     *
+     * @param newSrc New video address.
+     */
+    setQueryVideoSrc(newSrc) {
+        var video = $("#queryVideo")[0];
+        video.src = newSrc;
+    }
+
     showQueryVideo() {
         return new Promise((resolve, reject) => {
             var task = this.viewer.getActiveTask();
@@ -218,8 +241,18 @@ class QueryGUI {
                     $("#queryVideo").show();
                     $(".videoCtrlButton").show();
                     var video = $("#queryVideo")[0];
-                    video.src = playbackInfo.src;
 
+                    
+                    // If this is task with prerendered video
+                    if (playbackInfo.srcPrerendered != null && !task.finished)
+                    {
+                        video.src = playbackInfo.srcPrerendered;
+                    }
+                    else 
+                    {
+                        video.src = playbackInfo.src;
+                    }
+                    
 
                     // Try to start video asynchronously
                     const promise = video.play();
@@ -264,7 +297,17 @@ class QueryGUI {
                                 }
 
                                 if (task.type.startsWith("KIS_Visual") && this.viewer.isTaskRunning()) {
-                                     // If this VisualTextual task
+                                     
+                                    // If degrading should not be applied on prerendered videos
+                                    //      and this task has prerendered video.
+                                    if (!config.client.applyDegradingOnPrerenderedVideos 
+                                        && task.presentPrerenderedVideo)
+                                    {
+                                        this.degradeQueryVideo(0, 0);
+                                        resolve();
+                                    }
+                                    
+                                    // If this VisualTextual task
                                     if (task.type.startsWith("KIS_VisualTextual")) {
 
                                         var blurSizeValue = config.client.visualTextualTasks.blur;
