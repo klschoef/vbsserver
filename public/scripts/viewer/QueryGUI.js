@@ -241,6 +241,7 @@ class QueryGUI {
                     $("#queryVideo").show();
                     $(".videoCtrlButton").show();
                     var video = $("#queryVideo")[0];
+
                     
                     // If this is task with prerendered video
                     if (playbackInfo.srcPrerendered != null && !task.finished)
@@ -252,6 +253,7 @@ class QueryGUI {
                         video.src = playbackInfo.src;
                     }
                     
+
                     // Try to start video asynchronously
                     const promise = video.play();
 
@@ -266,6 +268,7 @@ class QueryGUI {
                             var grayPercentList = config.client.videoGrayscaleProgress.percentage;
 
                             video.ontimeupdate = () => {
+
                                 // WARNING:
                                 //  video.currentTime and startTime are not of the same type
                                 //  (one seems like float and other like double) and therefore
@@ -275,7 +278,9 @@ class QueryGUI {
                                 //  Let's add small Epsilon to the currentTime
                                 const epsilon = 0.001;
 
+
                                 if ((video.currentTime + epsilon) < playbackInfo.startTimeCode || video.currentTime > playbackInfo.endTimeCode) {
+
                                     // \todo Push to fixes branch on top of the master
                                     //
                                     // Check if video is in playable state
@@ -290,6 +295,7 @@ class QueryGUI {
                                         video.currentTime = playbackInfo.startTimeCode;
                                     }
                                 }
+
                                 if (task.type.startsWith("KIS_Visual") && this.viewer.isTaskRunning()) {
                                      
                                     // If degrading should not be applied on prerendered videos
@@ -328,6 +334,7 @@ class QueryGUI {
                                         idx2 = Math.min(idx2, grayPercentList.length - 1); // avoid index out of bounds (in case of bad config)
                                         this.degradeQueryVideo(blurSizeList[idx], grayPercentList[idx2]);
                                     }
+
                                 } else {
                                     this.degradeQueryVideo(0, 0);
                                 }

@@ -41,6 +41,7 @@ class ExportSocket {
                                 if (task.type.startsWith("KIS")) {
                                     var r = task.videoRanges[0];
                                     csv += r.videoNumber + ";" + r.startFrame + ";" + r.endFrame + ";";
+
                                     if (task.type.startsWith("KIS_Textual") || task.type.startsWith("KIS_VisualTextual")) {
                                         
                                         // Iterate over all texts
@@ -53,6 +54,7 @@ class ExportSocket {
                                         {
                                             csv += ";";
                                         }
+
                                         
                                     } else {
                                         csv += ";;;";
