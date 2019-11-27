@@ -267,6 +267,9 @@ class QueryGUI {
                             var grayDelayList = config.client.videoGrayscaleProgress.delay;
                             var grayPercentList = config.client.videoGrayscaleProgress.percentage;
 
+                            // Unmute video because it is implicitly muted so browsers allow autplay
+                            this.unmuteVideo();
+
                             video.ontimeupdate = () => {
 
                                 // WARNING:
@@ -346,10 +349,7 @@ class QueryGUI {
                             //  Maybe because windows had no interaction yet and browser forbids
                             //  unmuted videos to autplay on such tabs
                             console.log(".play() on video element failed");
-
-                            // Mute video and try to play it again
-                            this.muteVideo();
-                            video.play();
+                            console.log("error: " + error);
                         });
                     }
                 } else {
