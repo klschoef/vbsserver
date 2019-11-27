@@ -156,48 +156,82 @@ class QueryGUI {
                     $(".videoCtrlButton").show();
                     var video = $("#queryVideo")[0];
                     video.src = playbackInfo.src;
-                    video.play().then(() => {
-                        var blurDelayList = config.client.videoBlurProgress.delay;
-                        var blurSizeList = config.client.videoBlurProgress.size;
-                        var grayDelayList = config.client.videoGrayscaleProgress.delay;
-                        var grayPercentList = config.client.videoGrayscaleProgress.percentage;
 
-                        video.ontimeupdate = () => {
-                            
-                            // WARNING:
-                            //  video.currentTime and startTime are not of the same type
-                            //  (one seems like float and other like double) and therefore
-                            //  sometimes after asignment is current time again lower than start time
-                            //  and video is restarted multiple times
-                            //
-                            //  Let's add small Epsilon to the currentTime
-                            const epsilon = 0.001;
 
-                            if ((video.currentTime + epsilon) < playbackInfo.startTimeCode || video.currentTime > playbackInfo.endTimeCode) {
-                                video.currentTime = playbackInfo.startTimeCode;
-                            }
-                            if (task.type.startsWith("KIS_Visual") && this.viewer.isTaskRunning()) {
-                                var idx = blurDelayList.findIndex((d) => d > this.elapsedTime);
-                                if (idx < 0) {
-                                    idx = blurDelayList.length - 1;
-                                } else {
-                                    idx--;
+                    // Try to start video asynchronously
+                    const promise = video.play();
+
+                    // If correct promise returned
+                    if (promise !== undefined) 
+                    {
+                        // Handle promise
+                        promise.then(() => {
+                            var blurDelayList = config.client.videoBlurProgress.delay;
+                            var blurSizeList = config.client.videoBlurProgress.size;
+                            var grayDelayList = config.client.videoGrayscaleProgress.delay;
+                            var grayPercentList = config.client.videoGrayscaleProgress.percentage;
+
+                            video.ontimeupdate = () => {
+                              
+                                // WARNING:
+                                //  video.currentTime and startTime are not of the same type
+                                //  (one seems like float and other like double) and therefore
+                                //  sometimes after asignment is current time again lower than start time
+                                //  and video is restarted multiple times
+                                //
+                                //  Let's add small Epsilon to the currentTime
+                                const epsilon = 0.001;
+                              
+                                if ((video.currentTime + epsilon) < playbackInfo.startTimeCode || video.currentTime > playbackInfo.endTimeCode) {
+
+                                    // \todo Push to fixes branch on top of the master
+                                    //
+                                    // Check if video is in playable state
+                                    // (also if .play() return promise has been already filled with either 
+                                    // data or Exception, if not this will throw DOMException:
+                                    // https://developers.google.com/web/updates/2017/06/play-request-was-interrupted)
+                                    // 
+                                    // More about .readyState member attribute: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/readyState
+                                    if (video.readyState === 4) 
+                                    {
+                                        // Rewind video
+                                        video.currentTime = playbackInfo.startTimeCode;
+                                    }
                                 }
-                                idx = Math.min(idx, blurSizeList.length - 1); // avoid index out of bounds (in case of bad config)
-                                var idx2 = grayDelayList.findIndex((d) => d > this.elapsedTime);
-                                if (idx2 < 0) {
-                                    idx2 = grayDelayList.length - 1;
+                              
+                                if (task.type.startsWith("KIS_Visual") && this.viewer.isTaskRunning()) {
+                                    var idx = blurDelayList.findIndex((d) => d > this.elapsedTime);
+                                    if (idx < 0) {
+                                        idx = blurDelayList.length - 1;
+                                    } else {
+                                        idx--;
+                                    }
+                                    idx = Math.min(idx, blurSizeList.length - 1); // avoid index out of bounds (in case of bad config)
+                                    var idx2 = grayDelayList.findIndex((d) => d > this.elapsedTime);
+                                    if (idx2 < 0) {
+                                        idx2 = grayDelayList.length - 1;
+                                    } else {
+                                        idx2--;
+                                    }
+                                    idx2 = Math.min(idx2, grayPercentList.length - 1); // avoid index out of bounds (in case of bad config)
+                                    this.degradeQueryVideo(blurSizeList[idx], grayPercentList[idx2]);
                                 } else {
-                                    idx2--;
+                                    this.degradeQueryVideo(0, 0);
                                 }
-                                idx2 = Math.min(idx2, grayPercentList.length - 1); // avoid index out of bounds (in case of bad config)
-                                this.degradeQueryVideo(blurSizeList[idx], grayPercentList[idx2]);
-                            } else {
-                                this.degradeQueryVideo(0, 0);
-                            }
-                        };
-                        resolve();
-                    });
+                            };
+                            resolve();
+                        }).catch(error => {
+                            // .play() on video element failed
+                            // NOTE:
+                            //  Maybe because windows had no interaction yet and browser forbids
+                            //  unmuted videos to autplay on such tabs
+                            console.log(".play() on video element failed");
+
+                            // Mute video and try to play it again
+                            this.muteVideo();
+                            video.play();
+                        });
+                    }
                 } else {
                     reject("Active task has no query video");
                 }
