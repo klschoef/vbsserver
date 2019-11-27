@@ -84,6 +84,7 @@ class SubmissionHandlerAVS {
             // enter critical section
             // otherwise handling of concurrent submissions could interleave and lead to inconsistencies
             //  (due to asynchronous database access)
+            // TODO: do not call on every judgementReceived -> write to queue and use interval
             this.submissionHandler.criticalSection(this.updateResults.bind(this, submission, task));
         }
     }

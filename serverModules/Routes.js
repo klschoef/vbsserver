@@ -155,10 +155,12 @@ class Routes {
 				var memberNumber = parseInt(query.member);
 				var videoNumber = parseInt((""+query.video).split(".")[0]);  // tolerant submission format: either accept video ids like 1234, 01234, or 01234.mp4
 				var frameNumber = parseInt(query.frame);
-				var shotNumber = parseInt(query.shot);
+                var shotNumber = parseInt(query.shot);
+                var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 
                 // action log can be sent as JSON encoded body (but is optional)
                 var actionLog = req.body;
+                if (actionLog && typeof actionLog === "object") actionLog.ipaddress = ip;
 
 				// a submission request does not necessarily have to contain an actual submission, it also can contain a sole actionLog
 				if (Number.isInteger(videoNumber) && (Number.isInteger(frameNumber) || Number.isInteger(shotNumber))) {
@@ -173,6 +175,25 @@ class Routes {
             });
         });
 
+        app.post('/vbs/log', (req, res) => {
+
+            this.computeSearchTime((searchTime, timestamp, task) => {
+
+                // submission data is sent as URL parameters
+                var url_parts = url.parse(req.url, true);
+				var query = url_parts.query;
+				var teamNumber = parseInt(query.team);
+                var memberNumber = parseInt(query.member);
+                var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+				
+                // action log can be sent as JSON encoded body (but is optional)
+                var actionLog = req.body;
+                if (actionLog && typeof actionLog === "object") actionLog.ipaddress = ip;
+
+				this.handleActionLog(actionLog, task, null, teamNumber, memberNumber, searchTime, timestamp, res);  // action log without submission
+            });
+        });
+
         app.get('/lsc/submit', (req, res) => {
             this.computeSearchTime((searchTime, timestamp) => {
 
@@ -181,13 +202,13 @@ class Routes {
                 var query = url_parts.query;
                 var teamNumber = parseInt(query.team);
                 var imageId = query.image;
-
+                
                 controller.submissionHandler.handleSubmission(teamNumber, 0, 0, 0, 0, imageId, searchTime, timestamp, res);
             });
         });
     }
 
-    handleActionLog(actionLog, task, submission, teamNumber, memberNumber, searchTime, timestamp, res) {
+    handleActionLog(ipaddress, actionLog, task, submission, teamNumber, memberNumber, searchTime, timestamp, res) {
 
         if (actionLog && typeof actionLog === "object" && Object.keys(actionLog).length > 0) {
 
