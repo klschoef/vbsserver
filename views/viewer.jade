@@ -31,6 +31,7 @@ html
         script(type="text/javascript").
             var config = JSON.parse(new String('#{config}').replace(/&quot;/g, "\""));
     body
+        img(id="soundToggle" onclick="viewer.gui.toggleSound()")
         h1(id="title")
         img(id="zoomReset" src="images/zoom_reset.png" onclick="viewer.gui.resetZoom()")
         div(id="loadingDiv")

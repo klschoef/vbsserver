@@ -25,6 +25,7 @@ class ViewerGUI {
         this.initZoom();
         this.showBody();
 
+        this.checkSoundIcon();
         $("#viewerServerInfo").html(this.viewer.getServerAddress());
     }
 
@@ -32,6 +33,20 @@ class ViewerGUI {
         this.teamGUI.init();
         this.queryGUI.init();
         this.resultsGUI.init();
+    }
+
+    checkSoundIcon() {
+        if (this.viewer.config.client.playAudio) {
+            $("#soundToggle").attr("src","images/sound_on.png");    
+        } else {
+            $("#soundToggle").attr("src","images/sound_off.png");
+        }
+    }
+
+    toggleSound() {
+        this.viewer.config.client.playAudio = !this.viewer.config.client.playAudio;
+        console.log("sound toggled: " + this.viewer.config.client.playAudio);
+        this.checkSoundIcon();
     }
 
     showBody() {
