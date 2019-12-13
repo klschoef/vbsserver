@@ -17,6 +17,32 @@ class SubmissionHandlerAVS {
         // format: correctPool[videoNumber][shotNumber] = rangeId
         this.correctPool = {};
         this.numRanges = 0; // number of correctly found ranges
+
+        this.unratedSubmissions = [];
+    }
+
+    initUnratedSubmissionChecker() {
+        setInterval(this.checkUnratedSubmissions.bind(this),1000); //assess unrated submissions every second
+    }
+
+    checkUnratedSubmissions() {
+        console.log("checking unrated submissions: " + this.unratedSubmissions.length);
+        if (this.unratedSubmissions) {
+            let numberUnratedSubmissions = this.unratedSubmissions.length;
+            logger.info("number unrated submissions: " + numberUnratedSubmissions);
+            if (numberUnratedSubmissions > 0) {
+                var ts1 = (new Date()).getTime();
+                this.submissionHandler.updateQueue.push(function () {
+                    while (this.unratedSubmissions.length > 0) {
+                        let usub = this.unratedSubmissions.pop(); //simply start from the end (the rating is not affected by this, since it uses submission time instead of processing time)
+                        this.updateResults(usub.submission,usub.task);
+                    }
+                }, (err) => {
+                    var ts2 = (new Date()).getTime();
+                    logger.info( numberUnratedSubmissions + " results updated (" + (ts2 - ts1) + "ms)");
+                });
+            }
+        }
     }
 
     resetTask() {
@@ -84,8 +110,16 @@ class SubmissionHandlerAVS {
             // enter critical section
             // otherwise handling of concurrent submissions could interleave and lead to inconsistencies
             //  (due to asynchronous database access)
+            
             // TODO: do not call on every judgementReceived -> write to queue and use interval
-            this.submissionHandler.criticalSection(this.updateResults.bind(this, submission, task));
+            //this.submissionHandler.criticalSection(this.updateResults.bind(this, submission, task));
+            
+            // TODO: this still does not solve the issue!
+            this.submissionHandler.updateQueue.push( () => {
+                this.unratedSubmissions.push( {"submission": submission, "task": task} );
+            }, (err) => {
+                //that's it
+            });
         }
     }
 
@@ -93,6 +127,7 @@ class SubmissionHandlerAVS {
     // moreover, this method is managed by an async queue to ensure consistency
     // this means, that finished() must be called in any case (otherwise other update calls wait forever)
     updateResults(submission, task, finished) {
+        //console.log("updating submission " + submission.submissionId + " from team " + submission.teamNumber);
         this.db.findTaskResultForSubmission(submission, (taskResult) => {
             if (!taskResult) {
                 // should not happen... ???
