@@ -83,7 +83,7 @@ class Controller {
                 // reconstruct current competition state from database (e.g., after crash)
                 this.reconstructServerState().then(() => {
 
-                    logger.info("SERVER READY");
+                    logger.info("SERVER READY " + config.server.websocketURL + ":" + config.server.port);
 
                     // importVideos(this.db);
                     // importGroundTruth(this.db);

@@ -3,6 +3,12 @@ body {
     color: white;
 }
 
+#viewerServerInfo {
+    width: 100%;
+    text-align: center;
+    color: #ffffff;
+}
+
 #loadingDiv{
     width: 100%;
     height: 100%;

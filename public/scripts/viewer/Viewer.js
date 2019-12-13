@@ -227,6 +227,13 @@ class Viewer {
         return task && task.running;
     }
 
+    getServerAddress() {
+        if (this.config && this.config.server) {
+            return this.config.server.websocketURL + ":" + this.config.server.port;
+            return "";
+        }
+    }
+
     getActiveTask() {
         if (this.competitionState && this.competitionState.activeTaskIdx >= 0
                 && this.competitionState.activeTaskIdx < this.competitionState.tasks.length) {

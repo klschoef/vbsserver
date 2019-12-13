@@ -24,6 +24,8 @@ class ViewerGUI {
         this.refresh();
         this.initZoom();
         this.showBody();
+
+        $("#viewerServerInfo").html(this.viewer.getServerAddress());
     }
 
     refresh() {
