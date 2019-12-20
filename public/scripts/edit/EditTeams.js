@@ -132,7 +132,7 @@ function teamEditor() {
                     "images/logos/2020/vireo.jpg",
                     "images/logos/2020/viret.png",
                     "images/logos/2020/vitrivr.png",
-                    "images/logos/default.png",
+                    "images/logos/2020/vnuhcm.png",
                     "images/logos/2020/itec.png"];
                 offset = 0.13333;
                 break;
