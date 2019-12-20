@@ -19,10 +19,33 @@ class SubmissionHandlerAVS {
         this.numRanges = 0; // number of correctly found ranges
 
         this.unratedSubmissions = [];
+        this.computeSubmissionScoresStarted = false;
     }
 
     initUnratedSubmissionChecker() {
-        setInterval(this.checkUnratedSubmissions.bind(this),1000); //assess unrated submissions every second
+        //setInterval(this.checkUnratedSubmissions.bind(this),1000); //assess unrated submissions every second
+        //this.computeSubmissionScores();
+    }
+
+    computeSubmissionScores() {
+        this.computeSubmissionScoresStarted = true;
+        if (this.submissionHandler && this.submissionHandler.updateQueue) {
+            this.submissionHandler.updateQueue.push( () => {
+                console.log("try updating scores!");
+                controller.currentTask((task) => {
+                    this.updateScores(task, () => {
+                        controller.competitionState.updateScores();
+                        controller.competitionState.updateAVSStatistics(this.getNumVideos(), this.numRanges);
+                        console.log("setting timeout for next update!");
+                        setTimeout(computeSubmissionScores, 5000);
+                    });
+                });
+            });
+        } else {
+            console.log("cannot find submissionhandler (" +  + ") or updatequeue")
+            setTimeout(computeSubmissionScores, 5000);
+        }
+        
     }
 
     checkUnratedSubmissions() {
@@ -150,7 +173,14 @@ class SubmissionHandlerAVS {
                     // taskResult is replaced in db (no problem, because async.queue guarantees that we have no concurrency)
                     // until now, only numAttempts/Correct/Wrong and search times have been modified
                     // score and numRanges are computed after the taskResult is updated with this information
-                    this.db.updateTaskResult(taskResult, () => {
+
+                    /*this.db.updateTaskResult(taskResult, () => {
+                        if (!this.computeSubmissionScoresStarted) {
+                            this.computeSubmissionScores();
+                        }
+                    } );*/
+
+                    this.db.updateTaskResult(taskResult , () => {
                         if (isNewCorrectShot) {
                             // score of ALL teams has to be updated with each newly found correct shot (because recall changes)
                             this.updateScores(task, () => {
@@ -170,7 +200,7 @@ class SubmissionHandlerAVS {
                     }, (err) => {
                         logger.error("updating task result failed", {taskResult: taskResult, errorMsg: err});
                         finished();
-                    });
+                    }); 
                 }, (err) => {
                     logger.error("Error updating submission", {errorMsg: err, submission: submission});
                     finished();
