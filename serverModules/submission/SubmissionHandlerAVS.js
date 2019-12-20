@@ -17,31 +17,33 @@ class SubmissionHandlerAVS {
         // format: correctPool[videoNumber][shotNumber] = rangeId
         this.correctPool = {};
         this.numRanges = 0; // number of correctly found ranges
-
-        this.unratedSubmissions = [];
     }
 
-    initUnratedSubmissionChecker() {
-        setInterval(this.checkUnratedSubmissions.bind(this),1000); //assess unrated submissions every second
+    initAVSComputationTask() {
+        console.log("::computeSubmissionScores Timeout started");
+        setTimeout(this.computeSubmissionScores.bind(this),1000);
     }
 
-    checkUnratedSubmissions() {
-        console.log("checking unrated submissions: " + this.unratedSubmissions.length);
-        if (this.unratedSubmissions) {
-            let numberUnratedSubmissions = this.unratedSubmissions.length;
-            logger.info("number unrated submissions: " + numberUnratedSubmissions);
-            if (numberUnratedSubmissions > 0) {
-                var ts1 = (new Date()).getTime();
-                this.submissionHandler.updateQueue.push(function () {
-                    while (this.unratedSubmissions.length > 0) {
-                        let usub = this.unratedSubmissions.pop(); //simply start from the end (the rating is not affected by this, since it uses submission time instead of processing time)
-                        this.updateResults(usub.submission,usub.task);
-                    }
-                }, (err) => {
-                    var ts2 = (new Date()).getTime();
-                    logger.info( numberUnratedSubmissions + " results updated (" + (ts2 - ts1) + "ms)");
+    computeSubmissionScores() {
+        let cs = controller.competitionState;
+        if (controller.isTaskRunning() && cs.activeTaskIdx != -1 && cs.tasks[cs.activeTaskIdx].type.startsWith("AVS")) {
+            
+            //this.submissionHandler.updateQueue.push( () => {
+                controller.currentTask((task) => {
+                    this.updateScores(task, () => {
+                        controller.competitionState.updateScores();
+                        controller.competitionState.updateAVSStatistics(this.getNumVideos(), this.numRanges);
+                        //console.log("::scores updated!");
+                        setTimeout(this.computeSubmissionScores.bind(this),500);
+                    });
                 });
-            }
+            /*}, (err) => {
+                console.log("could not add task to updateQueue: " + err)
+            });*/
+
+        } else {
+            //console.log("..no submission arrived yet! ");
+            setTimeout(this.computeSubmissionScores.bind(this),100);
         }
     }
 
@@ -107,19 +109,13 @@ class SubmissionHandlerAVS {
             logger.info("submission is " + ((submission.correct) ? "correct" : "wrong"), {submissionId: submission._id, teamNumber: submission.teamNumber});
             // update competitionState and notify clients about judgement
             controller.competitionState.updateSubmission(submission);
+            
             // enter critical section
             // otherwise handling of concurrent submissions could interleave and lead to inconsistencies
             //  (due to asynchronous database access)
             
             // TODO: do not call on every judgementReceived -> write to queue and use interval
-            //this.submissionHandler.criticalSection(this.updateResults.bind(this, submission, task));
-            
-            // TODO: this still does not solve the issue!
-            this.submissionHandler.updateQueue.push( () => {
-                this.unratedSubmissions.push( {"submission": submission, "task": task} );
-            }, (err) => {
-                //that's it
-            });
+            this.submissionHandler.criticalSection(this.updateResults.bind(this, submission, task));
         }
     }
 
@@ -150,6 +146,12 @@ class SubmissionHandlerAVS {
                     // taskResult is replaced in db (no problem, because async.queue guarantees that we have no concurrency)
                     // until now, only numAttempts/Correct/Wrong and search times have been modified
                     // score and numRanges are computed after the taskResult is updated with this information
+
+                    this.db.updateTaskResult(taskResult, () => {
+                        finished();
+                    });
+
+                    /*
                     this.db.updateTaskResult(taskResult, () => {
                         if (isNewCorrectShot) {
                             // score of ALL teams has to be updated with each newly found correct shot (because recall changes)
@@ -170,7 +172,7 @@ class SubmissionHandlerAVS {
                     }, (err) => {
                         logger.error("updating task result failed", {taskResult: taskResult, errorMsg: err});
                         finished();
-                    });
+                    }); */
                 }, (err) => {
                     logger.error("Error updating submission", {errorMsg: err, submission: submission});
                     finished();

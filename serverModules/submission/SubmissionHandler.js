@@ -14,7 +14,7 @@ class SubmissionHandler {
 
         this.handlerKIS = new SubmissionHandlerKIS(this);
         this.handlerAVS = new SubmissionHandlerAVS(this);
-        this.handlerAVS.initUnratedSubmissionChecker();
+        this.handlerAVS.initAVSComputationTask();
         this.handlerLSC = new SubmissionHandlerLSC(this);
 
         // updating scores (TaskResults) should be an atomic operation

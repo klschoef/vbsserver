@@ -36,9 +36,9 @@ app.use(function (error, req, res, next) {
 var clientMap = {};
 
 app.get('/', function (req, res) {
-    res.send("<!DOCTYPE html><html><head><title>VBS 2019 TestServer</title></head>"
+    res.send("<!DOCTYPE html><html><head><title>VBS 2020 TestServer</title></head>"
             + "<body style='line-height: 1.3; margin: 20px;'>"
-            + "<h2>Welcome to the VBS 2019 Test Server</h2>"
+            + "<h2>Welcome to the VBS 2020 Test Server</h2>"
             + "To submit a result please send an HTTP POST request to the following URI:"
             + "<br><br>http://demo2.itec.aau.at:80/vbs/submit"
             + "<br><br> with the following URL parameters:"
@@ -65,17 +65,20 @@ app.get('/', function (req, res) {
             + "<li>An internet connection will be available, but be aware that using a VPN will not be possible since then you won't have access to the VBS server</li>"
             + "<li>Team Ids are as follows:"
             + "<ol>"
-            + "<li>VITRIVR</li>"
-            + "<li>VIREO</li>"
+            + "<li>EXQUISITOR</li>"
+            + "<li>IVIST</li>"
+            + "<li>KAIST</li>"
+            + "<li>SOMHUNTER</li>"
             + "<li>VERGE</li>"
-            + "<li>VIRET</li>"
-            + "<li>VISIONE</li>"
+            + "<li>VIREO</li>"
+            + "<li>VITRIVR</li>"
+            + "<li>VNUHCM</li>"
             + "<li>ITEC</li>"
             + "</ol></li></ul>"
 
             + "<br><b>Action Logging:</b><br>"
             + "Last year we introduced a rudimental interaction logging, so we can perform a more detailed analysis after the competition.<br>"
-            + "At VBS 2019, we refined the logging mechanism as follows:"
+            + "At VBS 2020, we refined the logging mechanism as follows:"
             + "<ul>"
             + "<li>Interaction logs are now sent as body of the HTTP POST request</li>"
             + "<li>They have to be encoded as JSON and should adhere to the agreed format that all teams received </li>"
@@ -96,7 +99,7 @@ app.get('/', function (req, res) {
 
             + "<h3>Scene 2 (Visual)</h3>"
             + "<video muted autoplay loop controls><source src='/vbs/demo_2019.mp4'></source></video>"
-            + "<br><br> <i>Bernd Münzer, ITEC, Klagenfurt University, 2016-2018</i>"
+            + "<br><br> <i>Bernd Münzer &amp; Klaus Schoeffmann, ITEC, Klagenfurt University, 2016-2019</i>"
 
             + "</body></html>"
             );
