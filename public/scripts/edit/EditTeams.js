@@ -122,6 +122,20 @@ function teamEditor() {
         var offset = 0.34;
 
         switch (preset) {
+            case "VBS 2020":
+                teams = ["EXQUISITOR", "IVIST", "KAIST", "SOMHUNTER", "VERGE", "VIREO", "VIRET", "VITRIVR", "VNUHCM", "ITEC"];
+                logos = ["images/logos/2020/exquisitor.png",
+                    "images/logos/default.png",
+                    "images/logos/default.png",
+                    "images/logos/default.png",
+                    "images/logos/2020/verge.png",
+                    "images/logos/2020/vireo.jpg",
+                    "images/logos/2020/viret.png",
+                    "images/logos/2020/vitrivr.png",
+                    "images/logos/default.png",
+                    "images/logos/2020/itec.png"];
+                offset = 0.13333;
+                break;
             case "VBS 2018":
                 teams = ["VIREO", "VITRIVR", "ITEC1", "ITEC2", "VNU", "SIRET", "NECTEC", "VERGE", "HTW"];
                 logos = ["images/logos/2018/vireo.png",
