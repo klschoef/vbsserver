@@ -34,7 +34,7 @@ class SubmissionHandlerAVS {
                         controller.competitionState.updateScores();
                         controller.competitionState.updateAVSStatistics(this.getNumVideos(), this.numRanges);
                         finished();
-                        setTimeout(this.computeSubmissionScores.bind(this),500);
+                        setTimeout(this.computeSubmissionScores.bind(this),1000);
                     });
                 });
             }, (err) => {

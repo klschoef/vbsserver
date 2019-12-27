@@ -170,11 +170,17 @@ class TeamGUI {
                 var teamResult = this.viewer.getCurrentTeamResult(team._id);
                 $(div).find(".teamScore").html(Math.round(teamResult.taskScore));
                 if (task.type.startsWith("AVS")) {
-//                    $(div).find(".scoreDetails").html(teamResult.numCorrect + " / " + teamResult.numAttempts);
-                    $(div).find(".scoreDetails").html(teamResult.numAttempts + " / "
-                            + teamResult.numCorrect + " / "
-                            + teamResult.numRanges + " / "
-                            + teamResult.numVideos);
+                    let scoreInfo = teamResult.numAttempts + " / "
+                                    + teamResult.numCorrect + " / "
+                                    + teamResult.numRanges + " / "
+                                    + teamResult.numVideos;
+                    $(div).find(".scoreDetails").html(scoreInfo);
+                    
+                    $(div).find(".scoreDetails").hover(function() {
+                        $(this).html("subm. / correct / ranges / videos");
+                    }, function() {
+                        $(this).html(scoreInfo);
+                    });
                 } else {
                     $(div).find(".scoreDetails").html("");
                 }

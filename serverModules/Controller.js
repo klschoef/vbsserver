@@ -137,6 +137,13 @@ class Controller {
                                             clearInterval(this.taskInterval);
                                         }
                                     }, 1000);
+
+                                    //for AVS tasks, start score-computation interval
+                                    if (task.type.startsWith("AVS")) {
+                                        console.log("resume AVS computation task!");
+                                        this.submissionHandler.handlerAVS.initAVSComputationTask();
+                                    }
+
                                     this.taskTimeout = setTimeout(() => {
                                         this.stopCurrentTask();
                                     }, remainingTime * 1000);
