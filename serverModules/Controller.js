@@ -310,6 +310,12 @@ class Controller {
                                 this.timerTick(task);
                             }, 1000);
 
+                            //for AVS tasks, start score-computation interval
+                            if (task.type.startsWith("AVS")) {
+                                console.log("init AVS computation task!");
+                                this.submissionHandler.handlerAVS.initAVSComputationTask();
+                            }
+
                             // set timeout that stops the task after maxSearchTime
                             this.taskTimeout = setTimeout(() => {
                                 this.stopCurrentTask();

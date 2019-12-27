@@ -109,7 +109,7 @@ logger.configure({
     ]
 });
 
-logger.info("RESTARTING SERVER");
+logger.info("RESTARTING SERVER on port " + config.server.port);
 
 // Controller is a singleton object that handles all the application logic
 // it can be required from any module

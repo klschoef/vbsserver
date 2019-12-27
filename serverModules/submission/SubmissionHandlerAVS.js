@@ -20,31 +20,28 @@ class SubmissionHandlerAVS {
     }
 
     initAVSComputationTask() {
-        console.log("::computeSubmissionScores Timeout started");
         setTimeout(this.computeSubmissionScores.bind(this),1000);
     }
 
     computeSubmissionScores() {
+        //console.log("::computeSubmissionScores() called");
         let cs = controller.competitionState;
         if (controller.isTaskRunning() && cs.activeTaskIdx != -1 && cs.tasks[cs.activeTaskIdx].type.startsWith("AVS")) {
             
-            //this.submissionHandler.updateQueue.push( () => {
+            this.submissionHandler.updateQueue.push( (finished) => {
                 controller.currentTask((task) => {
                     this.updateScores(task, () => {
                         controller.competitionState.updateScores();
                         controller.competitionState.updateAVSStatistics(this.getNumVideos(), this.numRanges);
-                        //console.log("::scores updated!");
+                        finished();
                         setTimeout(this.computeSubmissionScores.bind(this),500);
                     });
                 });
-            /*}, (err) => {
-                console.log("could not add task to updateQueue: " + err)
-            });*/
+            }, (err) => {
+                //console.log("::scores updated!");
+            });
 
-        } else {
-            //console.log("..no submission arrived yet! ");
-            setTimeout(this.computeSubmissionScores.bind(this),100);
-        }
+        } 
     }
 
     resetTask() {
