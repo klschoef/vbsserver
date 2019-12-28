@@ -65,7 +65,7 @@ Official server of the annual [Video Browser Showdown ](http://www.videobrowsers
 ## Authors
 
 * **Bernd Münzer** - [Institute of Information Technology, Alpen-Adria-Universität Klagenfurt](http://www.uni-klu.ac.at/tewi/inf/itec/)
-* **Klaus Schoeffmnn** - [Institute of Information Technology, Alpen-Adria-Universität Klagenfurt](http://www.KlausSchoeffmann.com/)
+* **Klaus Schoeffmann** - [Institute of Information Technology, Alpen-Adria-Universität Klagenfurt](http://www.KlausSchoeffmann.com/)
 
 ## License
 
