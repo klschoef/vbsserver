@@ -125,7 +125,7 @@ function teamEditor() {
             case "VBS 2020":
                 teams = ["EXQUISITOR", "IVIST", "KAIST", "SOMHUNTER", "VERGE", "VIREO", "VIRET", "VITRIVR", "VNUHCM", "ITEC"];
                 logos = ["images/logos/2020/exquisitor.png",
-                    "images/logos/default.png",
+                    "images/logos/2020/ivist.png",
                     "images/logos/default.png",
                     "images/logos/default.png",
                     "images/logos/2020/verge.png",
