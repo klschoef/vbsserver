@@ -9,7 +9,7 @@ Official server of the annual [Video Browser Showdown ](http://www.videobrowsers
 
 ## Getting Started
 
-* copy all files from "helper/testDatabase2019" to "database" to setup a sample database
+* copy all files from "helper/testDatabase2020" to "database" to setup a sample database
 * copy all video files of the dataset (in mp4 format and without subdirectories) to public/videos (or specify a remote URL in config)
 * adapt config.json to suit your needs
 	* enter the IP address of your server to "server.websocketURL" (don't use "localhost" but the actual IP!)
@@ -65,7 +65,7 @@ Official server of the annual [Video Browser Showdown ](http://www.videobrowsers
 ## Authors
 
 * **Bernd Münzer** - [Institute of Information Technology, Alpen-Adria-Universität Klagenfurt](http://www.uni-klu.ac.at/tewi/inf/itec/)
-
+* **Klaus Schoeffmann** - [Institute of Information Technology, Alpen-Adria-Universität Klagenfurt](http://www.KlausSchoeffmann.com/)
 
 ## License
 
