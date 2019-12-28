@@ -17,6 +17,8 @@ class SubmissionHandlerAVS {
         // format: correctPool[videoNumber][shotNumber] = rangeId
         this.correctPool = {};
         this.numRanges = 0; // number of correctly found ranges
+
+        this.numUnjudgedLastScoreComputation = 0; //number of unjudged task when last score computation was started
     }
 
     initAVSComputationTask() {
@@ -24,24 +26,30 @@ class SubmissionHandlerAVS {
     }
 
     computeSubmissionScores() {
-        //console.log("::computeSubmissionScores() called");
         let cs = controller.competitionState;
-        if (controller.isTaskRunning() && cs.activeTaskIdx != -1 && cs.tasks[cs.activeTaskIdx].type.startsWith("AVS")) {
+        
+        if (cs.activeTaskIdx != -1) {
+            let task = cs.tasks[cs.activeTaskIdx];
             
-            this.submissionHandler.updateQueue.push( (finished) => {
-                controller.currentTask((task) => {
-                    this.updateScores(task, () => {
-                        controller.competitionState.updateScores();
-                        controller.competitionState.updateAVSStatistics(this.getNumVideos(), this.numRanges);
-                        finished();
-                        setTimeout(this.computeSubmissionScores.bind(this),1000);
-                    });
-                });
-            }, (err) => {
-                //console.log("::scores updated!");
-            });
+            if (task.type.startsWith("AVS") && (controller.isTaskRunning() || this.numUnjudgedLastScoreComputation > 0)) {
+                
+                this.numUnjudgedLastScoreComputation = cs.avsStatistics.unjudged;
 
-        } 
+                this.submissionHandler.updateQueue.push( (finished) => {
+                    //controller.currentTask((task) => {
+                        this.updateScores(task, () => {
+                            controller.competitionState.updateScores();
+                            controller.competitionState.updateAVSStatistics(this.getNumVideos(), this.numRanges);
+                            finished();
+                        });
+                    //});
+                }, (err) => {
+                    //console.log("::scores updated!");
+                    setTimeout(this.computeSubmissionScores.bind(this),1000);
+                });
+
+            } 
+        }
     }
 
     resetTask() {
