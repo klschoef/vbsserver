@@ -208,7 +208,7 @@ class Routes {
         });
     }
 
-    handleActionLog(ipaddress, actionLog, task, submission, teamNumber, memberNumber, searchTime, timestamp, res) {
+    handleActionLog(actionLog, task, submission, teamNumber, memberNumber, searchTime, timestamp, res) {
 
         if (actionLog && typeof actionLog === "object" && Object.keys(actionLog).length > 0) {
 
