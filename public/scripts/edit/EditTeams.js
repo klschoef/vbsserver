@@ -127,7 +127,7 @@ function teamEditor() {
                 logos = ["images/logos/2020/exquisitor.png",
                     "images/logos/2020/ivist.png",
                     "images/logos/default.png",
-                    "images/logos/default.png",
+                    "images/logos/2020/somhunter.png",
                     "images/logos/2020/verge.png",
                     "images/logos/2020/vireo.jpg",
                     "images/logos/2020/viret.png",
