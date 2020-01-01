@@ -123,7 +123,7 @@ function teamEditor() {
 
         switch (preset) {
             case "VBS 2020":
-                teams = ["EXQUISITOR", "IVIST", "KAIST", "SOMHUNTER", "VERGE", "VIREO", "VIRET", "VITRIVR", "VNUHCM", "ITEC"];
+                teams = ["EXQUISITOR", "IVIST", "KAIST", "SOMHUNTER", "VERGE", "VIREO", "VIRET", "VITRIVR", "VNUHCM", "ITEC", "AAU"];
                 logos = ["images/logos/2020/exquisitor.png",
                     "images/logos/2020/ivist.png",
                     "images/logos/2020/kaist.png",
@@ -133,7 +133,8 @@ function teamEditor() {
                     "images/logos/2020/viret.png",
                     "images/logos/2020/vitrivr.png",
                     "images/logos/2020/vnuhcm.png",
-                    "images/logos/2020/itec.png"];
+                    "images/logos/2020/itec.png",
+                    "images/logos/2020/aau.png"];
                 offset = 0.13333;
                 break;
             case "VBS 2018":

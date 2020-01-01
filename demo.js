@@ -74,6 +74,7 @@ app.get('/', function (req, res) {
             + "<li>VITRIVR</li>"
             + "<li>VNUHCM</li>"
             + "<li>ITEC</li>"
+            + "<li>AAU</li>"
             + "</ol></li></ul>"
 
             + "<br><b>Action Logging:</b><br>"
