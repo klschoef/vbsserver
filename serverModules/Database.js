@@ -52,9 +52,9 @@ class Database {
                     ValidationConstraints.addCustomValidators(validate);
 
                     // datafiles are compacted every 30 seconds
-                    //this.enableAutocompaction(); //Autocompaction is enabled to improve performance during competition (it is executed on startup of the server anyway)
+                    //this.enableAutocompaction(); //Autocompaction is disabled to improve performance during competition (it is executed on startup of the server anyway)
                     this.disableAutocompaction();
-                    
+
                     resolve();
                 }, reject);
 

@@ -387,7 +387,7 @@ class Controller {
                     /*setTimeout(() => {
                         this.db.enableAutocompaction();
                     }, 10000);
-                    */ //Autocompaction is enabled to improve performance during competition (it is executed on startup of the server anyway)
+                    */ //Autocompaction is disabled to improve performance during competition (it is executed on startup of the server anyway)
 
                     success();
                 }
