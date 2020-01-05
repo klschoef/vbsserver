@@ -158,7 +158,7 @@ class Routes {
                 var shotNumber = parseInt(query.shot);
                 var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 
-                var disableActionLogs = task.type.startsWith("AVS") ? true : false; //ignore logs for AVS
+                var disableActionLogs = (typeof task === "undefined" || task.type.startsWith("AVS")) ? true : false; //ignore logs for AVS
 
                 // action log can be sent as JSON encoded body (but is optional)
                 var actionLog = req.body;
@@ -187,12 +187,14 @@ class Routes {
 				var teamNumber = parseInt(query.team);
                 var memberNumber = parseInt(query.member);
                 var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+
+                logger.info("Received log from team " + teamNumber + " member " + memberNumber);
 				
                 // action log can be sent as JSON encoded body (but is optional)
                 var actionLog = req.body;
                 if (actionLog && typeof actionLog === "object") actionLog.ipaddress = ip;
 
-                if (!task.type.startsWith("AVS")) { //ignore logs for AVS
+                if (typeof task !== "undefined" && !task.type.startsWith("AVS")) { //ignore logs for AVS
                     this.handleActionLog(actionLog, task, null, teamNumber, memberNumber, searchTime, timestamp, res);  // action log without submission
                 }
             });
