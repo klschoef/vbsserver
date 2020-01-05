@@ -158,6 +158,8 @@ class Routes {
                 var shotNumber = parseInt(query.shot);
                 var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 
+                var disableActionLogs = task.type.startsWith("AVS") ? true : false; //ignore logs for AVS
+
                 // action log can be sent as JSON encoded body (but is optional)
                 var actionLog = req.body;
                 if (actionLog && typeof actionLog === "object") actionLog.ipaddress = ip;
@@ -165,12 +167,12 @@ class Routes {
 				// a submission request does not necessarily have to contain an actual submission, it also can contain a sole actionLog
 				if (Number.isInteger(videoNumber) && (Number.isInteger(frameNumber) || Number.isInteger(shotNumber))) {
 					controller.submissionHandler.handleSubmission(teamNumber, memberNumber, videoNumber, frameNumber, shotNumber, null, searchTime, timestamp, res).then((submission) => {
-                        this.handleActionLog(actionLog, task, submission, teamNumber, memberNumber, searchTime, timestamp);
+                        if (!disableActionLogs) this.handleActionLog(actionLog, task, submission, teamNumber, memberNumber, searchTime, timestamp);
                     }, () => {
-                        this.handleActionLog(actionLog, task, null, teamNumber, memberNumber, searchTime, timestamp);   // action log with invalid submission (e.g., because time over)
+                        if (!disableActionLogs) this.handleActionLog(actionLog, task, null, teamNumber, memberNumber, searchTime, timestamp);   // action log with invalid submission (e.g., because time over)
                     });
 				} else {
-                    this.handleActionLog(actionLog, task, null, teamNumber, memberNumber, searchTime, timestamp, res);  // action log without submission
+                    if (!disableActionLogs) this.handleActionLog(actionLog, task, null, teamNumber, memberNumber, searchTime, timestamp, res);  // action log without submission
                 }
             });
         });
@@ -190,7 +192,9 @@ class Routes {
                 var actionLog = req.body;
                 if (actionLog && typeof actionLog === "object") actionLog.ipaddress = ip;
 
-				this.handleActionLog(actionLog, task, null, teamNumber, memberNumber, searchTime, timestamp, res);  // action log without submission
+                if (!task.type.startsWith("AVS")) { //ignore logs for AVS
+                    this.handleActionLog(actionLog, task, null, teamNumber, memberNumber, searchTime, timestamp, res);  // action log without submission
+                }
             });
         });
 
