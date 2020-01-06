@@ -168,11 +168,14 @@ class Routes {
 				if (Number.isInteger(videoNumber) && (Number.isInteger(frameNumber) || Number.isInteger(shotNumber))) {
 					controller.submissionHandler.handleSubmission(teamNumber, memberNumber, videoNumber, frameNumber, shotNumber, null, searchTime, timestamp, res).then((submission) => {
                         if (!disableActionLogs) this.handleActionLog(actionLog, task, submission, teamNumber, memberNumber, searchTime, timestamp);
+                        else res.send("action log ignored");
                     }, () => {
                         if (!disableActionLogs) this.handleActionLog(actionLog, task, null, teamNumber, memberNumber, searchTime, timestamp);   // action log with invalid submission (e.g., because time over)
+                        else res.send("action log ignored");
                     });
 				} else {
                     if (!disableActionLogs) this.handleActionLog(actionLog, task, null, teamNumber, memberNumber, searchTime, timestamp, res);  // action log without submission
+                    else res.send("action log ignored");
                 }
             });
         });
@@ -196,6 +199,8 @@ class Routes {
 
                 if (typeof task !== "undefined" && !task.type.startsWith("AVS")) { //ignore logs for AVS
                     this.handleActionLog(actionLog, task, null, teamNumber, memberNumber, searchTime, timestamp, res);  // action log without submission
+                } else {
+                    res.send("action log ignored");
                 }
             });
         });
