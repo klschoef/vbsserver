@@ -88,7 +88,7 @@ class Routes {
                 var frameNumber = parseInt(query.frame);
                 var shotNumber = parseInt(query.shot);
 
-                controller.submissionHandler.handleSubmission(teamNumber, memberNumber, videoNumber, frameNumber, shotNumber, null, searchTime, timestamp, res).then(()=>{}, ()=>{});
+                controller.submissionHandler.handleSubmission(teamNumber, memberNumber, videoNumber, frameNumber, shotNumber, null, searchTime, timestamp).then(()=>{}, ()=>{});
             });
         });
 
@@ -164,19 +164,24 @@ class Routes {
                 var actionLog = req.body;
                 if (actionLog && typeof actionLog === "object") actionLog.ipaddress = ip;
 
+                var actionLogInfo = "";
+
 				// a submission request does not necessarily have to contain an actual submission, it also can contain a sole actionLog
 				if (Number.isInteger(videoNumber) && (Number.isInteger(frameNumber) || Number.isInteger(shotNumber))) {
-					controller.submissionHandler.handleSubmission(teamNumber, memberNumber, videoNumber, frameNumber, shotNumber, null, searchTime, timestamp, res).then((submission) => {
+					controller.submissionHandler.handleSubmission(teamNumber, memberNumber, videoNumber, frameNumber, shotNumber, null, searchTime, timestamp).then((submission) => {
                         if (!disableActionLogs) this.handleActionLog(actionLog, task, submission, teamNumber, memberNumber, searchTime, timestamp);
-                        else res.send("action log ignored");
+                        else actionLogInfo = "action log ignored";
                     }, () => {
                         if (!disableActionLogs) this.handleActionLog(actionLog, task, null, teamNumber, memberNumber, searchTime, timestamp);   // action log with invalid submission (e.g., because time over)
-                        else res.send("action log ignored");
+                        else actionLogInfo = "action log ignored";
                     });
 				} else {
-                    if (!disableActionLogs) this.handleActionLog(actionLog, task, null, teamNumber, memberNumber, searchTime, timestamp, res);  // action log without submission
-                    else res.send("action log ignored");
+                    if (!disableActionLogs) this.handleActionLog(actionLog, task, null, teamNumber, memberNumber, searchTime, timestamp);  // action log without submission
+                    else actionLogInfo = "action log ignored";
                 }
+
+                res.send(timestamp + " submission received after " + searchTime + " ms " + actionLogInfo);
+
             });
         });
 
@@ -198,7 +203,8 @@ class Routes {
                 if (actionLog && typeof actionLog === "object") actionLog.ipaddress = ip;
 
                 if (typeof task !== "undefined" && !task.type.startsWith("AVS")) { //ignore logs for AVS
-                    this.handleActionLog(actionLog, task, null, teamNumber, memberNumber, searchTime, timestamp, res);  // action log without submission
+                    this.handleActionLog(actionLog, task, null, teamNumber, memberNumber, searchTime, timestamp);  // action log without submission
+                    res.send("action log stored");
                 } else {
                     res.send("action log ignored");
                 }
@@ -214,12 +220,12 @@ class Routes {
                 var teamNumber = parseInt(query.team);
                 var imageId = query.image;
                 
-                controller.submissionHandler.handleSubmission(teamNumber, 0, 0, 0, 0, imageId, searchTime, timestamp, res);
+                controller.submissionHandler.handleSubmission(teamNumber, 0, 0, 0, 0, imageId, searchTime, timestamp);
             });
         });
     }
 
-    handleActionLog(actionLog, task, submission, teamNumber, memberNumber, searchTime, timestamp, res) {
+    handleActionLog(actionLog, task, submission, teamNumber, memberNumber, searchTime, timestamp) {
 
         if (actionLog && typeof actionLog === "object" && Object.keys(actionLog).length > 0) {
 
@@ -247,18 +253,11 @@ class Routes {
 
             controller.db.createActionLogEntry(actionLog, () => {
                 logger.verbose("Action log saved", {team: teamNumber, timestamp: timestamp}); // log entry is saved to database, no need to additionally log all the data...
-                if (res) { // res is only available if the request doesn't contain a submission
-                    res.send("action log received");
-                    logger.info("log flush received", {team: actionLog.teamId});
-                }
+                logger.info("log flush received", {team: actionLog.teamId});
             }, () => {
                 logger.error("Saving action log failed", {actionLog: actionLog});
-                if (res) {
-                    res.send("unexpected error with action log");
-                }
             });
-        } else if (res) { // res is only available if the request doesn't contain a submission
-            res.send("action log is empty or invalid");
+        } else { // res is only available if the request doesn't contain a submission
             logger.error("received action log is empty or invalid");
         }
     }

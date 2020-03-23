@@ -10,7 +10,7 @@ class SubmissionHandlerKIS {
         this.db = submissionHandler.db;
     }
 
-    handleSubmission(submission, task, res) {
+    handleSubmission(submission, task) {
         // check if submission is correct
         this.judge(submission, task);
         logger.info("submission is " + ((submission.correct) ? "correct" : "wrong"), {submissionId: submission._id, teamNumber: submission.teamNumber});
@@ -18,23 +18,21 @@ class SubmissionHandlerKIS {
         // enter critical section
         // otherwise handling of concurrent submissions could interleave and (although rather theoretically) lead to inconsistencies
         //  (due to asynchronous database access)
-        this.submissionHandler.criticalSection(this.updateResults.bind(this, submission, task, res));
+        this.submissionHandler.criticalSection(this.updateResults.bind(this, submission, task));
     }
 
     // due to asynchronous database access, calls to this method could interleave and produce inconsistencies
     // therefore, it is "locked" for parallel execution with async.queue
     // this means, that finished() must be called in any case (otherwise other update calls wait forever)
-    updateResults(submission, task, res, finished) {
+    updateResults(submission, task, finished) {
         this.db.findTaskResultForSubmission(submission, (taskResult) => {
             if (!taskResult) {
                 // should not happen... ???
                 logger.error("missing TaskResult", {taskId: submission.taskId, teamId: submission.teamId});
-                res.send("Internal Error.");
                 finished();
                 // submission remains in db (but with judged=null)
             } else if (taskResult.numCorrect > 0) { // check if team already has finished with a correct submission
                 logger.info("Team already finished running task", {teamNumber: submission.teamNumber});
-                res.send('Team already finished running task.');
                 finished();
                 // submission remains in db (but with judged=null)
             } else {
@@ -57,12 +55,9 @@ class SubmissionHandlerKIS {
                         taskResult.numRanges = 1; // for KIS tasks, only one correct range is available...  
                         taskResult.searchTimes.push(submission.searchTime);
                         taskResult.taskScore = this.computeScore(submission.searchTime, task.maxSearchTime, taskResult.numWrong);
-
-                        res.send('Correct.');
                     } else {
                         taskResult.numWrong++;
                         // taskScore cannot change (simply remains 0, until the first (and only) correct submission)
-                        res.send('Wrong.');
                     }
 
                     // update competitionState (and notify client about new scores)
@@ -83,13 +78,11 @@ class SubmissionHandlerKIS {
                     });
                 }, (err) => {
                     logger.error("Updating submission failed", {taskId: submission.taskId, teamId: submission.teamId, errorMsg: err});
-                    res.send("Internal Error.");
                     finished();
                 });
             }
         }, (err) => {
             logger.error("Error finding TaskResult", {errorMsg: err, taskId: submission.taskId, teamId: submission.teamId});
-            res.send("Internal Error.");
             finished();
         });
     }

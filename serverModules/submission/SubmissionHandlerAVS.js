@@ -88,7 +88,7 @@ class SubmissionHandlerAVS {
         return Object.values(this.correctPool).length;
     }
 
-    handleSubmission(submission, task, res) {
+    handleSubmission(submission, task) {
 
         // update competition info and notify clients about new submission
         // for AVS, we don't want to wait until we got a judgement...
@@ -102,7 +102,7 @@ class SubmissionHandlerAVS {
         // we do not known how long the judgement process will take
         // (potentially several minutes in case of many submissions and few judges)
         // so we cannot keep all the connections open -> send response immediately
-        res.send("Submission is being assessed...");
+        logger.info("Submission is being assessed...");
     }
 
     judgementReceived(task, submission) {

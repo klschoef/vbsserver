@@ -34,12 +34,11 @@ class SubmissionHandler {
     }
 
     // first step of submission handling is the same for all task types
-    handleSubmission(teamNumber, memberNumber, videoNumber, frameNumber, shotNumber, imageId, searchTime, timestamp, res) {
+    handleSubmission(teamNumber, memberNumber, videoNumber, frameNumber, shotNumber, imageId, searchTime, timestamp) {
         return new Promise((resolve, reject) => {
             // first, retrieve the current task
             controller.currentTask((task) => {
                 if (!task) {
-                    res.send("No task running.");
                     reject("No task running.");
                 } else {
                     // try to create submission entity
@@ -58,11 +57,10 @@ class SubmissionHandler {
                         timestamp: timestamp
                       },
                       (submission) => {
-                        this.handleValidSubmission(submission, task, res);
+                        this.handleValidSubmission(submission, task);
                         resolve(submission);
                     }, (errorMsg) => {
                         // creation failed (propably due to validation)
-                        res.send(errorMsg);
                         reject(errorMsg);
                     });
                 }
@@ -71,7 +69,7 @@ class SubmissionHandler {
     }
 
     // content of the submission is basically valid
-    handleValidSubmission(submission, task, res) {
+    handleValidSubmission(submission, task) {
 
         logger.info("New Submission", {teamNumber: submission.teamNumber, videoNumber: submission.videoNumber,
             shotNumber: submission.shotNumber, frameNumber: submission.frameNumber, imageId: submission.imageId,
@@ -85,19 +83,17 @@ class SubmissionHandler {
         this.enrichSubmission(submission, () => {
             // we have to differentiate between task types: AVS allows multiple correct submissions!
             if (task.type.startsWith("KIS")) {
-                this.handlerKIS.handleSubmission(submission, task, res);
+                this.handlerKIS.handleSubmission(submission, task);
             } else if (task.type.startsWith("AVS")) {
-                this.handlerAVS.handleSubmission(submission, task, res);
+                this.handlerAVS.handleSubmission(submission, task);
             } else if (task.type.startsWith("LSC")) {
-                this.handlerLSC.handleSubmission(submission, task, res);
+                this.handlerLSC.handleSubmission(submission, task);
             } else {
                 // should not be possible, because type is already checked in validation
                 this.db.deleteSubmission(submission);
-                res.send("Internal server error.");
             }
         }, (err) => {
             logger.error("enriching submission failed", {submission: submission, errorMsg: err});
-            res.send("Internal server error.");
         });
     }
 
