@@ -37,7 +37,7 @@ class SubmissionHandlerKIS {
                 // submission remains in db (but with judged=null)
             } else {
 
-                logginer.info("Updating score for team", submission);
+                logger.info("Updating score for team", submission);
                 // update competition info and notify clients about new submission
                 //  (must be done after judgement and check if team finished for KIS tasks)
                 controller.competitionState.addSubmission(submission);
