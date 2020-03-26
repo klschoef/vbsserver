@@ -10,7 +10,7 @@ function taskEditor() {
                     var range = task.videoRanges[0];
                     var startTime = range.startFrame / this.videoMap[range.videoNumber].fps;
                     var endTime = range.endFrame / this.videoMap[range.videoNumber].fps;
-                    
+
                     // WARNING:
                     //  video.currentTime and startTime are not of the same type
                     //  (one seems like float and other like double) and therefore
@@ -46,7 +46,7 @@ function taskEditor() {
                 this.resetTasks();
                 resolve();
             } else {
-                this.socket.emit("loadTasks", {competitionId: this.activeCompetitionId}, (response) => {
+                this.socket.emit("loadTasks", { competitionId: this.activeCompetitionId }, (response) => {
                     if (response.success) {
                         console.log("refreshed tasks");
                         this.tasks = this.listToMap(response.data);
@@ -88,7 +88,7 @@ function taskEditor() {
     }
 
     this.refreshActiveTask = () => {
-        this.socket.emit("loadTask", {competitionId: this.activeCompetitionId, _id: this.activeTaskId}, (response) => {
+        this.socket.emit("loadTask", { competitionId: this.activeCompetitionId, _id: this.activeTaskId }, (response) => {
             if (response.success) {
                 var task = response.data;
                 this.tasks[this.activeTaskId] = task;
@@ -152,13 +152,12 @@ function taskEditor() {
                 $("#kisEndFrame").attr("title", this.formatTime(range.endFrame / video.fps));
                 $("#kisVideoName").html(video.filename);
                 $("#kisVideoFps").val(video.fps);
-//                $("#kisDuplicates").val(video.duplicates.join()); // TODO
+                //                $("#kisDuplicates").val(video.duplicates.join()); // TODO
 
                 $("#presentPrerenderedVideo").prop("checked", (task.presentPrerenderedVideo) ? true : false);
 
                 let videoDirectory = config.server.videoDir + "/" + video.filename;
-                if (task.presentPrerenderedVideo && checkIfLinkAccessible(config.server.videoPrerenderedDir + "/" + video.filename))
-                {
+                if (task.presentPrerenderedVideo && checkIfLinkAccessible(config.server.videoPrerenderedDir + "/" + video.filename)) {
                     videoDirectory = config.server.videoPrerenderedDir + "/" + video.filename;
                 }
 
@@ -205,12 +204,12 @@ function taskEditor() {
                         // by default, create a random KIS_Visual task
                         type: "KIS_Visual",
                         videoRanges: [{
-                                videoId: randomVideo._id,
-                                videoNumber: randomVideo.videoNumber,
-                                startFrame: startFrame,
-                                endFrame: endFrame
-                            }], // TODO consider duplicates
-                        textList: [{delay: 0, text: "Enter query text..."}],
+                            videoId: randomVideo._id,
+                            videoNumber: randomVideo.videoNumber,
+                            startFrame: startFrame,
+                            endFrame: endFrame
+                        }], // TODO consider duplicates
+                        textList: [{ delay: 0, text: "Enter query text..." }],
                         trecvidId: "avs_" + this.randomId(10),
                         avsText: "Enter query text",
                         imageList: ["Enter image names...", "image2", "image3", "..."]
@@ -224,7 +223,7 @@ function taskEditor() {
                         // by default, create a random KIS_Visual task
                         type: "LSC_Textual",
                         videoRanges: [],
-                        textList: [{delay: 0, text: "Enter query text..."}],
+                        textList: [{ delay: 0, text: "Enter query text..." }],
                         trecvidId: "avs_" + this.randomId(10),
                         avsText: "Enter query text",
                         imageList: ["Enter image names...", "image2", "image3", "..."]
@@ -342,7 +341,7 @@ function taskEditor() {
                 $("#kisTextualQueryDiv").show();
                 $("#avsQueryDiv").hide();
                 $("#lscQueryDiv").hide();
-                $("#queryVideo")[0].play();  
+                $("#queryVideo")[0].play();
             } else if (task.type.startsWith("AVS")) {
                 $("#kisQueryDiv").hide();
                 $("#kisTextualQueryDiv").hide();
@@ -414,11 +413,11 @@ function taskEditor() {
             var rangeNumFrames = Math.round(config.task.KISDefaultLength * video.fps);
             var startFrame = Math.round(Math.random() * (video.numFrames - rangeNumFrames));
             task.videoRanges = [{
-                    videoId: video._id,
-                    videoNumber: video.videoNumber,
-                    startFrame: startFrame,
-                    endFrame: startFrame + rangeNumFrames - 1
-                }];
+                videoId: video._id,
+                videoNumber: video.videoNumber,
+                startFrame: startFrame,
+                endFrame: startFrame + rangeNumFrames - 1
+            }];
             $("#videoLoop").prop("checked", true);
             this.updateTask(task);
             this.taskTypeSelected();
@@ -436,11 +435,11 @@ function taskEditor() {
                 var rangeNumFrames = Math.round(config.task.KISDefaultLength * randomVideo.fps);
                 var startFrame = Math.round(Math.random() * (randomVideo.numFrames - rangeNumFrames));
                 task.videoRanges = [{
-                        videoId: randomVideo._id,
-                        videoNumber: randomVideo.videoNumber,
-                        startFrame: startFrame,
-                        endFrame: startFrame + rangeNumFrames - 1
-                    }];
+                    videoId: randomVideo._id,
+                    videoNumber: randomVideo.videoNumber,
+                    startFrame: startFrame,
+                    endFrame: startFrame + rangeNumFrames - 1
+                }];
                 $("#videoLoop").prop("checked", true);
                 this.updateTask(task);
                 this.taskTypeSelected();
@@ -536,12 +535,12 @@ function taskEditor() {
     }
 
     this.showImportTasks = () => {
-//        $("#taskImportDiv").fadeIn();
+        //        $("#taskImportDiv").fadeIn();
         $("#taskImportFile").click(); // user does not have to click a second time...
     }
 
     this.hideImportTasks = () => {
-//        $("#taskImportDiv").fadeOut();
+        //        $("#taskImportDiv").fadeOut();
     }
 
     this.importTasks = () => {
@@ -556,89 +555,91 @@ function taskEditor() {
     }
 
     this.importTasksXML = (file) => {
-      var reader = new FileReader();
-      reader.onload = () => {
-          var xml = $.parseXML(reader.result);
-          var topics = $(xml).find("Topic");
-          for (var i = 0; i < topics.length; i++) {
-              var topic = topics[i];
-              var duration = $(topic).attr("duration");
-              var name = $(topic).find("TopicID")[0].textContent;
+        var reader = new FileReader();
+        reader.onload = () => {
+            var xml = $.parseXML(reader.result);
+            var topics = $(xml).find("Topic");
+            for (var i = 0; i < topics.length; i++) {
+                var topic = topics[i];
+                var duration = $(topic).attr("duration");
+                var name = $(topic).find("TopicID")[0].textContent;
 
-              var topicType = $(topic).find("TopicType")[0].textContent.toLowerCase();
-              var taskType;
-              if (topicType.includes("expert")) {
-                  taskType = "LSC_Textual";
-              } else if (topicType.includes("novice")) {
-                  taskType = "LSC_Textual_novice";
-              } else {
-                  toastr.warning("Invalid TopicType '" + topicType + "' (must contain 'expert' or 'novice'");
-                  continue;
-              }
+                var topicType = $(topic).find("TopicType")[0].textContent.toLowerCase();
+                var taskType;
+                if (topicType.includes("expert")) {
+                    taskType = "LSC_Textual";
+                } else if (topicType.includes("novice")) {
+                    taskType = "LSC_Textual_novice";
+                } else {
+                    toastr.warning("Invalid TopicType '" + topicType + "' (must contain 'expert' or 'novice'");
+                    continue;
+                }
 
-              var descriptions = $(topic).find("Description");
-              var textList = [];
-              for (var j = 0; j < descriptions.length; j++) {
-                  var text = descriptions[j].textContent;
-                  var timestamp = parseInt($(descriptions[j]).attr("timestamp"));
-                  textList.push({delay: timestamp, text: text});
-              }
+                var descriptions = $(topic).find("Description");
+                var textList = [];
+                for (var j = 0; j < descriptions.length; j++) {
+                    var text = descriptions[j].textContent;
+                    var timestamp = parseInt($(descriptions[j]).attr("timestamp"));
+                    textList.push({ delay: timestamp, text: text });
+                }
 
-              var imageIds = $(topic).find("ImageID");
-              var imageList = [];
-              for (var j = 0; j < imageIds.length; j++) {
-                  imageList.push(imageIds[j].textContent);
-              }
+                var imageIds = $(topic).find("ImageID");
+                var imageList = [];
+                for (var j = 0; j < imageIds.length; j++) {
+                    imageList.push(imageIds[j].textContent);
+                }
 
-              var newTask = {
-                  competitionId: this.activeCompetitionId,
-                  name: name,
-                  maxSearchTime: duration,
-                  type: taskType,
-                  videoRanges: [],
-                  textList: textList,
-                  trecvidId: "avs_" + this.randomId(10),
-                  avsText: "Enter query text",
-                  imageList: imageList
-              };
-              this.createTask(newTask);
-          }
+                var newTask = {
+                    competitionId: this.activeCompetitionId,
+                    name: name,
+                    maxSearchTime: duration,
+                    type: taskType,
+                    videoRanges: [],
+                    textList: textList,
+                    trecvidId: "avs_" + this.randomId(10),
+                    avsText: "Enter query text",
+                    imageList: imageList
+                };
+                this.createTask(newTask);
+            }
 
-      }
-      reader.readAsText(file);
+        }
+        reader.readAsText(file);
     }
 
     // currently tailored to match deprecated json format from old server
     this.importTasksJSON = (file) => {
-      var reader = new FileReader();
-      reader.onload = () => {
+        var reader = new FileReader();
+        reader.onload = () => {
 
-          var json = JSON.parse(reader.result);
-          if (Array.isArray(json)) {
-              for (let i=0; i<json.length; i++) {
-                var t = json[i];
-                var newTask = {
-                    competitionId: this.activeCompetitionId,
-                    name: t.desc,
-                    maxSearchTime: t.maxSearchTime,
-                    type: t.type,
-                    videoRanges: (t.type.startsWith("KIS")
-                      ? [{videoId: null,
-                        videoNumber: parseInt(t.videoId),
-                        startFrame: t.startframe,
-                        endFrame: t.endframe}]
-                      : []),
-                    textList: (t.type.startsWith("KIS") ? [{delay: 0, text: t.text}] : ""),
-                    trecvidId: t.trecvidId ? t.trecvidId : "avs_" + this.randomId(10),
-                    avsText: (t.type.startsWith("AVS") ? t.text : ""),
-                    imageList: []
-                };
-                console.log(newTask);
-                this.createTask(newTask);
-              }
-          }
-      }
-      reader.readAsText(file);
+            var json = JSON.parse(reader.result);
+            if (Array.isArray(json)) {
+                for (let i = 0; i < json.length; i++) {
+                    var t = json[i];
+                    var newTask = {
+                        competitionId: this.activeCompetitionId,
+                        name: t.desc,
+                        maxSearchTime: t.maxSearchTime,
+                        type: t.type,
+                        videoRanges: (t.type.startsWith("KIS")
+                            ? [{
+                                videoId: null,
+                                videoNumber: parseInt(t.videoId),
+                                startFrame: t.startframe,
+                                endFrame: t.endframe
+                            }]
+                            : []),
+                        textList: (t.type.startsWith("KIS") ? [{ delay: 0, text: t.text }] : ""),
+                        trecvidId: t.trecvidId ? t.trecvidId : "avs_" + this.randomId(10),
+                        avsText: (t.type.startsWith("AVS") ? t.text : ""),
+                        imageList: []
+                    };
+                    console.log(newTask);
+                    this.createTask(newTask);
+                }
+            }
+        }
+        reader.readAsText(file);
     }
 
     this.formatTime = (seconds) => {
@@ -657,8 +658,8 @@ function taskEditor() {
         if (seconds < 10) {
             seconds = '0' + seconds;
         }
-//        return hours + ':' + minutes + ':' + seconds;
-        if (hours != '00') 
+        //        return hours + ':' + minutes + ':' + seconds;
+        if (hours != '00')
             return hours + ':' + minutes + ':' + seconds;
         else
             return minutes + ':' + seconds;

@@ -318,7 +318,7 @@ class QueryGUI {
                                     } 
                                     // Else it's pure Visual task
                                     else {
-                                        var idx = blurDelayList.findIndex((d) => d > this.elapsedTime);
+                                        /*var idx = blurDelayList.findIndex((d) => d > this.elapsedTime);
                                         if (idx < 0) {
                                             idx = blurDelayList.length - 1;
                                         } else {
@@ -332,7 +332,11 @@ class QueryGUI {
                                             idx2--;
                                         }
                                         idx2 = Math.min(idx2, grayPercentList.length - 1); // avoid index out of bounds (in case of bad config)
-                                        this.degradeQueryVideo(blurSizeList[idx], grayPercentList[idx2]);
+                                        */
+
+                                        var percentage = parseInt(parseFloat(this.elapsedTime) / task.maxSearchTime * 100); //simply use blurring according to the remaining time
+
+                                        this.degradeQueryVideo(percentage/10, percentage); //blurSizeList[idx], grayPercentList[idx2]);
                                     }
 
                                 } else {
