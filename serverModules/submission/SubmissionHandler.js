@@ -51,7 +51,9 @@ class SubmissionHandler {
                                 reject("Too many wrong submissions for this task!");
                                 ignoreSubmission = true;
                             }
-                        }, error);
+                        }, (err) => {
+                            reject(err);
+                        });
                     }
 
                     if (!ignoreSubmission) {
