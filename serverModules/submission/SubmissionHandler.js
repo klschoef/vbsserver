@@ -45,8 +45,8 @@ class SubmissionHandler {
                     this.db.findTeam({teamNumber: teamNumber}, (team) => {
                         var query = {competitionId: task.competitionId, taskId: task._id, teamId: team._id};
                             this.db.findTaskResult(query, (taskResult) => {
-                                if (task.type.startsWith("AVS") && taskResult.numWrong >= 60) {
-                                    reject("Too many wrong submissions for this task!");
+                                if (task.type.startsWith("AVS") && taskResult.numAttempts >= 100) {
+                                    reject("The maximum number of submissions is 100!");
                                 } else {
                                     // try to create submission entity
                                     // this automatically triggers validation
