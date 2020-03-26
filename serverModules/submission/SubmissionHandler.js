@@ -48,7 +48,7 @@ class SubmissionHandler {
                         var query = {competitionId: task.competitionId, taskId: task._id, teamId: teamNumber};
                         db.findTaskResult(query, (taskResult) => {
                             if (taskResult.numWrong >= 60) {
-                                logger.info("submission ignored due to too many wrong submissions for this task ", query);
+                                reject("Too many wrong submissions for this task!");
                                 ignoreSubmission = true;
                             }
                         }, error);
