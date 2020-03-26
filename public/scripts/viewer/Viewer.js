@@ -317,7 +317,7 @@ class Viewer {
         var minutes = Math.floor(seconds / 60);
         var seconds = seconds % 60;
 
-        if (hours < 10) {
+        if (hours > 0 && hours < 10) {
             hours = '0' + hours;
         }
         if (minutes < 10) {
@@ -327,7 +327,10 @@ class Viewer {
             seconds = '0' + seconds;
         }
 //        return hours + ':' + minutes + ':' + seconds;
-        return minutes + ':' + seconds;
+        if (hours != '00') 
+            return hours + ':' + minutes + ':' + seconds;
+        else
+            return minutes + ':' + seconds;
     }
 
 }
