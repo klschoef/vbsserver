@@ -45,12 +45,16 @@ class SubmissionHandler {
                     var ignoreSubmission = false;
                     
                     if (task.type.startsWith("AVS")) {
-                        var query = {competitionId: task.competitionId, taskId: task._id, teamId: teamNumber};
-                        this.db.findTaskResult(query, (taskResult) => {
-                            if (taskResult.numWrong >= 60) {
-                                reject("Too many wrong submissions for this task!");
-                                ignoreSubmission = true;
-                            }
+                        this.db.findTeam({teamNumber: teamNumber}, (team) => {
+                            var query = {competitionId: task.competitionId, taskId: task._id, teamId: team._id};
+                                this.db.findTaskResult(query, (taskResult) => {
+                                    if (taskResult.numWrong >= 60) {
+                                        reject("Too many wrong submissions for this task!");
+                                        ignoreSubmission = true;
+                                    }
+                                }, (err) => {
+                                    reject(err);
+                                });
                         }, (err) => {
                             reject(err);
                         });
