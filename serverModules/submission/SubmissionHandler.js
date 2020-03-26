@@ -41,28 +41,43 @@ class SubmissionHandler {
                 if (!task) {
                     reject("No task running.");
                 } else {
-                    // try to create submission entity
-                    // this automatically triggers validation
-                    this.db.createSubmission({
-                        competitionId: task.competitionId,
-                        taskId: task._id,
-                        teamNumber: teamNumber,
-                        memberNumber: memberNumber,
-                        videoNumber: videoNumber,
-                        // for KIS tasks, shot number is ignored (and later calculated from frame number)
-                        shotNumber: (task.type.startsWith("AVS") ? shotNumber : null),
-                        frameNumber: frameNumber,
-                        imageId: imageId, // only relevant for LSC tasks
-                        searchTime: searchTime,
-                        timestamp: timestamp
-                      },
-                      (submission) => {
-                        this.handleValidSubmission(submission, task);
-                        resolve(submission);
-                    }, (errorMsg) => {
-                        // creation failed (propably due to validation)
-                        reject(errorMsg);
-                    });
+
+                    var ignoreSubmission = false;
+                    
+                    if (task.type.startsWith("AVS")) {
+                        var query = {competitionId: task.competitionId, taskId: task._id, teamId: teamNumber};
+                        db.findTaskResult(query, (taskResult) => {
+                            if (taskResult.numWrong >= 60) {
+                                logger.info("submission ignored due to too many wrong submissions for this task ", query);
+                                ignoreSubmission = true;
+                            }
+                        }, error);
+                    }
+
+                    if (!ignoreSubmission) {
+                        // try to create submission entity
+                        // this automatically triggers validation
+                        this.db.createSubmission({
+                            competitionId: task.competitionId,
+                            taskId: task._id,
+                            teamNumber: teamNumber,
+                            memberNumber: memberNumber,
+                            videoNumber: videoNumber,
+                            // for KIS tasks, shot number is ignored (and later calculated from frame number)
+                            shotNumber: (task.type.startsWith("AVS") ? shotNumber : null),
+                            frameNumber: frameNumber,
+                            imageId: imageId, // only relevant for LSC tasks
+                            searchTime: searchTime,
+                            timestamp: timestamp
+                        },
+                        (submission) => {
+                            this.handleValidSubmission(submission, task);
+                            resolve(submission);
+                        }, (errorMsg) => {
+                            // creation failed (propably due to validation)
+                            reject(errorMsg);
+                        });
+                    }
                 }
             });
         });
