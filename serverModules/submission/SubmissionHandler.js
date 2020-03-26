@@ -46,7 +46,7 @@ class SubmissionHandler {
                     
                     if (task.type.startsWith("AVS")) {
                         var query = {competitionId: task.competitionId, taskId: task._id, teamId: teamNumber};
-                        db.findTaskResult(query, (taskResult) => {
+                        this.db.findTaskResult(query, (taskResult) => {
                             if (taskResult.numWrong >= 60) {
                                 reject("Too many wrong submissions for this task!");
                                 ignoreSubmission = true;
