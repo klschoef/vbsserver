@@ -164,23 +164,25 @@ class Routes {
                 var actionLog = req.body;
                 if (actionLog && typeof actionLog === "object") actionLog.ipaddress = ip;
 
-                var actionLogInfo = "";
+                var responseText = ", ";
 
 				// a submission request does not necessarily have to contain an actual submission, it also can contain a sole actionLog
 				if (Number.isInteger(videoNumber) && (Number.isInteger(frameNumber) || Number.isInteger(shotNumber))) {
 					controller.submissionHandler.handleSubmission(teamNumber, memberNumber, videoNumber, frameNumber, shotNumber, null, searchTime, timestamp).then((submission) => {
                         if (!disableActionLogs) this.handleActionLog(actionLog, task, submission, teamNumber, memberNumber, searchTime, timestamp);
-                        else actionLogInfo = "action log ignored";
-                    }, () => {
+                        else responseText = "action log ignored";
+                    }, (error) => {
+                        responseText = error;
                         if (!disableActionLogs) this.handleActionLog(actionLog, task, null, teamNumber, memberNumber, searchTime, timestamp);   // action log with invalid submission (e.g., because time over)
-                        else actionLogInfo = "action log ignored";
+                        else responseText = responseText + ", action log ignored";
                     });
 				} else {
+                    responseText = "wrong video or frame";
                     if (!disableActionLogs) this.handleActionLog(actionLog, task, null, teamNumber, memberNumber, searchTime, timestamp);  // action log without submission
-                    else actionLogInfo = "action log ignored";
+                    else responseText = responseText + "action log ignored";
                 }
 
-                res.send(timestamp + " submission received after " + searchTime + " ms " + actionLogInfo);
+                res.send(timestamp + " submission received after " + searchTime + " ms, " + responseText);
 
             });
         });
